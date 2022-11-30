@@ -34,6 +34,13 @@ def create_app(test_config=None):
         return "<h1>Health check!</h1>"
         #what else could I have RUN here that exposes some good stuff??
 
+    from . import f_db
+    f_db.init_app(app)
+    
+    from . import crud_bp
+    app.register_blueprint(crud_bp.bp)
+    app.add_url_rule('/', endpoint='index')
+
     return app
 
 if __name__ == "__main__":

@@ -31,6 +31,8 @@ export default function BoutLogForm() {
     }
     )
 
+    const position = ["Regressive (short)", "Mid-range", "Progressive (long)"]
+
     return(
         <div className="form">
         <h1>
@@ -67,6 +69,21 @@ export default function BoutLogForm() {
                     data={inpCycs}
                     searchable={false}
                     style={{ width: 224 }}
+                    />
+            </Form.Group>
+            <Form.Group controlId='position'>
+                <Form.ControlLabel>Position of Tissue:</Form.ControlLabel>
+                <Slider
+                    defaultValue={1}
+                    min={0}
+                    step={1}
+                    max={2}
+                    graduated
+                    progress
+                    renderMark={mark => {
+                    return position[mark];
+                    }}
+                    style={{ width: 250 }}
                     />
             </Form.Group>
             <Form.Group controlId='duration'>
