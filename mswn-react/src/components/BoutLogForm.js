@@ -2,6 +2,9 @@ import React from "react";
 import { ButtonToolbar, Button, InputNumber, Slider, Cascader, SelectPicker, Form, DatePicker } from 'rsuite'
 
 export default function BoutLogForm() {
+    
+    /* these constants (below) should become values pulled from a database eventually, according to RKB */
+
     const inpCycs = ["IC 1", "IC 2", "IC 3", "IC 4","IC 5","IC 6","IC 7"]
         .map(item => ({ label: item, value: item }))
   
@@ -81,11 +84,27 @@ export default function BoutLogForm() {
                     graduated
                     progress
                     renderMark={mark => {
-                    return position[mark];
-                    }}
+                        return position[mark];
+                        }}
                     style={{ width: 250 }}
                     />
             </Form.Group>
+            <br />
+            <Form.Group controlId='rotation'>
+                <Form.ControlLabel>Rotation of Joint (IR is - , ER is +):</Form.ControlLabel>
+                <Slider
+                    defaultValue={0}
+                    min={-105}
+                    step={5}
+                    max={105}
+                    graduated
+                    progress
+                    renderMark={mark => {if (mark%15 === 0) {return mark} 
+                        else {return null}}}
+                    style={{ width: 500 }}
+                    />
+            </Form.Group>
+            <br />
             <Form.Group controlId='duration'>
                 <Form.ControlLabel>Duration of contraction:</Form.ControlLabel>
                 <InputNumber 
@@ -103,8 +122,8 @@ export default function BoutLogForm() {
                     graduated
                     progress
                     renderMark={mark => {
-                    return mark;
-                    }}
+                        return mark;
+                        }}
                     style={{ width: 500 }}
                     />
             </Form.Group>

@@ -1,0 +1,12 @@
+[
+    {
+        "date": "2022-12-02",
+        "moverid": 1,
+        "tissue_id": ***,
+        "rotational_bias": -40,
+        "position": 50,
+        "duration": 30,
+        "rpe": 8,
+        "comments": "Tester input!"
+    }
+]

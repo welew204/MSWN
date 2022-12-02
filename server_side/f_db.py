@@ -1,7 +1,10 @@
+from datetime import datetime
 import sqlite3
 
 import click
 from flask import current_app, g
+
+from server_side.db_ref_vals import add_ref_vals
 
 """creating connection to DB (even if it doesn't exist yet
 
@@ -34,6 +37,8 @@ def init_db():
 
     with current_app.open_resource('mswnschema.sql') as f:
         db.executescript(f.read().decode('utf8'))
+
+    add_ref_vals(db=db)
 
 @click.command('init-db')
 def init_db_command():
