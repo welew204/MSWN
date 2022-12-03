@@ -132,13 +132,44 @@ def add_ref_vals(db):
     curs.executemany(f'INSERT INTO joint_reference (date_updated, joint_name, side, joint_type, ref_pcapsule_ir_rom, ref_pcapsule_er_rom, ref_acapsule_ir_rom, ref_acapsule_er_rom) VALUES ({",".join(qmarks)})', 
         joints_to_add)
     db.commit()
-    # generate zones programatically into sql-ready format
+    print("added the JOINT reference values!")
     
-
-
-
+def add_zone_ref_values(db):
+    # select ref_joints from db (to get joint_id, side)
+    curs = db.cursor()
+    joints = curs.execute('SELECT * FROM joint_reference').fetchall()
+    # `joints` is a list
+    zones_to_add = []
+    date = datetime.now().strftime("%Y-%m-%d")
+    for joint in joints:
+        joint_ref_id, date_updated, joint_name, side, joint_type, ref_pcapsule_ir_rom, ref_pcapsule_er_rom, ref_acapsule_ir_rom, ref_acapsule_er_rom = joint
+        zone_ref_vals = [date, joint_ref_id, joint_name, side, ""]
+        qmarks = ["?" for i in range(5)]
+    # generate zones programatically into sql-ready format
+    # --spine joints should generate 4 (flex, ext, r_rotate, l_rotate); this can map with the positionality); 
+    # --HOWEVER zones with spine as joint-type should NOT be triplicated in tissue_status table
+    # ---scapula should generate 4 (pro, re, elev, dep), 
+    # -all other joints get 8
+        if joint_type == "spinal":
+            for z in ["flexion", "extension", "r_rotation", "l_rotation"]:
+                spinal_joint_zone_ref_vals = zone_ref_vals.copy()
+                spinal_joint_zone_ref_vals[4] = z
+                zones_to_add.append(spinal_joint_zone_ref_vals)
+        elif joint_type == "sesamoid":
+            for z in ["retraction", "protraction", "elevation", "depression"]:
+                sesamoid_joint_zone_ref_vals = zone_ref_vals.copy()
+                sesamoid_joint_zone_ref_vals[4] = z
+                zones_to_add.append(sesamoid_joint_zone_ref_vals)
+        else:
+            for z in ["flexion", "flex-abd", "abduction", "extend-abd", "extension", "extend-add", "adduction", "flex-add"]:
+                synovial_joint_zone_ref_vals = zone_ref_vals.copy()
+                synovial_joint_zone_ref_vals[4] = z
+                zones_to_add.append(synovial_joint_zone_ref_vals)
     # executemany to "zone_reference", commit to db
-    print("added the reference values!")
+    curs.executemany(f'INSERT INTO zones_reference (date_updated, joint_id, joint_name, side, zname) VALUES ({",".join(qmarks)})', 
+        zones_to_add)
+    db.commit()
+    print("added the ZONE reference values!")
 
 def add_new_user():
     # create db cnx

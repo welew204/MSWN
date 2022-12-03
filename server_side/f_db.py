@@ -4,7 +4,7 @@ import sqlite3
 import click
 from flask import current_app, g
 
-from server_side.db_ref_vals import add_ref_vals
+from server_side.db_ref_vals import add_ref_vals, add_zone_ref_values
 
 """creating connection to DB (even if it doesn't exist yet
 
@@ -39,6 +39,7 @@ def init_db():
         db.executescript(f.read().decode('utf8'))
 
     add_ref_vals(db=db)
+    add_zone_ref_values(db=db)
 
 @click.command('init-db')
 def init_db_command():

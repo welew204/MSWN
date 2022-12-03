@@ -64,13 +64,15 @@ CREATE TABLE zones_reference (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     date_updated TEXT NOT NULL,
     joint_id INTEGER NOT NULL,
-    zname TEXT NOT NULL,
+    joint_name INTEGER NOT NULL,
     side TEXT NOT NULL,
+    zname TEXT NOT NULL,
     reference_progressive_p_rom REAL,
     reference_progressive_a_rom REAL,
     reference_regressive_p_rom REAL,
     reference_regressive_a_rom REAL,
     FOREIGN KEY (joint_id) REFERENCES joints (id),
+    FOREIGN KEY (joint_name) REFERENCES joints (joint_name),
     FOREIGN KEY (side) REFERENCES joints (side)
 );
 
