@@ -171,12 +171,5 @@ def add_zone_ref_values(db):
     db.commit()
     print("added the ZONE reference values!")
 
-def add_new_user():
-    # create db cnx
-    # SELECT vals from ref tables
-    # add neccessary unique user values, then bundle up into sql-ready
-    # execute, commit to db
-    pass
-
 if __name__=="__main__":
     add_ref_vals()

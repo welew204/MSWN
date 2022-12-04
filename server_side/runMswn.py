@@ -36,6 +36,9 @@ def create_app(test_config=None):
 
     from . import f_db
     f_db.init_app(app)
+
+    from . import add_mover
+    add_mover.add_user_to_app(app)
     
     from . import crud_bp
     app.register_blueprint(crud_bp.bp)
