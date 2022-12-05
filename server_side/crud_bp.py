@@ -10,14 +10,42 @@ from server_side.f_db import get_db
 bp = Blueprint('tissues', __name__)
 
 @bp.route('/')
-def index():
+def index(mover_id):
     #print(f"Got this far (to {index})", file=sys.stderr)
     db=get_db()
     bouts = db.execute(
-        'SELECT * FROM boutLog'
+        'SELECT * FROM bout_log'
     ).fetchall()
 
-    return jsonify({"bouts": bouts}), 201
+    return 'Done', 201
+
+@bp.route('/ttstatus/<int:mover_id>')
+def ttstatus(mover_id):
+    #print(f"Got this far (to {index})", file=sys.stderr)
+    db=get_db()
+    tissue_status = []
+    # BELOW returns a list of sqlite3.Row objects (with index, and keys), but is NOT a real dict
+    tissue_status_rows = db.execute(
+        'SELECT * FROM tissue_status WHERE moverid = (?)', (mover_id,)
+    ).fetchall()
+    # this converts all rows returned into dictiornary, that is added to the tissue_status list
+    for row in tissue_status_rows:
+        tissue_status.append({k: row[k] for k in row.keys()})
+    return jsonify({"tissue_status": tissue_status}), 201
+
+@bp.route('/bout_log/<int:mover_id>')
+def bout_log(mover_id):
+    #print(f"Got this far (to {index})", file=sys.stderr)
+    db=get_db()
+    bout_log = []
+    # BELOW returns a list of sqlite3.Row objects (with index, and keys), but is NOT a real dict
+    bout_log_rows = db.execute(
+        'SELECT * FROM bout_log WHERE moverid = (?)', (mover_id,)
+    ).fetchall()
+    # this converts all rows returned into dictiornary, that is added to the tissue_status list
+    for row in bout_log_rows:
+        bout_log.append({k: row[k] for k in row.keys()})
+    return jsonify({"bout_log": bout_log}), 201
 
 @bp.route('/add_bouts', methods=('POST',))
 def add_bouts():

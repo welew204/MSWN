@@ -138,10 +138,10 @@ CREATE TABLE tissue_status (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     moverid INTEGER NOT NULL,
     side TEXT NOT NULL,
+    zone_id INTEGER NOT NULL,
     tissue_layer TEXT NOT NULL,
-    tissue_id INTEGER NOT NULL,
     tissue_layer_training_status BLOB,
-    FOREIGN KEY (tissue_id) REFERENCES zones (id),
+    FOREIGN KEY (zone_id) REFERENCES zones (id),
     FOREIGN KEY (side) REFERENCES zones (side),
     FOREIGN KEY (moverid) REFERENCES users (id)
 );

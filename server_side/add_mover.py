@@ -13,7 +13,6 @@ def add_new_mover(db, first_name, last_name):
     db.commit()
     mover_id_Row = curs.execute('SELECT id FROM movers WHERE first_name = (?) AND last_name = (?)', (first_name, last_name)).fetchone()
     mover_id = mover_id_Row["id"]
-    print(mover_id)
     # SELECT vals from ref tables
     joint_template = curs.execute('SELECT * FROM joint_reference').fetchall()
     zones_template = curs.execute('SELECT * FROM zones_reference').fetchall()
@@ -32,15 +31,33 @@ def add_new_mover(db, first_name, last_name):
     zones_to_add = []
     for zone in zones_template:
         zone_ref_id, date, joint_ref_id, joint_name, side, zname, reference_progressive_p_rom, reference_progressive_a_rom, reference_regressive_p_rom, reference_regressive_a_rom = zone
-        to_write = [mover_id, joint_ref_id, zone_ref_id, side, zname, ref_pcapsule_ir_rom, ref_pcapsule_er_rom, ref_acapsule_ir_rom, ref_acapsule_er_rom]
+        to_write = [mover_id, joint_ref_id, zone_ref_id, side, zname, reference_progressive_p_rom, reference_progressive_a_rom, reference_regressive_p_rom, reference_regressive_a_rom]
         zones_to_add.append(to_write)
     curs.executemany('''INSERT INTO zones 
                     (moverid, joint_id, zone_reference_id, 
                     side, zname, progressive_p_rom, progressive_a_rom, 
-                    regressive_p_rom, regressive_a_rom) VALUES (?,?,?,?,?,?,?,?, ?)''',
+                    regressive_p_rom, regressive_a_rom) VALUES (?,?,?,?,?,?,?,?,?)''',
                     zones_to_add)
     db.commit()
-    print(f'New mover added! Name: {first_name}, {last_name}\nJoints added: {len(joints_to_add)}\nZones added: {len(zones_to_add)}')
+    layers_to_add = []
+    for zone in zones_template:
+        zone_ref_id, date, joint_ref_id, joint_name, side, zname, reference_progressive_p_rom, reference_progressive_a_rom, reference_regressive_p_rom, reference_regressive_a_rom = zone
+        zone_id_Row = curs.execute('SELECT id FROM zones WHERE moverid = (?) AND zname = (?)', (mover_id, zname)).fetchone()
+        zone_id = zone_id_Row["id"]
+        if joint_name == "scapula" or side == "mid":
+            tissue_layer = "inter"
+            to_write = [mover_id, side, zone_id, tissue_layer]
+            layers_to_add.append(to_write)
+        else:
+            for layer in ["deep", "inter", "superficial"]:
+                tissue_layer = layer
+                to_write = [mover_id, side, zone_id, tissue_layer]    
+                layers_to_add.append(to_write)
+    curs.executemany('''INSERT INTO tissue_status 
+                    (moverid, side, zone_id, tissue_layer) VALUES (?,?,?,?)''',
+                    layers_to_add)
+    db.commit()
+    print(f'New mover added! Name: {first_name} {last_name}\nJoints added: {len(joints_to_add)}\nZones added: {len(zones_to_add)}\nLayer added: {len(layers_to_add)}')
 
     # execute, commit to db
 
