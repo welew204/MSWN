@@ -31,7 +31,7 @@ def ttstatus(mover_id):
     # this converts all rows returned into dictiornary, that is added to the tissue_status list
     for row in tissue_status_rows:
         tissue_status.append({k: row[k] for k in row.keys()})
-    return jsonify({"tissue_status": tissue_status}), 201
+    return jsonify({"tissue_status": tissue_status}), 200
 
 @bp.route('/bout_log/<int:mover_id>')
 def bout_log(mover_id):
@@ -45,10 +45,10 @@ def bout_log(mover_id):
     # this converts all rows returned into dictiornary, that is added to the tissue_status list
     for row in bout_log_rows:
         bout_log.append({k: row[k] for k in row.keys()})
-    return jsonify({"bout_log": bout_log}), 201
+    return jsonify({"bout_log": bout_log}), 200
 
-@bp.route('/add_bouts', methods=('POST',))
-def add_bouts():
+@bp.route('/add_bouts/<int:moverid>', methods=('POST',))
+def add_bouts(moverid):
     req = request.get_json()
 
     db=get_db()
@@ -56,24 +56,34 @@ def add_bouts():
     bouts_to_input = []
 
     for b in req:
+        print(b)
         bundle = []
         field_names = []
         qmarks = []
         for key in list(b.keys()):
             # exec() function runs a string as python, so I can use an f-string to dynamically create vraible from a stirng
             exec(f"{key}_field = b[key]")
-            # then, I add the field_name (string) to an array
-            field_names.append(f"{key}_field")
+            exec(f"print({key}_field)")
+            # then, I add the field_name (string) to an array -- THIS MUST MATCH THE DB!
+            field_names.append(f"{key}")
             # then, I add the value of that variable to the bundle
-            bundle.append(exec(f"{key}_field"))
+            exec(f"bundle.append({key}_field)")
             # and finally a question mark for each field
             qmarks += '?'
         # once I've gone through ALL keys included in the request bout, I will have a tuple that has...
+        bundle.insert(1,moverid)
+        field_names.insert(1,"moverid")
+        qmarks.insert(1,"?")
         bouts_to_input.append([field_names, qmarks, bundle])
+        
     
     for bout in bouts_to_input:
-        curs.execute(f'INPUT INTO bout_log ({tuple(bout[0])}) VALUES ({tuple(bout[1])})', (bout[2]))
+        field_names = ",".join(bout[0])
+        qmarks = ",".join(bout[1])
+        curs.execute(f'INSERT INTO bout_log ({field_names}) VALUES ({qmarks})', (bout[2]))
         db.commit()
+
+    return f"{len(bouts_to_input)} bout(s) logged!", 201
     
 
 

@@ -1,12 +1,24 @@
 [
     {
         "date": "2022-12-02",
-        "moverid": 1,
-        "tissue_id": ***,
+        "tissue_id": 7,
+        "joint_id": 1,
         "rotational_bias": -40,
         "position": 50,
         "duration": 30,
+        "passive_duration": 30,
         "rpe": 8,
-        "comments": "Tester input!"
+        "external_load": 10,
+        "comments": "Tester input 1!"
+    },
+    {
+        "date": "2022-12-03",
+        "tissue_id": 11,
+        "joint_id": 2,
+        "rotational_bias": -40,
+        "position": 90,
+        "duration": 10,
+        "rpe": 4,
+        "comments": "Tester input 2!"
     }
 ]
