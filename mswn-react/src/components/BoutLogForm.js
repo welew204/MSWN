@@ -1,39 +1,38 @@
 import React from "react";
-import { ButtonToolbar, Button, InputNumber, Slider, Cascader, SelectPicker, Form, DatePicker } from 'rsuite'
+import { 
+    ButtonToolbar, 
+    Button, 
+    InputNumber, 
+    Slider, 
+    Cascader, 
+    SelectPicker, 
+    Form, 
+    DatePicker } from 'rsuite'
+import { useQuery, useMutation } from "@tanstack/react-query";
+
+const server_url = "http://127.0.0.1:8000"
 
 export default function BoutLogForm() {
-    
-    /* these constants (below) should become values pulled from a database eventually, according to RKB */
-
     const inpCycs = ["IC 1", "IC 2", "IC 3", "IC 4","IC 5","IC 6","IC 7"]
-        .map(item => ({ label: item, value: item }))
-  
-    const zones = ["capsule", "flexion", "flex-abd", "abduction", "ext-abd", "extension", "ext-add", "adduction", "flex-add"]
-        .map(item => ({ label: item, value: item }))
-
-    const joints = ["hip", "knee", "ankle", "GH", "elbow","wrist","spine"]
-        .map(function(item) {if (item === "spine") {
-            return ({ label: item, value: item, children: [
-                {label: "cervical", value: "cervical", children: [
-                    {label: "flexion", value: "flexion"},
-                    {label: "extension", value: "extension"},
-                    {label: "rotation", value: "rotation"}
-                ] },
-                {label: "thoracic", value: "thoracic", children: [
-                    {label: "flexion", value: "flexion"},
-                    {label: "extension", value: "extension"},
-                    {label: "rotation", value: "rotation"}
-                ] },
-                {label: "lumbar", value: "lumbar", children: [
-                    {label: "flexion", value: "flexion"},
-                    {label: "extension", value: "extension"},
-                    {label: "rotation", value: "rotation"}
-                ] },
-                ] })
-        } else {return({label: item, value: item, children: zones})}
+    .map(item => ({ label: item, value: item }))
+    
+    function fetchAPI(url) {
+        return fetch(url)
+            .then((res) => {return res.json()})
     }
-    )
 
+
+    const jointRefData = useQuery(["joints_ref"], () => fetchAPI(server_url+"/joint_ref"))
+    if (jointRefData.isLoading) {return <p>Ish is loading!</p>}
+    
+    const joint_list = Object.keys(jointRefData.data)
+    const jointsArray = joint_list
+        .map((joint) => { return( 
+            {label: joint, 
+            value: joint, 
+            children: jointRefData.data[joint]
+                .map(zone => {return ({label: zone, value: zone})})})})
+    
     const position = ["Regressive (short)", "Mid-range", "Progressive (long)"]
 
     return(
@@ -62,7 +61,7 @@ export default function BoutLogForm() {
             <Form.Group controlId='joint'>
                 <Form.ControlLabel>Joint / Zone trained:</Form.ControlLabel>
                 <Cascader
-                    data={joints}
+                    data={jointsArray}
                     style={{ width: 224 }}
                     />
             </Form.Group>

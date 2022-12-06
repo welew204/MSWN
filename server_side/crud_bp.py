@@ -1,3 +1,4 @@
+from collections import defaultdict
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, jsonify
 )
@@ -18,6 +19,38 @@ def index(mover_id):
     ).fetchall()
 
     return 'Done', 201
+
+@bp.route('/joint_ref')
+def joint_ref():
+    #print(f"Got this far (to {index})", file=sys.stderr)
+    db=get_db()
+    joint_ref = defaultdict(list)
+    joint_ref_final = defaultdict(list)
+
+    # BELOW returns a list of sqlite3.Row objects (with index, and keys), but is NOT a real dict
+    zone_ref_rows = db.execute('SELECT zones_reference.id, zones_reference.joint_name, zones_reference.side, zones_reference.zname, joint_reference.joint_type FROM zones_reference INNER JOIN joint_reference ON zones_reference.joint_id=joint_reference.id').fetchall()
+    for row in zone_ref_rows:
+        zone = {k: row[k] for k in row.keys()}
+        # only want one side and spine for reference
+        if row["side"] == "R" or row["side"] == "mid":
+            joint_ref[row["joint_name"]].append(zone)
+    # making nested object to send to react:
+    for joint in joint_ref.keys():
+        for zone in joint_ref[joint]:
+            if zone["joint_type"] != "spinal":
+                joint_ref_final[joint].append(zone['zname'])
+            else:
+                if joint[0] == "c":
+                    if zone['zname'] not in joint_ref_final["c_spine"]:
+                        joint_ref_final["c_spine"].append(zone['zname'])
+                elif joint[0] == "t":
+                    if zone['zname'] not in joint_ref_final["t_spine"]:
+                        joint_ref_final["t_spine"].append(zone['zname'])
+                elif joint[0] == "l":
+                    if zone['zname'] not in joint_ref_final["l_spine"]:
+                        joint_ref_final["l_spine"].append(zone['zname'])
+            
+    return jsonify(joint_ref_final), 200
 
 @bp.route('/ttstatus/<int:mover_id>')
 def ttstatus(mover_id):
