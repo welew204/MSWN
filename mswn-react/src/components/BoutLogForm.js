@@ -7,7 +7,8 @@ import {
     Cascader, 
     SelectPicker, 
     Form, 
-    DatePicker } from 'rsuite'
+    DatePicker,
+    Timeline } from 'rsuite'
 import { useQuery, useMutation } from "@tanstack/react-query";
 
 const server_url = "http://127.0.0.1:8000"
@@ -21,8 +22,10 @@ export default function BoutLogForm() {
             .then((res) => {return res.json()})
     }
 
-
+    const boutLogData = useQuery(["boutLog"], () => fetchAPI(server_url+"/bout_log/1"))
     const jointRefData = useQuery(["joints_ref"], () => fetchAPI(server_url+"/joint_ref"))
+    
+    if (boutLogData.isLoading) {return <p>Getting your bout data...</p>}
     if (jointRefData.isLoading) {return <p>Ish is loading!</p>}
     
     const joint_list = Object.keys(jointRefData.data)
@@ -34,6 +37,14 @@ export default function BoutLogForm() {
                 .map(zone => {return ({label: zone, value: zone})})})})
     
     const position = ["Regressive (short)", "Mid-range", "Progressive (long)"]
+
+    const bout_array = boutLogData.data["bout_log"]
+    const bouts = bout_array
+                .map((bout, i) => {return(
+                    <Timeline.Item key={`bout_${bout_array[i].id}`}time={bout_array[i].date}>
+                        {bout_array[i].comments}, RPE: {bout_array[i].rpe}, External Load: {bout_array[i].external_load}
+                    </Timeline.Item>
+                )})
 
     return(
         <div className="form">
@@ -141,6 +152,11 @@ export default function BoutLogForm() {
                 </ButtonToolbar>
             </Form.Group>
         </Form>
+        <div>
+            <Timeline endless>
+                {bouts}
+            </Timeline>
+        </div>
         </div>
     )
 }

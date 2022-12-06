@@ -1,4 +1,5 @@
 from collections import defaultdict
+from operator import itemgetter
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, jsonify
 )
@@ -78,7 +79,9 @@ def bout_log(mover_id):
     # this converts all rows returned into dictiornary, that is added to the tissue_status list
     for row in bout_log_rows:
         bout_log.append({k: row[k] for k in row.keys()})
-    return jsonify({"bout_log": bout_log}), 200
+    # sort on way to react into DESCENDING order from most recent (by ['date'])
+    bout_log_final = sorted(bout_log, key=itemgetter('date'), reverse=True)
+    return jsonify({"bout_log": bout_log_final}), 200
 
 @bp.route('/add_bouts/<int:moverid>', methods=('POST',))
 def add_bouts(moverid):
