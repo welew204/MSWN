@@ -2,14 +2,14 @@ import os
 
 from flask import Flask
 
-#from flask_cors import CORS
+from flask_cors import CORS
 
 
 def create_app(test_config=None):
     # create and config the app
     app = Flask(__name__, instance_relative_config=True)
     
-    #CORS(app, origins='*')
+    CORS(app, origins='*')
     app.config.from_mapping(
         #this should be overidden w/ random value when deploying for security
         SECRET_KEY='dev',
