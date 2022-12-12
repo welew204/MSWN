@@ -1,5 +1,8 @@
+from collections import defaultdict
+import sqlite3
 from flask import g, current_app
 from datetime import datetime
+import copy
 
 
 def_values = {
@@ -57,6 +60,13 @@ def_values = {
         "acapsule_ir_rom": 0,
         "acapsule_er_rom": 0
     },
+    ## need to update for following joints:
+    # - AO
+    # - TC
+    # - LT
+    # - SI
+    # - illiac
+    # - scapular-thoracic
     #each spine section corresponds to the ROTATION of the bony body
     "spine": {
         "c1": {"flexion": 7.5,"extension": 7.5},
@@ -87,49 +97,131 @@ def_values = {
         }
     }
 
-def add_ref_vals(db):
+bones = {
+    "cranium": {"bone_ends": [0], "joints": ["AO"]},
+    "cervical": {"bone_ends": [0,1], "joints": ["AO", "TC"]},
+    "thoracic": {"bone_ends": [0,1,2,3], "joints": ["TC", "LT", "R scapular-thoracic", "L scapular-thoracic"]},
+    "scapula": {"bone_ends": [0,1], "joints": ["scapular-thoracic", "GH"]},
+    "humerus": {"bone_ends": [0,1], "joints": ["GH", "elbow"]},
+    "ul_rad": {"bone_ends": [0,1], "joints": ["elbow", "wrist"]},
+    "hand": {"bone_ends": [0], "joints": ["wrist"]},
+    "lumbar": {"bone_ends": [0,1], "joints": ["LT", "SI"]},
+    "pelvis": {"bone_ends": [0,1,2], "joints": ["SI", "iliac", "hip"]},
+    "femur": {"bone_ends": [0,1], "joints": ["hip", "knee"]},
+    "fib_tib": {"bone_ends": [0,1], "joints": ["knee", "ankle"]},
+    "foot": {"bone_ends": [0,1,2], "joints": ["ankle", "toes", "hallux"]},
+    "toes": {"bone_ends": [0], "joints": ["toes"]},
+    "big_toe": {"bone_ends": [0], "joints": ["hallux"]}
+}
+
+def build_ref_bone_end_vals(db):
+    curs = db.cursor()
+    bone_ends_to_add = []
+    qmarks = ["?" for i in range(3)]
+    for bone in bones.keys():
+        if bone not in ["cervical", "thoracic", "lumbar", "cranium"]:
+            for end in bones[bone]["bone_ends"]:
+                bone_end_field_vals_r = [bone, end, "R"]
+                bone_end_field_vals_l = [bone, end, "L"]
+                bone_ends_to_add.append(bone_end_field_vals_r)
+                bone_ends_to_add.append(bone_end_field_vals_l)
+        else:
+            for end in bones[bone]["bone_ends"]:
+                bone_end_field_vals = [bone, end, "mid"]
+                bone_ends_to_add.append(bone_end_field_vals)
+
+    curs.executemany(f'INSERT INTO ref_bone_end (bone_name, end, side) VALUES ({",".join(qmarks)})', 
+        bone_ends_to_add)
+    db.commit()
+    print("added the BONE END reference values!")
+    # builds in bone_ends (1-2+ per "bone")
+
+
+def build_joint_ref_vals(db):
+    # add ref_joints (ref vals), ref_zones, bone_anchor (*8 per)
     # create db cnx from PASSED in db
     curs = db.cursor()
-    # unpack def_vals into sql-ready bundles (field_name, qmarks, field_vals)
-    date = datetime.now().strftime("%Y-%m-%d")
-    joints_to_add = []
-    field_names = "date_updated, joint_name, side, joint_type, ref_pcapsule_ir_rom, ref_pcapsule_er_rom, ref_acapsule_ir_rom, ref_acapsule_er_rom"
-    qmarks = ["?" for i in range(8)]
-    for joint in def_values.keys():
-        if joint == "spine":
-            for vertabrae in def_values[joint].keys():
-                spine_field_vals = [
-                    date, 
-                    vertabrae, 
-                    "mid", 
-                    "spinal", 
-                    def_values[joint][vertabrae]["flexion"],
-                    def_values[joint][vertabrae]["extension"],
-                    def_values[joint][vertabrae]["flexion"]*.85,
-                    def_values[joint][vertabrae]["extension"]*.85
-                ]
-                joints_to_add.append(spine_field_vals)
+    bone_ends = curs.execute('SELECT * FROM ref_bone_end').fetchall()
+    ## below updates the ref_bone_dict with actual be_ids and adds each side
+    bone_joint_table = copy.deepcopy(bones)
+    bone_list = list(bone_joint_table.keys())
+    for bone in bone_list:
+        number_of_ids = len(bone_joint_table[bone]["bone_ends"])
+        bone_joint_table[bone]["be_ids"] = [None for i in range(number_of_ids)]
+        if bone not in ["cervical", "thoracic", "lumbar", "cranium"]:
+            bone_r_side = copy.deepcopy(bone_joint_table[bone])
+            bone_r_side["side"] = "R"
+            bone_l_side = copy.deepcopy(bone_joint_table[bone])
+            bone_l_side["side"] = "L"
+            bone_joint_table.pop(bone)
+            bone_joint_table[f"R {bone}"] = bone_r_side
+            bone_joint_table[f"L {bone}"] = bone_l_side
         else:
-            r_field_vals = [
-                date,
-                joint,
-                "R",
-                "synovial",
-                def_values[joint]["pcapsule_ir_rom"],
-                def_values[joint]["pcapsule_er_rom"],
-                def_values[joint]["acapsule_ir_rom"],
-                def_values[joint]["acapsule_er_rom"]
-            ]
-            l_field_vals = r_field_vals.copy()
-            l_field_vals[2] = "L"
-            if joint == "scapula":
-                r_field_vals[3] = "sesamoid"
-                l_field_vals[3] = "sesamoid"
-            joints_to_add.append(r_field_vals)
-            joints_to_add.append(l_field_vals)
+            bone_joint_table[bone]["side"] = "mid"
+    for be in bone_ends:
+        # unpack be for id!
+        be_id, be_bone_name, end, side = be
+        if be_bone_name not in ["cervical", "thoracic", "lumbar", "cranium"]:
+            bone_joint_table[f"{side} {be_bone_name}"]["be_ids"][end] = be_id
+        else:
+            bone_joint_table[be_bone_name]["be_ids"][end] = be_id
 
+    joint_dict = defaultdict(list)
+    # ^ this should result in a single-item/joint dictionary that gives a 2_id list for each that can be used as primary keys! 
+    for bone in bone_joint_table.keys():
+        side = bone_joint_table[bone]["side"]
+        for i, joint in enumerate(bone_joint_table[bone]["joints"]):
+            if side != "mid":
+                joint_dict[f"{side} {joint}"].append(bone_joint_table[bone]["be_ids"][i])
+                #joint_dict[f"{side} {joint}"] = side
+            else:
+                joint_dict[joint].append(bone_joint_table[bone]["be_ids"][i])
+                #joint_dict[joint] = side
+    joints_to_add = []
+    date = datetime.now().strftime("%Y-%m-%d")
+    qmarks = ["?" for i in range(10)]
+
+# start here!!!!!!!
+
+    for joint in joint_dict.keys():
+        if "SI" in joint or "iliac" in joint:
+            # for now, just skipping this issue so I can unpack the bone_ends to build joints
+            continue
+        bone_end_id_a, bone_end_id_b = joint_dict[joint]
+        if side == "mid":
+            joint_name = joint
+            joint_type = "spinal"
+        else: # need to cut off the side from the joint name <eye roll>
+            joint_name = joint[2:]
+            if joint_name == "scapula":
+                joint_type = "sesamoid"
+            else:
+                joint_type = "synovial"
+        if joint_name in def_values.keys():
+            caps_vals = copy.copy(def_values[joint])
+            ref_pcapsule_ir_rom = caps_vals["ref_pcapsule_ir_rom"]
+            ref_pcapsule_er_rom = caps_vals["ref_pcapsule_er_rom"]
+            ref_acapsule_ir_rom = caps_vals["ref_acapsule_ir_rom"]
+            ref_acapsule_er_rom = caps_vals["ref_acapsule_er_rom"]
+        else:
+            ref_pcapsule_ir_rom = None
+            ref_pcapsule_er_rom = None
+            ref_acapsule_ir_rom = None
+            ref_acapsule_er_rom = None
+        joint_values = [
+            date, 
+            bone_end_id_a, 
+            bone_end_id_b, 
+            joint_name, 
+            side, joint_type, 
+            ref_pcapsule_ir_rom, 
+            ref_pcapsule_er_rom, 
+            ref_acapsule_ir_rom, 
+            ref_acapsule_er_rom
+            ]
+        joints_to_add.append(joint_values)
     # executemany to "joint_reference", commit to db
-    curs.executemany(f'INSERT INTO joint_reference (date_updated, joint_name, side, joint_type, ref_pcapsule_ir_rom, ref_pcapsule_er_rom, ref_acapsule_ir_rom, ref_acapsule_er_rom) VALUES ({",".join(qmarks)})', 
+    curs.executemany(f'INSERT INTO ref_joints (date_updated, bone_end_id_a, bone_end_id_b, joint_name, side, joint_type, ref_pcapsule_ir_rom, ref_pcapsule_er_rom, ref_acapsule_ir_rom, ref_acapsule_er_rom) VALUES ({",".join(qmarks)})', 
         joints_to_add)
     db.commit()
     print("added the JOINT reference values!")
@@ -172,4 +264,5 @@ def add_zone_ref_values(db):
     print("added the ZONE reference values!")
 
 if __name__=="__main__":
-    add_ref_vals()
+    db = sqlite3.connect('/Users/williamhbelew/Hacking/MSWN/instance/mswnapp.sqlite')
+    build_joint_ref_vals(db)
