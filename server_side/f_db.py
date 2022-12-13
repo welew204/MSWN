@@ -4,7 +4,7 @@ import sqlite3
 import click
 from flask import current_app, g
 
-from server_side.db_ref_vals import build_ref_bone_end_vals, build_joint_ref_vals, add_zone_ref_values
+from server_side.db_ref_vals import build_adj, build_anchors, build_ref_bone_end_vals, build_joint_ref_vals, build_zone_ref_vals
 
 """creating connection to DB (even if it doesn't exist yet
 
@@ -40,6 +40,9 @@ def init_db():
 
     build_ref_bone_end_vals(db=db)
     build_joint_ref_vals(db=db)
+    build_zone_ref_vals(db=db)
+    build_anchors(db=db)
+    build_adj(db=db)
 
 @click.command('init-db')
 def init_db_command():

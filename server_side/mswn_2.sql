@@ -85,7 +85,6 @@ CREATE TABLE ref_zones (
     ref_joints_id INTEGER NOT NULL,
     zone_name TEXT NOT NULL,
     side TEXT NOT NULL,
-    zone_volume BLOB,
     reference_progressive_p_rom REAL,
     reference_progressive_a_rom REAL,
     reference_regressive_p_rom REAL,
@@ -95,9 +94,8 @@ CREATE TABLE ref_zones (
 
 CREATE TABLE ref_anchor (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    bone_end_id TEXT NOT NULL,
+    bone_end_id INTEGER NOT NULL,
     ref_zones_id INTEGER NOT NULL,
-    side TEXT NOT NULL,
     FOREIGN KEY (bone_end_id) REFERENCES ref_bone_end (id),
     FOREIGN KEY (ref_zones_id) REFERENCES ref_zones (id)
 );
@@ -106,7 +104,6 @@ CREATE TABLE ref_anchor (
 CREATE TABLE ref_capsule_adj (
     ref_joints_id INTEGER NOT NULL,
     ref_zones_id INTEGER NOT NULL,
-    side TEXT NOT NULL,
     ref_ct_training_status BLOB,
     ref_anchor_id_a INTEGER NOT NULL,
     ref_anchor_id_b INTEGER NOT NULL,
@@ -118,7 +115,6 @@ CREATE TABLE ref_capsule_adj (
 );
 
 CREATE TABLE ref_rotational_adj (
-    side TEXT NOT NULL,
     ref_musc_training_status BLOB,
     ref_ct_training_status BLOB,
     ref_joints_id INTEGER NOT NULL,
@@ -133,8 +129,6 @@ CREATE TABLE ref_rotational_adj (
 --"rotational_bias" must be "IR" or "ER"
 
 CREATE TABLE ref_linear_adj (
-    side TEXT NOT NULL,
-    zone_reference_id INTEGER NOT NULL,
     ref_joints_id INTEGER NOT NULL,
     ref_zones_id INTEGER NOT NULL,
     ref_musc_training_status BLOB,
@@ -246,18 +240,19 @@ CREATE TABLE bout_log (
     joint_id INTEGER NOT NULL,
     ref_zones_id_a INTEGER NOT NULL,
     ref_zones_id_b INTEGER,
-    fixed_side_bone_end_id INTEGER NOT NULL,
+    fixed_side_anchor_id INTEGER NOT NULL,
+    rotational_bias TEXT,
     joint_motion TEXT NOT NULL, 
     start_coord INTEGER,
     end_coord INTEGER,
     tissue_id INTEGER,
-    drill_name INTEGER,
-    duration INT NOT NULL,
+    drill_name TEXT,
+    duration INTEGER NOT NULL,
     passive_duration INTEGER,
     rpe INT NOT NULL,
     external_load INTEGER,
     comments TEXT, 
-    FOREIGN KEY (fixed_side_bone_end_id) REFERENCES bone_end (id),
+    FOREIGN KEY (fixed_side_anchor_id) REFERENCES anchor (id),
     FOREIGN KEY (joint_id) REFERENCES joints (id),
     FOREIGN KEY (ref_zones_id_a) REFERENCES ref_zones (id),
     FOREIGN KEY (ref_zones_id_b) REFERENCES ref_zones (id),
@@ -305,7 +300,7 @@ CREATE TABLE assess_tissue_log (
     p_rom REAL,
     pcapsule_rom REAL,
     acapsule_rom REAL,
-    FOREIGN KEY (assess_event_id) REFERENCES assess_event (id),
+    FOREIGN KEY (assess_event_id) REFERENCES assess_event_log (id),
     FOREIGN KEY (tissue_id) REFERENCES tissues (id),
     FOREIGN KEY (joint_id) REFERENCES joints (id),
     FOREIGN KEY (moverid) REFERENCES movers (id)
