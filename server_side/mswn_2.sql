@@ -147,7 +147,6 @@ CREATE TABLE anchor (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     moverid INTEGER NOT NULL,
     ref_zones_id INTEGER NOT NULL,
-    side TEXT NOT NULL,
     ref_anchor_id INTEGER NOT NULL,
     FOREIGN KEY (moverid) REFERENCES movers (id),
     FOREIGN KEY (ref_anchor_id) REFERENCES ref_anchor (id),
@@ -171,7 +170,6 @@ CREATE TABLE joints (
 CREATE TABLE capsule_adj (
     moverid INTEGER NOT NULL,
     joint_id INTEGER NOT NULL,
-    side TEXT NOT NULL,
     ref_zones_id INTEGER NOT NULL,
     ct_training_status BLOB,
     a_rom REAL, 
@@ -196,7 +194,6 @@ CREATE TABLE capsule_adj (
 CREATE TABLE rotational_adj (
     moverid INTEGER NOT NULL,
     joint_id INTEGER NOT NULL,
-    side TEXT NOT NULL,
     musc_training_status BLOB,
     ct_training_status BLOB,
     anchor_id_a INTEGER NOT NULL,
@@ -212,7 +209,6 @@ CREATE TABLE rotational_adj (
 
 CREATE TABLE linear_adj (
     moverid INTEGER NOT NULL,
-    side TEXT NOT NULL,
     joint_id INTEGER NOT NULL,
     ref_zones_id INTEGER NOT NULL,
     musc_training_status BLOB,
