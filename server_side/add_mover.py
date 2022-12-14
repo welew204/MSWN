@@ -60,7 +60,8 @@ def add_new_mover(db, first_name, last_name):
                     FROM ref_capsule_adj
                     LEFT JOIN joints 
                     ON joints.ref_joints_id = ref_capsule_adj.ref_joints_id
-                    ''').fetchall()
+                    WHERE joints.moverid = (?)
+                    ''', (mover_id,)).fetchall()
     rot_adj_template = curs.execute('''SELECT 
                     ref_rotational_adj.rowid, 
                     ref_rotational_adj.ref_musc_training_status,
@@ -72,7 +73,8 @@ def add_new_mover(db, first_name, last_name):
                     FROM ref_rotational_adj
                     LEFT JOIN joints 
                     ON joints.ref_joints_id = ref_rotational_adj.ref_joints_id
-                    ''').fetchall()
+                    WHERE joints.moverid = (?)
+                    ''', (mover_id,)).fetchall()
     linear_adj_template = curs.execute('''SELECT 
                     ref_linear_adj.rowid, 
                     ref_linear_adj.ref_zones_id, 
@@ -83,13 +85,16 @@ def add_new_mover(db, first_name, last_name):
                     joints.id 
                     FROM ref_linear_adj 
                     INNER JOIN joints 
-                    ON joints.ref_joints_id = ref_linear_adj.ref_joints_id''',).fetchall()
-
+                    ON joints.ref_joints_id = ref_linear_adj.ref_joints_id
+                    WHERE joints.moverid = (?)
+                    ''', (mover_id,)).fetchall()
 
     caps_adj_to_add = []
     for cadj in caps_adj_template:
         ref_capsule_adj_id, ref_zones_id, ref_ct_training_status, ref_anchor_id_a, ref_anchor_id_b, joints_id = cadj
-        to_write = [mover_id, joints_id, ref_zones_id, ref_ct_training_status, None, None, 'default', 'default', None, anchor_lookups[ref_anchor_id_a], anchor_lookups[ref_anchor_id_b]]
+        anchor_id_a = anchor_lookups[ref_anchor_id_a]
+        anchor_id_b = anchor_lookups[ref_anchor_id_b]
+        to_write = [mover_id, joints_id, ref_zones_id, ref_ct_training_status, None, None, 'default', 'default', None, anchor_id_a, anchor_id_b]
         caps_adj_to_add.append(to_write)
     curs.executemany('''INSERT INTO capsule_adj
                     (moverid, joint_id, ref_zones_id, ct_training_status, a_rom, p_rom, a_rom_source, p_rom_source, assess_event_id, anchor_id_a, anchor_id_b)
@@ -99,7 +104,9 @@ def add_new_mover(db, first_name, last_name):
     rot_adj_to_add = []
     for radj in rot_adj_template:
         ref_rotational_adj_id, ref_musc_training_status, ref_ct_training_status, ref_anchor_id_a, ref_anchor_id_b, rotational_bias, joints_id = radj
-        to_write = [mover_id, joints_id, ref_musc_training_status, ref_ct_training_status, anchor_lookups[ref_anchor_id_a], anchor_lookups[ref_anchor_id_b], rotational_bias]
+        anchor_id_a = anchor_lookups[ref_anchor_id_a]
+        anchor_id_b = anchor_lookups[ref_anchor_id_b]
+        to_write = [mover_id, joints_id, ref_musc_training_status, ref_ct_training_status, anchor_id_a, anchor_id_b, rotational_bias]
         rot_adj_to_add.append(to_write)
     curs.executemany('''INSERT INTO rotational_adj
                     (moverid, joint_id, musc_training_status, ct_training_status, anchor_id_a, anchor_id_b, rotational_bias)
@@ -109,7 +116,9 @@ def add_new_mover(db, first_name, last_name):
     lin_adj_to_add = []
     for ladj in linear_adj_template:
         ref_lin_adj_id, ref_zones_id, ref_musc_training_status, ref_ct_training_status, ref_anchor_id_a, ref_anchor_id_b, joints_id = ladj
-        to_write = [mover_id, joints_id, ref_zones_id, ref_musc_training_status, ref_ct_training_status, anchor_lookups[ref_anchor_id_a], anchor_lookups[ref_anchor_id_b], None, None, 'default', 'default', None]
+        anchor_id_a = anchor_lookups[ref_anchor_id_a]
+        anchor_id_b = anchor_lookups[ref_anchor_id_b]
+        to_write = [mover_id, joints_id, ref_zones_id, ref_musc_training_status, ref_ct_training_status, anchor_id_a, anchor_id_b, None, None, 'default', 'default', None]
         lin_adj_to_add.append(to_write)
     curs.executemany('''INSERT INTO linear_adj
                     (moverid, joint_id, ref_zones_id, musc_training_status, ct_training_status, anchor_id_a, anchor_id_b, a_rom, p_rom, a_rom_source, p_rom_source, assess_event_id)
@@ -132,4 +141,5 @@ def add_user_to_app(app):
 if __name__ == "__main__":
     # testing flow...
     db=sqlite3.connect('/Users/williamhbelew/Hacking/MSWN/instance/mswnapp.sqlite')
-    add_new_mover(db, 'Test', 'Dummy')
+    add_new_mover(db, 'Tester', 'Dummy')
+    add_new_mover(db, 'Test', 'Ickle')
