@@ -27,11 +27,11 @@ def drill_ref():
     drills_to_send = {
         "CARs": {},
         "capsule CAR": {"zones": []},
-        "PRH": {"zones": [], "bias": [], "position": [0]},
-        "PRLO": {"zones": [], "bias": [], "position": [0]},
-        "IC1": {"zones": [], "bias": [-100, 100], "rails": [], "position": [100], "passive duration": []},
-        "IC2": {"zones": [], "bias": [], "rails": [], "position": [100], "passive duration": []},
-        "IC3": {"zones": [], "bias": [], "position B": []}
+        "PRH": {"zones": [], "bias": [], "position": [0], "rotation": []},
+        "PRLO": {"zones": [], "bias": [], "position": [0], "rotation": []},
+        "IC1": {"zones": [], "bias": [-100, 100], "rails": [], "position": [100], "rotation": [-100, 100], "passive duration": []},
+        "IC2": {"zones": [], "bias": [], "rails": [], "position": [100], "rotation": [], "passive duration": []},
+        "IC3": {"zones": [], "bias": [], "position": [], "rotation": [], "position B": []}
     }
 
     return jsonify(drills_to_send), 200
@@ -41,7 +41,7 @@ def joint_ref():
     #print(f"Got this far (to {index})", file=sys.stderr)
     db=get_db()
     joint_ref = defaultdict(list)
-    joint_ref_final = defaultdict(list)
+    joint_ref_final = []
 
     # BELOW returns a list of sqlite3.Row objects (with index, and keys), but is NOT a real dict
     zone_ref_rows = db.execute('''SELECT 
@@ -49,7 +49,8 @@ def joint_ref():
                             ref_zones.side, 
                             ref_zones.zone_name, 
                             ref_joints.joint_type,
-                            ref_joints.joint_name
+                            ref_joints.joint_name,
+                            ref_joints.rowid
                             FROM ref_zones 
                             INNER JOIN ref_joints 
                             ON ref_zones.ref_joints_id=ref_joints.rowid''').fetchall()
@@ -60,9 +61,13 @@ def joint_ref():
             joint_ref[row["side"]+" "+ row["joint_name"]].append(zone)
         else:
             joint_ref[row["joint_name"]].append(zone)
-    # making nested object to send to react:
+    # cleaning up nested object to send to react:
+    for joint in joint_ref.keys():
+        j = joint_ref[joint]
+        joint_obj = {"name": joint,"id": j[0]["rowid"],"zones": j}
+        joint_ref_final.append(joint_obj)
     
-    return jsonify(joint_ref), 200
+    return jsonify(joint_ref_final), 200
 
 @bp.route('/ttstatus/<int:mover_id>')
 def ttstatus(mover_id):
