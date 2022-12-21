@@ -63,7 +63,7 @@ def_values = {
         "acapsule_ir_rom": 0,
         "acapsule_er_rom": 0
     },
-    "scapula": {
+    "scapular-thoracic": {
         "pcapsule_ir_rom": 0,
         "pcapsule_er_rom": 0,
         "acapsule_ir_rom": 0,
@@ -78,6 +78,11 @@ def_values = {
     # - scapular-thoracic
     #each spine section corresponds to the ROTATION of the bony body
     "spine": {
+        "AO": {},
+        "TC": {},
+        "LT": {},
+        "SI": {},
+        "specific_segment_values" :{
         "c1": {"flexion": 7.5,"extension": 7.5},
         "c2": {"flexion": 5.6,"extension": 5.6},
         "c3": {"flexion": 8.8,"extension": 8.8},
@@ -103,8 +108,24 @@ def_values = {
         "l4": {"flexion": 2.6,"extension": 2.6},
         "l5": {"flexion": 2.3,"extension": 2.3},
         "s1": {"flexion": 2.3,"extension": 2.3},
-        }
+        }}
     }
+
+def default_joint_dict():
+    """this just makes a user-generic dict of joints, zones from the def_vals and *_zone_relations_list's"""
+    res = defaultdict(list)
+    for joint in def_values.keys():
+        if joint == "spine":
+            continue
+        elif joint == "scapular-thoracic":
+            zone_list = sesamoid_zone_relations_list
+        else:
+            zone_list = syn_zone_relations_list
+        res["R "+joint].extend(zone_list)
+        res["L "+joint].extend(zone_list)
+    return res
+
+
 
 bones = {
     "cranium": {"bone_ends": [0], "joints": ["AO"]},

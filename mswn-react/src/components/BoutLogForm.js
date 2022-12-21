@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { 
+    Toggle,
     ButtonToolbar, 
     Button, 
     InputNumber, 
@@ -10,32 +11,58 @@ import {
     DatePicker,
     Timeline } from 'rsuite'
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { find } from "rsuite/esm/utils/ReactChildren";
 
 const server_url = "http://127.0.0.1:8000"
 
 export default function BoutLogForm() {
-    const inpCycs = ["IC 1", "IC 2", "IC 3", "IC 4","IC 5","IC 6","IC 7"]
-    .map(item => ({ label: item, value: item }))
-    
+    /* query callback fnc */
     function fetchAPI(url) {
         return fetch(url)
-            .then((res) => {return res.json()})
+        .then((res) => {return res.json()})
     }
-
+    
+    /* useQuery's */
+    const drillRefData = useQuery(["drillRef"], () => fetchAPI(server_url+"/drill_ref"))
     const boutLogData = useQuery(["boutLog"], () => fetchAPI(server_url+"/bout_log/1"))
-    const jointRefData = useQuery(["joints_ref"], () => fetchAPI(server_url+"/joint_ref"))
+    const jointRefData = useQuery(["jointsRef"], () => fetchAPI(server_url+"/joint_ref"))
+    /* console.log(jointRefData.isLoading ? "" : jointRefData.data) */
+    
+    /* state for form components */
+    const [drillDate, setDrillDate] = useState("")
+    const [jointSelected, setJointSelected] = useState("")
+    const [zoneID, setZoneID] = useState()
+
+    const [selectedDrill, setSelectedDrill] = useState("")
+    const [selectedPosition, setSelectedPosition] = useState(0)
+    const [selectedRotation, setSelectedRotation] = useState(0)
+    const [railsSelected, setRailsSelected] = useState(false)
+    const [drillDuration, setDrillDuration] = useState(30)
+    const [passiveDuration, setPassiveDuration] = useState(0)
+    const [drillRPE, setDrillRPE] = useState(5)
+    const [drillLoad, setDrillLoad] = useState(0)
     
     if (boutLogData.isLoading) {return <p>Getting your bout data...</p>}
     if (jointRefData.isLoading) {return <p>Ish is loading!</p>}
+    if (drillRefData.isLoading) {return <p>Ish is loading!</p>}
     
     const joint_list = Object.keys(jointRefData.data)
     const jointsArray = joint_list
-        .map((joint) => { return( 
-            {label: joint, 
-            value: joint, 
-            children: jointRefData.data[joint]
-                .map(zone => {return ({label: zone, value: zone})})})})
+    .map((joint) => { return( 
+        {label: joint, 
+        value: joint, 
+        children: jointRefData.data[joint]
+            .map(zone => {return ({label: zone["zone_name"], value: zone["zone_name"], id: zone["id"]})})})})
+            
+    const drills = Object.keys(drillRefData.data)
+            .map(item => ({ label: item, value: item }))
     
+
+    function find_tissue() {
+        var target_joint = jointsArray.find(joint => joint.children.id === jointSelected)
+        console.log(target_joint)
+    }
+
     const position = ["Regressive (short)", "Mid-range", "Progressive (long)"]
 
     const bout_array = boutLogData.data["bout_log"]
@@ -52,7 +79,7 @@ export default function BoutLogForm() {
             MSWN
         </h1>
         <h2>
-            Input Bout Log
+            Input Drill
         </h2>
         <hr />
         <Form >
@@ -63,10 +90,12 @@ export default function BoutLogForm() {
                     ranges={[
                     {
                         label: 'Now',
-                        value: new Date()
+                        value: new Date(),
+                        closeOverlay: false
                     }
                     ]}
                     style={{ width: 260}}
+                    onOk={(date) => setDrillDate(date)}
                 />
             </Form.Group>
             <Form.Group controlId='joint'>
@@ -74,66 +103,99 @@ export default function BoutLogForm() {
                 <Cascader
                     data={jointsArray}
                     style={{ width: 224 }}
+                    parentSelectable
+                    onSelect={(item) => {return(
+                        item.children ? 
+                        void(0):
+                        setJointSelected(item.id)
+                    )
+                    }}
+                    /* value= is NOT working as expected, so need to use call-back fnc to find correct path using id? */
                     />
             </Form.Group>
-            <Form.Group controlId='inpCycle'>
-                <Form.ControlLabel>Input Cycle:</Form.ControlLabel>
+            <Form.Group controlId='drills'>
+                <Form.ControlLabel>Drill:</Form.ControlLabel>
                 <SelectPicker
-                    data={inpCycs}
+                    data={drills}
                     searchable={false}
                     style={{ width: 224 }}
+                    onSelect={(e) => setSelectedDrill(e)}
                     />
             </Form.Group>
             <Form.Group controlId='position'>
                 <Form.ControlLabel>Position of Tissue:</Form.ControlLabel>
                 <Slider
-                    defaultValue={1}
+                    disabled={ drillRefData.data[selectedDrill]?.position ? (drillRefData.data[selectedDrill]?.position.length === 1 ? true : false) : true }
+                    defaultValue={ drillRefData.data[selectedDrill]?.position?.length === 1 ? drillRefData.data[selectedDrill].position[0] : 50 }
+                    /* not sure why but the defaultValue will not update to read the correct position array value...? */
                     min={0}
-                    step={1}
-                    max={2}
+                    step={25}
+                    max={100}
                     graduated
                     progress
                     renderMark={mark => {
-                        return position[mark];
+                        return mark;
                         }}
                     style={{ width: 250 }}
-                    />
+                    onChangeCommitted={setSelectedPosition}
+                />
             </Form.Group>
             <br />
             <Form.Group controlId='rotation'>
                 <Form.ControlLabel>Rotation of Joint (IR is - , ER is +):</Form.ControlLabel>
                 <Slider
                     defaultValue={0}
-                    min={-105}
+                    min={-100}
                     step={5}
-                    max={105}
+                    max={100}
                     graduated
                     progress
-                    renderMark={mark => {if (mark%15 === 0) {return mark} 
+                    renderMark={mark => {if (mark%25 === 0) {return mark} 
                         else {return null}}}
                     style={{ width: 500 }}
+                    onChangeCommitted={setSelectedRotation}
                     />
             </Form.Group>
             <br />
-            <Form.Group controlId='duration'>
-                <Form.ControlLabel>Duration of contraction:</Form.ControlLabel>
+            {drillRefData.data[selectedDrill]?.rails ? (
+                <Form.Group controlId="rails">
+                <Form.ControlLabel>RAILs tissue trained...?</Form.ControlLabel>
+                <Toggle />
+            </Form.Group>) : ""}
+            <br />
+            {drillRefData.data[selectedDrill]?.["passive duration"] ? (
+                <div>
+                <Form.Group controlId="rails">
+                <Form.ControlLabel>Duration of passive stretch:</Form.ControlLabel>
                 <InputNumber 
-                    defaultValue={30}
+                    onChange={setPassiveDuration}
+                    value={passiveDuration}
                     postfix="seconds"/>
+            </Form.Group>
+            <br />
+            </div>) : ""}
+            <Form.Group controlId='duration'>
+                <Form.ControlLabel>Duration of effort:</Form.ControlLabel>
+                <InputNumber 
+                    value={drillDuration}
+                    postfix="seconds"
+                    onChange={setDrillDuration}
+                    />
             </Form.Group>
             <br />
             <Form.Group controlId='rpe'>
                 <Form.ControlLabel>Rate of Percieved Exertion (RPE):</Form.ControlLabel>
                 <Slider
-                    defaultValue={5}
+                    value={drillRPE}
                     min={0}
                     step={1}
                     max={10}
                     graduated
                     progress
+                    onChangeCommitted={setDrillRPE}
                     renderMark={mark => {
                         return mark;
-                        }}
+                    }}
                     style={{ width: 500 }}
                     />
             </Form.Group>
@@ -141,9 +203,10 @@ export default function BoutLogForm() {
             <Form.Group controlId='load'>
                 <Form.ControlLabel>External Load (optional):</Form.ControlLabel>
                 <InputNumber 
-                    defaultValue={0}
+                    value={drillLoad}
                     postfix="lbs"
-                />
+                    onChange={setDrillLoad}
+                    />
             </Form.Group>
             <Form.Group>
                 <ButtonToolbar>
