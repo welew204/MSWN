@@ -11,7 +11,6 @@ import {
     DatePicker,
     Timeline } from 'rsuite'
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { find } from "rsuite/esm/utils/ReactChildren";
 
 const server_url = "http://127.0.0.1:8000"
 
@@ -21,6 +20,27 @@ export default function BoutLogForm() {
         return fetch(url)
         .then((res) => {return res.json()})
     }
+
+    function postAPI(url) {
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json',
+                        Accept: 'application/json' },
+            body: JSON.stringify({
+                "date": drillDate,
+                "joint_id": jointID,
+                "zone_id": zoneID,
+                "drill": selectedDrill,
+                "position": selectedPosition,
+                "rotation_bias": selectedRotation,
+                "rails": railsSelected,
+                "duration": drillDuration,
+                "p_duration": passiveDuration,
+                "rpe": drillRPE,
+                "load": drillLoad }),
+        }).then((res) => console.log(res))
+        .catch((error) => {console.error('There has been a problem with your fetch operation:', error)});
+    }
     
     /* useQuery's */
     const drillRefData = useQuery(["drillRef"], () => fetchAPI(server_url+"/drill_ref"))
@@ -29,6 +49,8 @@ export default function BoutLogForm() {
     /* console.log(jointRefData.isLoading ? "" : jointRefData.data) */
     
     /* state for form components */
+    const [moverId, setMoverId] = useState(1)
+    /* this needs to get updated from flask */
     const [drillDate, setDrillDate] = useState("")
     const [jointSelected, setJointSelected] = useState("")
     
@@ -75,7 +97,7 @@ export default function BoutLogForm() {
     }
 
     function submit_form() {
-        console.log(jointID, zoneID, selectedDrill, drillDate, drillDuration, drillLoad, drillRPE)
+        postAPI(server_url+`/add_bout/${moverId}`)
     }
 
     const position = ["Regressive (short)", "Mid-range", "Progressive (long)"]

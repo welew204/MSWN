@@ -99,16 +99,18 @@ def bout_log(mover_id):
     bout_log_final = sorted(bout_log, key=itemgetter('date'), reverse=True)
     return jsonify({"bout_log": bout_log_final}), 200
 
-@bp.route('/add_bouts/<int:moverid>', methods=('POST',))
-def add_bouts(moverid):
+@bp.route('/add_bout/<int:moverid>', methods=('POST',))
+def add_bout(moverid):
     req = request.get_json()
+    print(req, file=sys.stderr)
+    return "Oh ya!", 201
 
     db=get_db()
     curs = db.cursor()
     bouts_to_input = []
+    print(req)
 
     for b in req:
-        print(b)
         bundle = []
         field_names = []
         qmarks = []
@@ -145,7 +147,7 @@ def mover_info_dict(db, moverid):
             "anchors": {"proximal": 0, "distal": 0},
             "capsule_adj_id": 0,
             "rotational_adj_id": {"rot_a_adj_id": 0, "rot_b_adj_id": 0},
-            "linear_adj_id": 0,
+            "linear_adj_id": 0
         }
         return zone_dict_template
     def make_joint_ddict():

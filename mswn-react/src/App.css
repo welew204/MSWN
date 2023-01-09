@@ -1,5 +1,42 @@
-.form {
-  display: grid;
-  grid-template-columns: auto;
-  justify-items: center;
+@import "rsuite/dist/rsuite.min.css";
+
+.home-frame {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  height: 100vh;
+  min-height: 100vh;
+}
+
+.homescreen-mid {
+  display: flex;
+  height: auto;
+}
+
+.content {
+  height: 100%;
+  min-height: 100%;
+}
+
+.mvrs {
+  display: flex;
+  flex-direction: row;
+}
+
+.rs-footer {
+  position: relative;
+  bottom: 0;
+}
+
+.wbld {
+  display: flex;
+  flex-direction: column;
+}
+
+.wbld-inp {
+  display: flex;
+}
+
+.wbld-container {
+  display: flex;
 }
