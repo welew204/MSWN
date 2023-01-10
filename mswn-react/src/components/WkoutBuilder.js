@@ -16,12 +16,11 @@ import {
   Stack,
   Panel,
   Divider,
-  Form,
-  ButtonToolbar,
 } from "rsuite";
 import CogIcon from "@rsuite/icons/legacy/Cog";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { NavToggle } from "./helpers/NavToggle";
+import InputForm from "./helpers/InputForm";
 
 const server_url = "http://127.0.0.1:8000";
 
@@ -46,43 +45,14 @@ export default function WkoutBuilder() {
         <Stack.Item style={{ display: "flex", justifyContent: "space-around" }}>
           <h1>Build A Workout</h1>
         </Stack.Item>
-        <Stack.Item
-          className="THIS ONE"
-          style={{ display: "flex", justifyContent: "space-evenly" }}
-        >
-          <Stack.Item style={{ width: "100%" }}>
-            <Form>
-              <Form.Group controlId="name">
-                <Form.ControlLabel>Username</Form.ControlLabel>
-                <Form.Control name="name" />
-                <Form.HelpText>Username is required</Form.HelpText>
-              </Form.Group>
-              <Form.Group controlId="email">
-                <Form.ControlLabel>Email</Form.ControlLabel>
-                <Form.Control name="email" type="email" />
-                <Form.HelpText tooltip>Email is required</Form.HelpText>
-              </Form.Group>
-              <Form.Group controlId="password">
-                <Form.ControlLabel>Password</Form.ControlLabel>
-                <Form.Control
-                  name="password"
-                  type="password"
-                  autoComplete="off"
-                />
-              </Form.Group>
-              <Form.Group controlId="textarea">
-                <Form.ControlLabel>Textarea</Form.ControlLabel>
-                <Form.Control rows={5} name="textarea" />
-              </Form.Group>
-              <Form.Group>
-                <ButtonToolbar>
-                  <Button appearance="primary">Submit</Button>
-                  <Button appearance="default">Cancel</Button>
-                </ButtonToolbar>
-              </Form.Group>
-            </Form>
+        <Stack.Item style={{ display: "flex", justifyContent: "space-evenly" }}>
+          <Stack.Item
+            className="THIS ONE"
+            style={{ width: "100%", padding: 10 }}
+          >
+            <InputForm />
           </Stack.Item>
-          <Divider vertical style={{ height: "60vh" }} />
+          <Divider vertical style={{ height: "60vh", alignSelf: "center" }} />
           <Stack.Item
             style={{
               display: "flex",
@@ -107,10 +77,10 @@ export default function WkoutBuilder() {
             gap: 20,
           }}
         >
-          <Button as={RsNavLink} href="/wbuilder">
+          <Button as={RsNavLink} href="/mover">
             Save Workout
           </Button>
-          <Button as={RsNavLink} href="/record">
+          <Button as={RsNavLink} href="/wbuilder">
             Save Workout Draft
           </Button>
         </Stack.Item>
