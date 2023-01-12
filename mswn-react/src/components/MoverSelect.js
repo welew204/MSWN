@@ -41,13 +41,28 @@ export default function MoverSelect() {
           </Header>
           <Stack wrap size="lg" spacing={20}>
             <Stack.Item>
-              <Panel className="wkout-bdg" bordered header="Wkout Name"></Panel>
+              <Panel
+                className="wkout-bdg"
+                shaded
+                bordered
+                header="Wkout Name"
+              ></Panel>
             </Stack.Item>
             <Stack.Item>
-              <Panel className="wkout-bdg" bordered header="Wkout Name"></Panel>
+              <Panel
+                className="wkout-bdg"
+                shaded
+                bordered
+                header="Wkout Name"
+              ></Panel>
             </Stack.Item>
             <Stack.Item>
-              <Panel className="wkout-bdg" bordered header="Wkout Name"></Panel>
+              <Panel
+                className="wkout-bdg"
+                shaded
+                bordered
+                header="Wkout Name"
+              ></Panel>
             </Stack.Item>
           </Stack>
           <Stack spacing={20}>

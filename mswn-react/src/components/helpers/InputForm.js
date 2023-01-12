@@ -108,7 +108,7 @@ export default function InputForm() {
     );
   }
 
-  const position = ["Regressive (short)", "Mid-range", "Progressive (long)"];
+  const position = ["Regressive (short)", "Progressive (long)"];
 
   const bout_array = boutLogData.data["bout_log"];
   const bouts = bout_array.map((bout, i) => {
@@ -123,17 +123,37 @@ export default function InputForm() {
   return (
     <div className="inp-form">
       <Form>
-        <Form.Group controlId="joint">
-          <Form.ControlLabel>Joint / Zone trained:</Form.ControlLabel>
-          <Cascader
-            data={jointsArray}
-            style={{ width: 224 }}
-            parentSelectable
-            value={jointSelected}
-            onChange={setJointSelected}
-            onSelect={(item) => find_tissue(item)}
-            /* value= is NOT working as expected, so need to use call-back fnc to find correct path using id? */
-          />
+        <Form.Group
+          controlId="joint"
+          style={{ display: "flex", justifyContent: "space-evenly" }}
+        >
+          <Form.Group>
+            <Form.ControlLabel>Joint / Zone trained:</Form.ControlLabel>
+            <Cascader
+              data={jointsArray}
+              style={{ width: 224 }}
+              parentSelectable
+              value={jointSelected}
+              onChange={setJointSelected}
+              onSelect={(item) => find_tissue(item)}
+              /* value= is NOT working as expected, so need to use call-back fnc to find correct path using id? */
+            />
+          </Form.Group>
+          <Form.Group>
+            <Form.ControlLabel>
+              Secondary Jnt / Z trained: (opt)
+            </Form.ControlLabel>
+            <Cascader
+              disabled={true}
+              data={jointsArray}
+              style={{ width: 224 }}
+              parentSelectable
+              value={jointSelected}
+              onChange={setJointSelected}
+              onSelect={(item) => find_tissue(item)}
+              /* value= is NOT working as expected, so need to use call-back fnc to find correct path using id? */
+            />
+          </Form.Group>
         </Form.Group>
         <Form.Group controlId="drills">
           <Form.ControlLabel>Drill:</Form.ControlLabel>
@@ -149,41 +169,74 @@ export default function InputForm() {
             onSelect={(e) => setSelectedDrill(e)}
           />
         </Form.Group>
-        <Form.Group controlId="position">
-          <Form.ControlLabel>Position of Tissue:</Form.ControlLabel>
-          <Slider
-            disabled={
-              drillRefData.data[selectedDrill].position
-                ? drillRefData.data[selectedDrill].position.length === 1
-                  ? true
-                  : false
-                : true
-            }
-            value={
-              drillRefData.data[selectedDrill].position
-                ? drillRefData.data[selectedDrill].position.length === 1
-                  ? drillRefData.data[selectedDrill].position[0]
-                  : selectedPosition
-                : 0
-            }
-            /*the slider does not update automatically, slide with the cursor.....?*/
-            min={0}
-            step={25}
-            max={100}
-            graduated
-            progress
-            renderMark={(mark) => {
-              if (mark === 0) {
-                return position[0];
-              } else if (mark === 50) {
-                return position[1];
-              } else if (mark === 100) {
-                return position[2];
+        <Form.Group
+          controlId="position"
+          style={{ display: "flex", justifyContent: "space-evenly" }}
+        >
+          <Form.Group>
+            <Form.ControlLabel>(Start) Position of Tissue:</Form.ControlLabel>
+            <Slider
+              disabled={
+                drillRefData.data[selectedDrill].position
+                  ? drillRefData.data[selectedDrill].position.length === 1
+                    ? true
+                    : false
+                  : true
               }
-            }}
-            style={{ width: 250 }}
-            onChangeCommitted={setSelectedPosition}
-          />
+              value={
+                drillRefData.data[selectedDrill].position
+                  ? drillRefData.data[selectedDrill].position.length === 1
+                    ? drillRefData.data[selectedDrill].position[0]
+                    : selectedPosition
+                  : 0
+              }
+              handleStyle={{ marginLeft: "0%", fontSize: "x-small" }}
+              /*the slider does not update automatically, slide with the cursor.....?*/
+              min={0}
+              step={25}
+              max={100}
+              graduated
+              progress
+              renderMark={(mark) => {
+                if (mark === 0) {
+                  return position[0];
+                } else if (mark === 100) {
+                  return position[2];
+                }
+              }}
+              style={{ width: "80%" }}
+              onChangeCommitted={setSelectedPosition}
+            />
+          </Form.Group>
+          <Form.Group>
+            <Form.ControlLabel>End Position of Tissue: (opt)</Form.ControlLabel>
+            <Slider
+              disabled={true}
+              value={
+                drillRefData.data[selectedDrill].position
+                  ? drillRefData.data[selectedDrill].position.length === 1
+                    ? drillRefData.data[selectedDrill].position[0]
+                    : selectedPosition
+                  : 0
+              }
+              handleStyle={{ marginLeft: "0%", fontSize: "x-small" }}
+              /*the slider does not update automatically, slide with the cursor.....?*/
+              min={0}
+              step={25}
+              max={100}
+              graduated
+              progress
+              renderMark={(mark) => {
+                if (mark === 0) {
+                  return position[0];
+                } else if (mark === 100) {
+                  return position[2];
+                }
+              }}
+              style={{ width: "80%" }}
+              onChangeCommitted={setSelectedPosition}
+            />
+          </Form.Group>
         </Form.Group>
         <br />
         <Form.Group controlId="rotation">
@@ -207,7 +260,7 @@ export default function InputForm() {
                 return null;
               }
             }}
-            style={{ width: 250 }}
+            style={{ width: "90%" }}
             onChangeCommitted={setSelectedRotation}
           />
         </Form.Group>

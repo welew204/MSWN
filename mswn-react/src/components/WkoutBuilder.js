@@ -16,6 +16,8 @@ import {
   Stack,
   Panel,
   Divider,
+  Whisper,
+  Tooltip,
 } from "rsuite";
 import CogIcon from "@rsuite/icons/legacy/Cog";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -64,9 +66,14 @@ export default function WkoutBuilder() {
             }}
             className="workoutSchema"
           >
-            <Panel className="inp-plaque" bordered header="--Input--"></Panel>
-            <Panel className="inp-plaque" bordered header="--Input--"></Panel>
-            <Panel className="inp-plaque" bordered header="--Input--"></Panel>
+            <Whisper trigger={""} onClick={() => console.log("hey will!")}>
+              <Panel
+                className="inp-plaque"
+                bordered
+                shaded
+                header="--Input--"
+              ></Panel>
+            </Whisper>
           </Stack.Item>
         </Stack.Item>
         <Stack.Item

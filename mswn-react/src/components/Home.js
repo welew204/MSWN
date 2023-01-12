@@ -11,31 +11,45 @@ import {
   Nav,
   Sidenav,
   SidenavBody,
+  Button,
 } from "rsuite";
 import CogIcon from "@rsuite/icons/legacy/Cog";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { NavToggle } from "./helpers/NavToggle";
+import AddMoverModal from "./AddMoverModal";
 
 const server_url = "http://127.0.0.1:8000";
 
 export default function Home() {
-  /* this needs to be linked up via the Routing functionality */
-  const [currentView, setCurrentView] = useState("MoverSelect");
-  const [expand, setExpand] = useState(true);
+  function fetchAPI(url) {
+    return fetch(url).then((res) => {
+      return res.json();
+    });
+  }
+
+  const [activeMover, setActiveMover] = useState("");
+  const [addMoverOpen, setAddMoverOpen] = useState(false);
 
   /* query: SELECT movers */
-  const incoming_movers = [
-    "Marlie Couto",
-    "Max Judelson",
-    "Debbie Gold",
-    "Julie Humphrey",
-    "Rik Belew",
-    "Nathy Kane",
-  ];
+  const movers = useQuery({
+    queryKey: ["movers"],
+    queryFn: () => fetchAPI(server_url + "/movers_list"),
+  });
 
-  const movers = incoming_movers.map((id) => <Nav.Item>{id}</Nav.Item>);
+  if (movers.isLoading) return "Loading...";
+  if (movers.isError) return `Error: error`;
+  var incoming_movers = [];
 
-  const a = 5;
+  for (var key in movers.data) {
+    incoming_movers.push(movers.data[key]);
+  }
+
+  const movers_list = incoming_movers.map((mvr) => (
+    <Nav.Item
+      key={mvr[0]}
+      eventKey={`${mvr[0]}`}
+    >{`${mvr[1]} ${mvr[2]}`}</Nav.Item>
+  ));
 
   return (
     <Container className="home-frame">
@@ -57,17 +71,20 @@ export default function Home() {
           </Nav>
         </Navbar>
       </Header>
-      <Container className="homescreen-mid">
-        <Sidebar
-          className="sidebar"
-          /* style={{ display: 'flex', flexDirection: 'column'}} */
-          /* width={expand ? 260 :56} */
-          collapsible
-        >
-          <Sidenav expanded={expand} appearance="subtle">
+      <Container className="homescreen-mid" style={{ height: "90vh" }}>
+        <AddMoverModal open={addMoverOpen} close={setAddMoverOpen} />
+        <Sidebar style={{ overflow: "auto" }} className="sidebar" collapsible>
+          <Sidenav
+            style={{ overflow: "auto" }}
+            expanded={true}
+            appearance="subtle"
+          >
             <Sidenav.Body>
-              <Nav>{movers}</Nav>
+              <Nav activeKey={activeMover} onSelect={setActiveMover}>
+                {movers_list}
+              </Nav>
             </Sidenav.Body>
+            <Button onClick={setAddMoverOpen}>Add Mover</Button>
           </Sidenav>
         </Sidebar>
         <Content className="content">

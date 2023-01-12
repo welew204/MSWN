@@ -40,3 +40,12 @@
 .wbld-container {
   display: flex;
 }
+
+.rs-panel {
+  cursor: pointer;
+}
+
+/* seems that to target a class, just the spceific differentiator is not enough when there are many classes applied */
+.rs-sidenav-subtle .rs-sidenav-item.rs-sidenav-item-active {
+  background-color: lightgrey;
+}

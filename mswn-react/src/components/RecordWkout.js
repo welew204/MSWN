@@ -22,6 +22,7 @@ import CogIcon from "@rsuite/icons/legacy/Cog";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { NavToggle } from "./helpers/NavToggle";
 import InputForm from "./helpers/InputForm";
+import RecordWkoutForm from "./helpers/RecordWkoutForm";
 
 const server_url = "http://127.0.0.1:8000";
 
@@ -74,19 +75,35 @@ export default function RecordWkout() {
               minWidth: 200,
               width: "100%",
               gap: 10,
+              padding: 10,
             }}
             className="workoutSchema"
           >
-            <Panel className="inp-plaque" bordered header="--Input--"></Panel>
-            <Panel className="inp-plaque" bordered header="--Input--"></Panel>
-            <Panel className="inp-plaque" bordered header="--Input--"></Panel>
+            <Panel
+              shaded
+              className="inp-plaque"
+              bordered
+              header="--Input--"
+            ></Panel>
+            <Panel
+              shaded
+              className="inp-plaque"
+              bordered
+              header="--Input--"
+            ></Panel>
+            <Panel
+              shaded
+              className="inp-plaque"
+              bordered
+              header="--Input--"
+            ></Panel>
           </Stack.Item>
           <Divider vertical style={{ height: "60vh" }} />
           <Stack.Item
             className="THIS ONE"
             style={{ width: "100%", padding: 10 }}
           >
-            <InputForm />
+            <RecordWkoutForm />
           </Stack.Item>
         </Stack.Item>
         <Stack.Item

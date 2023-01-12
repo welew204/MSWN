@@ -9,6 +9,7 @@ import sys
 from werkzeug.exceptions import abort
 
 from server_side.f_db import get_db
+from server_side.add_mover import add_new_mover
 
 bp = Blueprint('tissues', __name__)
 
@@ -21,6 +22,27 @@ def index(mover_id):
     ).fetchall()
 
     return 'Done', 201
+
+@bp.route('/movers_list')
+def get_movers():
+    db=get_db()
+    mover_rows = db.execute('SELECT * FROM movers').fetchall()
+    res = {}
+    for m in mover_rows:
+        res[m["id"]]= [i for i in m]
+    return jsonify(res), 201
+
+@bp.route('/add_mover', methods=('POST',))
+def add_mover_to_db():
+    db=get_db()
+    req = request.get_json()[0]
+    fname = req['firstName']
+    lname = req['lastName']
+    add_new_mover(db, fname, lname)
+
+    return f"{fname} {lname} is added to the DB!", 201
+    
+
 
 @bp.route('/drill_ref')
 def drill_ref():
@@ -250,12 +272,12 @@ def mover_info_dict(db, moverid):
 
 if __name__ == "__main__":
     db = sqlite3.connect('/Users/williamhbelew/Hacking/MSWN/instance/mswnapp.sqlite')
-    mover_1_id = 1
+    """ mover_1_id = 1
     mover_2_id = 2
     mover_1_info = mover_info_dict(db, mover_1_id)
     mover_2_info = mover_info_dict(db, mover_2_id)
-    print("hello")
-
+    print("hello") """
+    get_movers()
 
 """
 @bp.route('/delete_bouts')
