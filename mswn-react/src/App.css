@@ -49,3 +49,10 @@
 .rs-sidenav-subtle .rs-sidenav-item.rs-sidenav-item-active {
   background-color: lightgrey;
 }
+
+.selected-workout {
+  background-color: lightgreen;
+}
+.selected-inp-plaque {
+  background-color: lightseagreen;
+}

@@ -302,4 +302,31 @@ CREATE TABLE assess_tissue_log (
     FOREIGN KEY (moverid) REFERENCES movers (id)
 );
 
-    --how to get this? make a seperate tissues table that holds all tissue??
+CREATE TABLE programming_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT NOT NULL,
+    moverid INTEGER NOT NULL,
+    joint_id INTEGER NOT NULL,
+    workout_id INTEGER,
+    ref_zones_id_a INTEGER NOT NULL,
+    ref_zones_id_b INTEGER,
+    fixed_side_anchor_id INTEGER NOT NULL,
+    rotational_bias TEXT,
+    joint_motion TEXT NOT NULL, 
+    start_coord INTEGER,
+    end_coord INTEGER,
+    tissue_id INTEGER,
+    drill_name TEXT,
+    duration INTEGER NOT NULL,
+    passive_duration INTEGER,
+    rpe INT NOT NULL,
+    external_load INTEGER,
+    comments TEXT, 
+    FOREIGN KEY (fixed_side_anchor_id) REFERENCES anchor (id),
+    FOREIGN KEY (joint_id) REFERENCES joints (id),
+    FOREIGN KEY (ref_zones_id_a) REFERENCES ref_zones (id),
+    FOREIGN KEY (ref_zones_id_b) REFERENCES ref_zones (id),
+    FOREIGN KEY (tissue_id) REFERENCES tissues (id),
+    FOREIGN KEY (moverid) REFERENCES movers (id)
+)
+

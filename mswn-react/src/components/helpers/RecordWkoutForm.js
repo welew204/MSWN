@@ -10,21 +10,21 @@ import {
   Form,
   DatePicker,
   Timeline,
+  Divider,
+  Loader,
 } from "rsuite";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { find } from "rsuite/esm/utils/ReactChildren";
 
 const server_url = "http://127.0.0.1:8000";
 
-export default function RecordWkoutForm() {
+export default function RecordWkoutForm({ selectedInput }) {
   /* query callback fnc */
   function fetchAPI(url) {
     return fetch(url).then((res) => {
       return res.json();
     });
   }
-
-  /* useQuery's */
 
   const boutLogData = useQuery(["boutLog"], () =>
     fetchAPI(server_url + "/bout_log/1")
@@ -38,7 +38,7 @@ export default function RecordWkoutForm() {
   const [jointID, setJointID] = useState(0);
   const [zoneID, setZoneID] = useState(0);
   /* console.log("jointId in state: "+ jointID)
-    console.log("zoneId in state: "+ zoneID) */
+  console.log("zoneId in state: "+ zoneID) */
 
   const [selectedDrill, setSelectedDrill] = useState("CARs");
   const [selectedPosition, setSelectedPosition] = useState(0);
@@ -48,7 +48,8 @@ export default function RecordWkoutForm() {
   const [passiveDuration, setPassiveDuration] = useState(0);
   const [drillRPE, setDrillRPE] = useState(5);
   const [drillLoad, setDrillLoad] = useState(0);
-
+  if (selectedInput == "")
+    return <h2>Select an input to begin recording results...</h2>;
   if (boutLogData.isLoading) {
     return <p>Getting your bout data...</p>;
   }
@@ -90,50 +91,49 @@ export default function RecordWkoutForm() {
   });
 
   return (
-    <div className="inp-form">
+    <div className='inp-form'>
       <Form>
-        {true == true ? (
-          <Form.Group controlId="rails">
-            <Form.ControlLabel>RAILs tissue trained...?</Form.ControlLabel>
-            <Toggle
-              onChange={() => setRailsSelected((prev) => !prev)}
-              value={railsSelected}
-            />
-          </Form.Group>
-        ) : (
-          ""
-        )}
+        <h2
+          style={{
+            textAlign: "center",
+          }}>{`${selectedInput.ref_joint_name} ${selectedInput.drill_name}`}</h2>
+        <Divider />
+        <Form.Group controlId='rails'>
+          <Form.ControlLabel>RAILs tissue trained...?</Form.ControlLabel>
+          {<h4>not indicated</h4>}
+          <Toggle
+            onChange={() => setRailsSelected((prev) => !prev)}
+            value={railsSelected}
+          />
+        </Form.Group>
+
         <br />
-        {true == true ? (
-          <div>
-            <Form.Group controlId="rails">
-              <Form.ControlLabel>
-                Duration of passive stretch:
-              </Form.ControlLabel>
-              <InputNumber
-                onChange={setPassiveDuration}
-                value={passiveDuration}
-                postfix="seconds"
-              />
-            </Form.Group>
-            <br />
-          </div>
-        ) : (
-          ""
-        )}
-        <Form.Group controlId="duration">
+        <Form.Group controlId='p_dur'>
+          <Form.ControlLabel>Duration of passive stretch:</Form.ControlLabel>
+          <h4>{`Rx: ${selectedInput.passive_duration}sec`}</h4>
+          <InputNumber
+            onChange={setPassiveDuration}
+            value={passiveDuration}
+            postfix='seconds'
+          />
+        </Form.Group>
+        <br />
+
+        <Form.Group controlId='duration'>
           <Form.ControlLabel>Duration of effort:</Form.ControlLabel>
+          <h4>{`Rx: ${selectedInput.duration}sec`}</h4>
           <InputNumber
             value={drillDuration}
-            postfix="seconds"
+            postfix='seconds'
             onChange={setDrillDuration}
           />
         </Form.Group>
         <br />
-        <Form.Group controlId="rpe">
+        <Form.Group controlId='rpe'>
           <Form.ControlLabel>
             Rate of Percieved Exertion (RPE):
           </Form.ControlLabel>
+          <h4>{`Rx: ${selectedInput.rpe}`}</h4>
           <Slider
             value={drillRPE}
             min={0}
@@ -149,26 +149,31 @@ export default function RecordWkoutForm() {
           />
         </Form.Group>
         <br />
-        <Form.Group controlId="load">
+        <Form.Group controlId='load'>
           <Form.ControlLabel>External Load (optional):</Form.ControlLabel>
+          {
+            <h4>
+              Rx:{" "}
+              {selectedInput.external_load != ""
+                ? `${selectedInput.external_load}`
+                : "none"}
+            </h4>
+          }
           <InputNumber
             value={drillLoad}
-            postfix="lbs"
+            postfix='lbs'
             onChange={setDrillLoad}
           />
         </Form.Group>
         <Form.Group>
           <ButtonToolbar>
-            <Button appearance="primary" onClick={submit_form}>
+            <Button appearance='primary' onClick={submit_form}>
               Submit
             </Button>
-            <Button appearance="default">Cancel</Button>
+            <Button appearance='default'>Cancel</Button>
           </ButtonToolbar>
         </Form.Group>
       </Form>
-      <div>
-        <Timeline endless>{bouts}</Timeline>
-      </div>
     </div>
   );
 }
