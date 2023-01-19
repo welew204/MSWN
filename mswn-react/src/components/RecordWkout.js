@@ -18,6 +18,7 @@ import {
   Panel,
   SelectPicker,
   Loader,
+  DatePicker,
 } from "rsuite";
 import CogIcon from "@rsuite/icons/legacy/Cog";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -28,8 +29,34 @@ import RecordWkoutForm from "./helpers/RecordWkoutForm";
 const server_url = "http://127.0.0.1:8000";
 
 export default function RecordWkout() {
-  const [selectedWorkout, setSelectedWorkout] = useOutletContext();
+  const [selectedWorkout, setSelectedWorkout, activeMover] = useOutletContext();
   const [selectInp, setSelectInp] = useState("");
+  const [workoutResults, setWorkoutResults] = useState({});
+  console.log(workoutResults);
+
+  function updateWorkoutResults(inputFormArray) {
+    const [inputId, UpdValue] = inputFormArray;
+    setWorkoutResults((prev) => ({ ...prev, [inputId]: UpdValue }));
+  }
+  /* //TODO... need to make this go the right end-point */
+  const updateDB = useMutation({
+    mutationFn: (newMover) => {
+      fetch("http://127.0.0.1:8000/add_mover", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify([workoutResults]),
+        mode: "cors",
+      }).then((res) => console.log(res));
+    },
+  });
+
+  /* need to use workoutsQuery to set workoutResults right away,
+  then make function to update these results,
+  then pass that function to Child RecordWorkoutForm, 
+  then use that prop on 'Save Input' click;
+  then submit form (useMutation) to DB,
+  DB has to parse all the inputs into Bouts!
+   */
 
   function fetchAPI(url) {
     return fetch(url).then((res) => res.json());
@@ -38,9 +65,16 @@ export default function RecordWkout() {
   const workoutsQuery = useQuery(["workouts"], () => {
     return fetchAPI(server_url + "/workouts");
   });
+
+  const boutLogData = useQuery(["boutLog"], () =>
+    fetchAPI(server_url + `/bout_log/${activeMover}`)
+  );
+  if (boutLogData.isLoading) {
+    return <p>Getting your bout data...</p>;
+  }
   if (workoutsQuery.isLoading) return "Loading...";
   if (workoutsQuery.isError) return `Error: error`;
-
+  //TODO
   const workouts = workoutsQuery.data;
 
   const wkoutSelect = workouts.map((wkt) => {
@@ -69,6 +103,17 @@ export default function RecordWkout() {
     const selWkt = workouts.find((wkt) => wkt.id == wktid);
     return selWkt;
   }
+
+  const bout_array = boutLogData.data["bout_log"];
+  const bouts = bout_array.map((bout, i) => {
+    return (
+      <Timeline.Item key={`bout_${bout_array[i].id}`} time={bout_array[i].date}>
+        {bout_array[i].comments}, RPE: {bout_array[i].rpe}, External Load:{" "}
+        {bout_array[i].external_load}
+      </Timeline.Item>
+    );
+  });
+  /* console.log(bouts.len()); */
 
   return (
     <Stack
@@ -117,6 +162,12 @@ export default function RecordWkout() {
             }}
             className='workoutSchema'>
             {workoutsQuery.isSuccess ? inputs : <Loader size='lg' />}
+            <Divider />
+            <DatePicker
+              onChange={(value) => updateWorkoutResults("date", value)}
+              format='yyyy-MM-dd HH:mm'
+              placeholder={"Select Date"}
+            />
           </Stack.Item>
           <Divider vertical style={{ height: "70vh" }} />
 
@@ -129,6 +180,14 @@ export default function RecordWkout() {
                     )
                   : ""
               }
+              workoutResults={workoutResults}
+              updateWorkoutResults={updateWorkoutResults}
+              updateDB={() =>
+                console.log(
+                  "workout being sent...(incomplete): " +
+                    JSON.stringify(workoutResults)
+                )
+              }
             />
           </Stack.Item>
         </Stack.Item>
@@ -139,7 +198,12 @@ export default function RecordWkout() {
             justifyContent: "center",
             gap: 20,
           }}>
-          <Button as={RsNavLink} href='/mover'>
+          <Button
+            as={RsNavLink}
+            href='/mover'
+            onClickCapture={() =>
+              console.log("workout being sent..." + [workoutResults])
+            }>
             Record Workout
           </Button>
           <Button as={RsNavLink} href='/record'>
@@ -156,9 +220,11 @@ export default function RecordWkout() {
           padding: 40,
         }}>
         <Timeline endless>
-          <Timeline.Item>**last workout**</Timeline.Item>
-          <Timeline.Item>**last workout**</Timeline.Item>
-          <Timeline.Item>**last workout**</Timeline.Item>
+          {bouts.len != 0 ? (
+            bouts
+          ) : (
+            <Timeline.Item>**No Bouts Yet!**</Timeline.Item>
+          )}
         </Timeline>
       </Stack.Item>
     </Stack>

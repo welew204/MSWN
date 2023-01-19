@@ -18,6 +18,7 @@ DROP TABLE IF EXISTS tissues;
 
 DROP TABLE IF EXISTS programming_log;
 DROP TABLE IF EXISTS bout_log;
+DROP TABLE IF EXISTS incomplete_log;
 DROP TABLE IF EXISTS assess_event_log;
 DROP TABLE IF EXISTS assess_tissue_log;
 
@@ -248,6 +249,34 @@ CREATE TABLE bout_log (
     rpe INT NOT NULL,
     external_load INTEGER,
     comments TEXT, 
+    FOREIGN KEY (fixed_side_anchor_id) REFERENCES anchor (id),
+    FOREIGN KEY (joint_id) REFERENCES joints (id),
+    FOREIGN KEY (ref_zones_id_a) REFERENCES ref_zones (id),
+    FOREIGN KEY (ref_zones_id_b) REFERENCES ref_zones (id),
+    FOREIGN KEY (tissue_id) REFERENCES tissues (id),
+    FOREIGN KEY (moverid) REFERENCES movers (id)
+);
+
+CREATE TABLE incomplete_bout_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT NOT NULL, 
+    moverid INTEGER NOT NULL,
+    joint_id INTEGER NOT NULL,
+    ref_zones_id_a INTEGER NOT NULL,
+    ref_zones_id_b INTEGER,
+    fixed_side_anchor_id INTEGER NOT NULL,
+    rotational_bias TEXT,
+    joint_motion TEXT NOT NULL, 
+    start_coord INTEGER,
+    end_coord INTEGER,
+    tissue_id INTEGER,
+    drill_name TEXT,
+    duration INTEGER NOT NULL,
+    passive_duration INTEGER,
+    rpe INT NOT NULL,
+    external_load INTEGER,
+    comments TEXT, 
+    validated TEXT,
     FOREIGN KEY (fixed_side_anchor_id) REFERENCES anchor (id),
     FOREIGN KEY (joint_id) REFERENCES joints (id),
     FOREIGN KEY (ref_zones_id_a) REFERENCES ref_zones (id),

@@ -18,7 +18,12 @@ import { find } from "rsuite/esm/utils/ReactChildren";
 
 const server_url = "http://127.0.0.1:8000";
 
-export default function RecordWkoutForm({ selectedInput }) {
+export default function RecordWkoutForm({
+  selectedInput,
+  workoutResults,
+  updateWorkoutResults,
+  updateDB,
+}) {
   /* query callback fnc */
   function fetchAPI(url) {
     return fetch(url).then((res) => {
@@ -26,69 +31,59 @@ export default function RecordWkoutForm({ selectedInput }) {
     });
   }
 
-  const boutLogData = useQuery(["boutLog"], () =>
-    fetchAPI(server_url + "/bout_log/1")
-  );
-
   /* console.log(jointRefData.isLoading ? "" : jointRefData.data) */
 
   /* state for form components */
-  const [drillDate, setDrillDate] = useState("");
 
-  const [jointID, setJointID] = useState(0);
-  const [zoneID, setZoneID] = useState(0);
-  /* console.log("jointId in state: "+ jointID)
-  console.log("zoneId in state: "+ zoneID) */
+  const [inputFormArray, SetInputFormArray] = useState([
+    selectedInput.id,
+    {
+      ref_joint_id: [],
+      rails: false,
+      passive_duration: 0,
+      duration: 0,
+      rpe: 0,
+      external_load: 0,
+      tissue_id: "",
+      workout_id: "",
+    },
+  ]);
+  console.log(inputFormArray);
 
-  const [selectedDrill, setSelectedDrill] = useState("CARs");
-  const [selectedPosition, setSelectedPosition] = useState(0);
-  const [selectedRotation, setSelectedRotation] = useState(-100);
-  const [railsSelected, setRailsSelected] = useState(false);
-  const [drillDuration, setDrillDuration] = useState(30);
-  const [passiveDuration, setPassiveDuration] = useState(0);
-  const [drillRPE, setDrillRPE] = useState(5);
-  const [drillLoad, setDrillLoad] = useState(0);
+  function updateInputForm(value) {
+    const [field, updVal] = value;
+    const new_inputFormArray = [
+      selectedInput.id,
+      { ...inputFormArray[1], [field]: updVal },
+    ];
+    SetInputFormArray(new_inputFormArray);
+    pushToWorkout();
+  }
+
+  const pushToWorkout = () => updateWorkoutResults(inputFormArray);
+  /* QUESTION FOR HACKERS: 
+  seems that state doesn't get updated IN the actual function--
+  so do I just have to chain a bunch of functions together, or??? 
+  OR: am I doing something else wrong bc I am not seeing the fully 
+  updated state when I submit the form...
+  */
+
   if (selectedInput == "")
     return <h2>Select an input to begin recording results...</h2>;
-  if (boutLogData.isLoading) {
-    return <p>Getting your bout data...</p>;
-  }
 
   /* console.log(jointRefData.data) */
 
   /* this function logs the ref_joint or ref_zone id into state, so that can be sent off with 'submit_form' */
-  function find_tissue(item) {
+  /* function find_tissue(item) {
     const id = item.id;
     if (item.children) {
       setJointID(id);
     } else {
       setZoneID(id);
     }
-  }
-
-  function submit_form() {
-    console.log(
-      jointID,
-      zoneID,
-      selectedDrill,
-      drillDate,
-      drillDuration,
-      drillLoad,
-      drillRPE
-    );
-  }
+  } */
 
   const position = ["Regressive (short)", "Progressive (long)"];
-
-  const bout_array = boutLogData.data["bout_log"];
-  const bouts = bout_array.map((bout, i) => {
-    return (
-      <Timeline.Item key={`bout_${bout_array[i].id}`} time={bout_array[i].date}>
-        {bout_array[i].comments}, RPE: {bout_array[i].rpe}, External Load:{" "}
-        {bout_array[i].external_load}
-      </Timeline.Item>
-    );
-  });
 
   return (
     <div className='inp-form'>
@@ -102,8 +97,8 @@ export default function RecordWkoutForm({ selectedInput }) {
           <Form.ControlLabel>RAILs tissue trained...?</Form.ControlLabel>
           {<h4>not indicated</h4>}
           <Toggle
-            onChange={() => setRailsSelected((prev) => !prev)}
-            value={railsSelected}
+            onChange={(v, e) => updateInputForm(["rails", v])}
+            value={inputFormArray.rails}
           />
         </Form.Group>
 
@@ -112,8 +107,8 @@ export default function RecordWkoutForm({ selectedInput }) {
           <Form.ControlLabel>Duration of passive stretch:</Form.ControlLabel>
           <h4>{`Rx: ${selectedInput.passive_duration}sec`}</h4>
           <InputNumber
-            onChange={setPassiveDuration}
-            value={passiveDuration}
+            onChange={(v, e) => updateInputForm(["passive_duration", v])}
+            value={inputFormArray.passive_duration}
             postfix='seconds'
           />
         </Form.Group>
@@ -123,9 +118,9 @@ export default function RecordWkoutForm({ selectedInput }) {
           <Form.ControlLabel>Duration of effort:</Form.ControlLabel>
           <h4>{`Rx: ${selectedInput.duration}sec`}</h4>
           <InputNumber
-            value={drillDuration}
+            onChange={(v, e) => updateInputForm(["duration", v])}
+            value={inputFormArray.duration}
             postfix='seconds'
-            onChange={setDrillDuration}
           />
         </Form.Group>
         <br />
@@ -135,13 +130,13 @@ export default function RecordWkoutForm({ selectedInput }) {
           </Form.ControlLabel>
           <h4>{`Rx: ${selectedInput.rpe}`}</h4>
           <Slider
-            value={drillRPE}
+            onChange={(v, e) => updateInputForm(["rpe", v])}
+            value={inputFormArray.rpe}
             min={0}
             step={1}
             max={10}
             graduated
             progress
-            onChangeCommitted={setDrillRPE}
             renderMark={(mark) => {
               return mark;
             }}
@@ -160,15 +155,15 @@ export default function RecordWkoutForm({ selectedInput }) {
             </h4>
           }
           <InputNumber
-            value={drillLoad}
+            onChange={(v, e) => updateInputForm(["external_load", v])}
+            value={inputFormArray.external_load}
             postfix='lbs'
-            onChange={setDrillLoad}
           />
         </Form.Group>
         <Form.Group>
           <ButtonToolbar>
-            <Button appearance='primary' onClick={submit_form}>
-              Submit
+            <Button appearance='primary' onClick={updateDB}>
+              Save Input
             </Button>
             <Button appearance='default'>Cancel</Button>
           </ButtonToolbar>

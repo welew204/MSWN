@@ -45,10 +45,16 @@ export default function Home() {
   const [addMoverOpen, setAddMoverOpen] = useState(false);
 
   useEffect(() => {
+    fetchAPI(`${server_url}/movers_list`).then((data) =>
+      setActiveMover(data[1][0])
+    );
+  }, []);
+  useEffect(() => {
     fetchAPI(`${server_url}/workouts`).then((data) =>
       setSelectedWorkout(data[0].id)
     );
   }, []);
+
   if (movers.isLoading) return "Loading...";
   if (movers.isError) return `Error: error`;
   if (workoutsQuery.isLoading) return "Loading...";
@@ -95,7 +101,9 @@ export default function Home() {
             appearance='subtle'>
             <Sidenav.Body>
               <Nav
-                activeKey={activeMover ? activeMover : `${movers.data["1"][0]}`}
+                activeKey={
+                  activeMover ? `${activeMover}` : `${movers.data["1"][0]}`
+                }
                 onSelect={(e) => {
                   setActiveMover(e);
                 }}>
@@ -107,7 +115,9 @@ export default function Home() {
         </Sidebar>
         <Content className='content'>
           {selectedWorkout ? (
-            <Outlet context={[selectedWorkout, setSelectedWorkout]} />
+            <Outlet
+              context={[selectedWorkout, setSelectedWorkout, activeMover]}
+            />
           ) : (
             <Loader size='lg' />
           )}
