@@ -25,14 +25,16 @@ export default function AddMoverModal({ open, close }) {
       }).then((res) => console.log(res));
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["movers"] });
+      queryClient.invalidateQueries(["movers"]);
+      console.log("The mutation is sucessful!");
     },
   });
 
   const handleClose = () => close();
+  /* TODO maybe the issue is triggering the re-render of the sidebar 'movers' */
 
   return (
-    <Modal size="xs" open={open}>
+    <Modal size='xs' open={open}>
       <Modal.Header>
         <Modal.Title>Add Mover</Modal.Title>
       </Modal.Header>
@@ -40,24 +42,24 @@ export default function AddMoverModal({ open, close }) {
         <Form style={{ padding: 10 }}>
           <Form.Group>
             <Form.Control
-              autoComplete="false"
+              autoComplete='false'
               onChange={(value, event) => handleChange(event)}
-              placeholder="First Name"
-              name="firstName"
+              placeholder='First Name'
+              name='firstName'
             />
           </Form.Group>
           <Form.Group>
             <Form.Control
-              autoComplete="false"
+              autoComplete='false'
               onChange={(value, event) => handleChange(event)}
-              placeholder="Last Name"
-              name="lastName"
+              placeholder='Last Name'
+              name='lastName'
             />
           </Form.Group>
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button onClick={handleClose} appearance="subtle">
+        <Button onClick={handleClose} appearance='subtle'>
           Cancel
         </Button>
         <Link>
@@ -67,8 +69,7 @@ export default function AddMoverModal({ open, close }) {
               addMover.mutate(form);
               handleClose();
             }}
-            appearance="primary"
-          >
+            appearance='primary'>
             OK
           </Button>
         </Link>

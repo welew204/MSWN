@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink, Link, useOutletContext } from "react-router-dom";
 import { RsNavLink } from "./helpers/RsNavLink";
 import {
@@ -32,16 +32,20 @@ export default function RecordWkout() {
   const [selectedWorkout, setSelectedWorkout, activeMover] = useOutletContext();
   const [selectInp, setSelectInp] = useState("");
   const [workoutResults, setWorkoutResults] = useState({});
-  console.log(workoutResults);
 
-  function updateWorkoutResults(inputFormArray) {
-    const [inputId, UpdValue] = inputFormArray;
+  const workoutsQuery = useQuery(["workouts"], () => {
+    return fetchAPI(server_url + "/workouts");
+  });
+  /*   setWorkoutResults(workoutsQuery.data
+   */
+  function updateWorkoutResults(inputId, UpdValue) {
     setWorkoutResults((prev) => ({ ...prev, [inputId]: UpdValue }));
   }
+
   /* //TODO... need to make this go the right end-point */
   const updateDB = useMutation({
     mutationFn: (newMover) => {
-      fetch("http://127.0.0.1:8000/add_mover", {
+      fetch(server_url + "/record_workout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify([workoutResults]),
@@ -51,20 +55,16 @@ export default function RecordWkout() {
   });
 
   /* need to use workoutsQuery to set workoutResults right away,
-  then make function to update these results,
-  then pass that function to Child RecordWorkoutForm, 
-  then use that prop on 'Save Input' click;
-  then submit form (useMutation) to DB,
-  DB has to parse all the inputs into Bouts!
-   */
+    then make function to update these results,
+    then pass that function to Child RecordWorkoutForm, 
+    then use that prop on 'Save Input' click;
+    then submit form (useMutation) to DB,
+    DB has to parse all the inputs into Bouts!
+    */
 
   function fetchAPI(url) {
     return fetch(url).then((res) => res.json());
   }
-
-  const workoutsQuery = useQuery(["workouts"], () => {
-    return fetchAPI(server_url + "/workouts");
-  });
 
   const boutLogData = useQuery(["boutLog"], () =>
     fetchAPI(server_url + `/bout_log/${activeMover}`)
@@ -72,6 +72,7 @@ export default function RecordWkout() {
   if (boutLogData.isLoading) {
     return <p>Getting your bout data...</p>;
   }
+
   if (workoutsQuery.isLoading) return "Loading...";
   if (workoutsQuery.isError) return `Error: error`;
   //TODO
@@ -103,6 +104,27 @@ export default function RecordWkout() {
     const selWkt = workouts.find((wkt) => wkt.id == wktid);
     return selWkt;
   }
+
+  if (Object.keys(workoutResults).length == 0) {
+    const selWkt = findWorkout(selectedWorkout);
+    for (let w in Object.keys(selWkt.inputs)) {
+      updateWorkoutResults(selWkt.inputs[w].id, {
+        Rx: { ...selWkt.inputs[w] },
+        results: {
+          rails: false,
+          passive_duration: 0,
+          duration: 0,
+          rpe: 0,
+          external_load: 0,
+        },
+      });
+      /* NEXT: ALSO a seperate results object that will get the recorded stuff, that is then grabbed to send to server!
+      Then, clean up the earlier version, get the end-point delivering!
+      then, write the parser in python :)
+      then, build the workoutbuilder */
+    }
+  }
+  console.log(workoutResults);
 
   const bout_array = boutLogData.data["bout_log"];
   const bouts = bout_array.map((bout, i) => {
@@ -173,6 +195,7 @@ export default function RecordWkout() {
 
           <Stack.Item style={{ width: "100%", padding: 10 }}>
             <RecordWkoutForm
+              key={selectInp}
               selectedInput={
                 selectInp
                   ? findWorkout(selectedWorkout).inputs.find(
@@ -182,12 +205,10 @@ export default function RecordWkout() {
               }
               workoutResults={workoutResults}
               updateWorkoutResults={updateWorkoutResults}
-              updateDB={() =>
-                console.log(
-                  "workout being sent...(incomplete): " +
-                    JSON.stringify(workoutResults)
-                )
-              }
+              updateDB={(event) => {
+                event.preventDefault();
+                updateDB.mutate();
+              }}
             />
           </Stack.Item>
         </Stack.Item>
@@ -201,9 +222,7 @@ export default function RecordWkout() {
           <Button
             as={RsNavLink}
             href='/mover'
-            onClickCapture={() =>
-              console.log("workout being sent..." + [workoutResults])
-            }>
+            onClickCapture={() => updateDB.mutate()}>
             Record Workout
           </Button>
           <Button as={RsNavLink} href='/record'>

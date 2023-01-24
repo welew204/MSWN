@@ -35,32 +35,18 @@ export default function RecordWkoutForm({
 
   /* state for form components */
 
-  const [inputFormArray, SetInputFormArray] = useState([
-    selectedInput.id,
-    {
-      ref_joint_id: [],
-      rails: false,
-      passive_duration: 0,
-      duration: 0,
-      rpe: 0,
-      external_load: 0,
-      tissue_id: "",
-      workout_id: "",
-    },
-  ]);
-  console.log(inputFormArray);
-
   function updateInputForm(value) {
     const [field, updVal] = value;
-    const new_inputFormArray = [
-      selectedInput.id,
-      { ...inputFormArray[1], [field]: updVal },
-    ];
-    SetInputFormArray(new_inputFormArray);
-    pushToWorkout();
+    const new_results = {
+      ...workoutResults[selectedInput.id].results,
+      [field]: updVal,
+    };
+    updateWorkoutResults(selectedInput.id, {
+      ...workoutResults[selectedInput.id],
+      results: new_results,
+    });
   }
 
-  const pushToWorkout = () => updateWorkoutResults(inputFormArray);
   /* QUESTION FOR HACKERS: 
   seems that state doesn't get updated IN the actual function--
   so do I just have to chain a bunch of functions together, or??? 
@@ -83,8 +69,6 @@ export default function RecordWkoutForm({
     }
   } */
 
-  const position = ["Regressive (short)", "Progressive (long)"];
-
   return (
     <div className='inp-form'>
       <Form>
@@ -92,13 +76,18 @@ export default function RecordWkoutForm({
           style={{
             textAlign: "center",
           }}>{`${selectedInput.ref_joint_name} ${selectedInput.drill_name}`}</h2>
+        <p>
+          "***Some info defining the params of this particular input (like:
+          HOW-To do a certain drill, & Rotation or P/R position-value)***
+        </p>
         <Divider />
         <Form.Group controlId='rails'>
           <Form.ControlLabel>RAILs tissue trained...?</Form.ControlLabel>
           {<h4>not indicated</h4>}
           <Toggle
+            key={selectedInput.id}
             onChange={(v, e) => updateInputForm(["rails", v])}
-            value={inputFormArray.rails}
+            checked={workoutResults[selectedInput.id].results.rails}
           />
         </Form.Group>
 
@@ -108,7 +97,7 @@ export default function RecordWkoutForm({
           <h4>{`Rx: ${selectedInput.passive_duration}sec`}</h4>
           <InputNumber
             onChange={(v, e) => updateInputForm(["passive_duration", v])}
-            value={inputFormArray.passive_duration}
+            value={workoutResults[selectedInput.id].results.passive_duration}
             postfix='seconds'
           />
         </Form.Group>
@@ -119,7 +108,7 @@ export default function RecordWkoutForm({
           <h4>{`Rx: ${selectedInput.duration}sec`}</h4>
           <InputNumber
             onChange={(v, e) => updateInputForm(["duration", v])}
-            value={inputFormArray.duration}
+            value={workoutResults[selectedInput.id].results.duration}
             postfix='seconds'
           />
         </Form.Group>
@@ -131,7 +120,7 @@ export default function RecordWkoutForm({
           <h4>{`Rx: ${selectedInput.rpe}`}</h4>
           <Slider
             onChange={(v, e) => updateInputForm(["rpe", v])}
-            value={inputFormArray.rpe}
+            value={workoutResults[selectedInput.id].results.rpe}
             min={0}
             step={1}
             max={10}
@@ -156,7 +145,7 @@ export default function RecordWkoutForm({
           }
           <InputNumber
             onChange={(v, e) => updateInputForm(["external_load", v])}
-            value={inputFormArray.external_load}
+            value={workoutResults[selectedInput.id].results.external_load}
             postfix='lbs'
           />
         </Form.Group>

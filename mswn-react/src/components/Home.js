@@ -37,6 +37,7 @@ export default function Home() {
   const movers = useQuery({
     queryKey: ["movers"],
     queryFn: () => fetchAPI(server_url + "/movers_list"),
+    onSuccess: () => console.log("movers re-queried!"),
   });
 
   const [activeMover, setActiveMover] = useState("");
