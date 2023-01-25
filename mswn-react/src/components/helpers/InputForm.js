@@ -10,6 +10,7 @@ import {
   Form,
   DatePicker,
   Timeline,
+  Schema,
 } from "rsuite";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { find } from "rsuite/esm/utils/ReactChildren";
@@ -17,6 +18,7 @@ import { find } from "rsuite/esm/utils/ReactChildren";
 const server_url = "http://127.0.0.1:8000";
 
 export default function InputForm({
+  updateDB,
   setSelectedInput,
   wktInProgress,
   updateWkt,
@@ -51,6 +53,9 @@ export default function InputForm({
 
   const [jointID, setJointID] = useState(0);
   const [zoneID, setZoneID] = useState(0);
+
+  useEffect(() => setJointID(wktInProgress[selectedInput]?.ref_joint_id), []);
+  useEffect(() => setZoneID(wktInProgress[selectedInput]?.ref_zones_id_a), []);
   console.log("jointId in state: " + jointID);
   console.log("zoneId in state: " + zoneID);
 
@@ -109,7 +114,9 @@ export default function InputForm({
         [selectedInput]: {
           ...wktInProgress.inputs[selectedInput],
           ref_joint_id: value,
-          ref_joint_side: target_joint.zones[0].joint_name,
+          ref_joint_name: target_joint.zones[0].joint_name,
+          ref_zones_id_a: "",
+          ref_zones_id_b: "",
           ref_joint_side: target_joint.zones[0].side,
         },
       });
@@ -154,27 +161,55 @@ export default function InputForm({
   updateInputInProgress(["ref_joint_name", label]); */
 
   async function submit_form() {
+    const input_index = Object.keys(wktInProgress.inputs).length + 1;
+    const sets = Object.entries(wktInProgress.schema);
+    const next_set = String.fromCharCode(
+      sets
+        .find((set) => set[1].circuit.includes(`${selectedInput}`))
+        .at(0)
+        .charCodeAt() + 1
+    );
+    console.log(next_set);
     return Promise.resolve(
       updateWkt("inputs", {
         ...wktInProgress.inputs,
-        1: { ...InputInProgress, completed: true },
+        [selectedInput]: { ...InputInProgress, completed: true },
       })
     )
       .then((res) =>
         setWktInProgress((prev) => {
           return {
             ...prev,
-            /*
             inputs: {
-               ...prev.inputs, 
-               [Object.keys(prev.inputs).length + 1]: default_new_input,
+              ...prev.inputs,
+              [input_index]: { ...default_new_input, id: input_index },
+            },
+            schema: {
+              ...prev.schema,
+              [next_set]: {
+                circuit: [`${input_index}`],
+                iterations: 1,
               },
-              */
+            },
           };
         })
       )
-      .then((res) => console.log("WHOA I got this far ... " + res));
+      .then((res) => setSelectedInput(input_index))
+      .then(() => updateDB.mutate());
   }
+  /* TODO need to add 'model' for schema to do validation correctly */
+  const jointRule = Schema.Types.StringType().isRequired(
+    "Please select a joint or a specific joint-zone."
+  );
+  const drillRule = Schema.Types.StringType().isRequired(
+    "Please select a drill."
+  );
+  const timeRule = Schema.Types.StringType().isRequired(
+    "Please select an intended duration."
+  );
+  const rpeRule = Schema.Types.StringType().isRequired(
+    "Please select an intented RPE."
+  );
 
   const position = ["Regressive (short)", "Progressive (long)"];
 
@@ -212,11 +247,16 @@ export default function InputForm({
           style={{ display: "flex", justifyContent: "space-evenly" }}>
           <Form.Group>
             <Form.ControlLabel>Joint / Zone trained:</Form.ControlLabel>
+            {/* <Form.Control name='joint' rule={jointRule} /> */}
             <Cascader
               key={`${selectedInput}-joint_zone_a`}
               data={jointsArray}
               style={{ width: 224 }}
-              value={!zoneID ? `${jointID}` : `${jointID}-${zoneID}`}
+              value={
+                !InputInProgress.ref_zones_id_a
+                  ? `${InputInProgress.ref_joint_id}`
+                  : `${InputInProgress.ref_joint_id}-${InputInProgress.ref_zones_id_a}`
+              }
               parentSelectable
               onChange={(value) => {
                 find_tissue(value);
@@ -235,10 +275,10 @@ export default function InputForm({
               }
               style={{ width: 224 }}
               value={
-                jointID
+                InputInProgress.ref_joint_id
                   ? InputInProgress.ref_zones_id_b
-                    ? `${jointID}-${InputInProgress.ref_zones_id_b}`
-                    : `${jointID}`
+                    ? `${InputInProgress.ref_joint_id}-${InputInProgress.ref_zones_id_b}`
+                    : `${InputInProgress.ref_joint_id}`
                   : "n/a"
               }
               onChange={(value) => {
@@ -252,8 +292,10 @@ export default function InputForm({
         </Form.Group>
         <Form.Group controlId='drills'>
           <Form.ControlLabel>Drill:</Form.ControlLabel>
+          {/* <Form.Control name='drill' rule={drillRule} /> */}
           <SelectPicker
             key={`${selectedInput}-drill`}
+            value={`${InputInProgress.drill_name}`}
             data={drills}
             disabled={InputInProgress.ref_joint_id ? false : true}
             disabledItemValues={
@@ -273,8 +315,8 @@ export default function InputForm({
               key={`${selectedInput}-rails`}
               /* disabled={
                 ["IC1", "IC2"].includes(InputInProgress.drill_name)
-                  ? false
-                  : true
+                ? false
+                : true
               } */
               onChange={(v, e) => updateInputInProgress(["rails", v])}
               checked={InputInProgress.rails ? InputInProgress.rails : false}
@@ -296,6 +338,9 @@ export default function InputForm({
                 min={0}
                 step={25}
                 max={100}
+                value={
+                  InputInProgress.start_coord ? InputInProgress.start_coord : 50
+                }
                 graduated
                 progress
                 renderMark={(mark) => {
@@ -319,6 +364,9 @@ export default function InputForm({
               <Slider
                 key={`${selectedInput}-position_b`}
                 handleStyle={{ marginLeft: "0%", fontSize: "x-small" }}
+                value={
+                  InputInProgress.end_coord ? InputInProgress.end_coord : 50
+                }
                 min={0}
                 step={25}
                 max={100}
@@ -405,6 +453,7 @@ export default function InputForm({
         )}
         <Form.Group controlId='duration'>
           <Form.ControlLabel>Duration of effort:</Form.ControlLabel>
+          {/* <Form.Control name='duration' rule={timeRule} /> */}
           <InputNumber
             key={`${selectedInput}-duration`}
             disabled={InputInProgress.drill_name ? false : true}
@@ -419,6 +468,7 @@ export default function InputForm({
           <Form.ControlLabel>
             Rate of Percieved Exertion (RPE):
           </Form.ControlLabel>
+          {/* <Form.Control name='rpe' rule={rpeRule} /> */}
           <Slider
             disabled={InputInProgress.drill_name ? false : true}
             key={`${selectedInput}-rpe`}
@@ -453,7 +503,7 @@ export default function InputForm({
         <Form.Group>
           <ButtonToolbar>
             <Button appearance='primary' onClick={submit_form}>
-              Submit
+              Add to Workout
             </Button>
             <Button appearance='default'>Cancel</Button>
           </ButtonToolbar>

@@ -16,9 +16,11 @@ DROP TABLE IF EXISTS linear_adj;
 DROP TABLE IF EXISTS zones;
 DROP TABLE IF EXISTS tissues;
 
-DROP TABLE IF EXISTS programming_log;
-DROP TABLE IF EXISTS bout_log;
+DROP TABLE IF EXISTS programmed_drills;
+DROP TABLE IF EXISTS workouts;
 DROP TABLE IF EXISTS incomplete_log;
+
+DROP TABLE IF EXISTS bout_log;
 DROP TABLE IF EXISTS assess_event_log;
 DROP TABLE IF EXISTS assess_tissue_log;
 
@@ -257,7 +259,7 @@ CREATE TABLE bout_log (
     FOREIGN KEY (moverid) REFERENCES movers (id)
 );
 
-CREATE TABLE incomplete_bout_log (
+CREATE TABLE incomplete_log (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     date TEXT NOT NULL, 
     moverid INTEGER NOT NULL,
@@ -331,12 +333,25 @@ CREATE TABLE assess_tissue_log (
     FOREIGN KEY (moverid) REFERENCES movers (id)
 );
 
-CREATE TABLE programming_log (
+CREATE TABLE workouts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date_init TEXT NOT NULL,
+    last_done TEXT,
+    coach_id TEXT,
+    workout_title TEXT,
+    moverid INTEGER,
+    comments TEXT,
+    FOREIGN KEY (coach_id) REFERENCES coaches (id),
+    FOREIGN KEY (moverid) REFERENCES movers (id)
+
+);
+
+CREATE TABLE programmed_drills (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     date TEXT NOT NULL,
     moverid INTEGER NOT NULL,
     joint_id INTEGER NOT NULL,
-    workout_id INTEGER,
+    workout_id INTEGER NOT NULL,
     ref_zones_id_a INTEGER NOT NULL,
     ref_zones_id_b INTEGER,
     fixed_side_anchor_id INTEGER NOT NULL,
@@ -355,7 +370,8 @@ CREATE TABLE programming_log (
     FOREIGN KEY (joint_id) REFERENCES joints (id),
     FOREIGN KEY (ref_zones_id_a) REFERENCES ref_zones (id),
     FOREIGN KEY (ref_zones_id_b) REFERENCES ref_zones (id),
+    FOREIGN KEY (workout_id) REFERENCES workout (id),
     FOREIGN KEY (tissue_id) REFERENCES tissues (id),
     FOREIGN KEY (moverid) REFERENCES movers (id)
-)
+);
 

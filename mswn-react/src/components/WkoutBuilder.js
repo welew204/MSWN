@@ -24,6 +24,7 @@ import CogIcon from "@rsuite/icons/legacy/Cog";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { NavToggle } from "./helpers/NavToggle";
 import InputForm from "./helpers/InputForm";
+import WktTitle from "./helpers/WktTitle";
 
 const server_url = "http://127.0.0.1:8000";
 
@@ -58,10 +59,12 @@ export default function WkoutBuilder() {
     inputs: {
       1: default_new_input,
     },
+    schema: { A: { circuit: ["1"], iterations: 1 } },
   });
   console.log(wktInProgress);
 
   const [selectedInput, setSelectedInput] = useState(1);
+  console.log("SELECTED INPUT: " + selectedInput);
 
   useEffect(() => {
     setWktInProgress((prev) => {
@@ -69,6 +72,17 @@ export default function WkoutBuilder() {
       return { ...prev, date_init: date.slice(0, 10) };
     });
   }, []);
+
+  const updateDB = useMutation({
+    mutationFn: () => {
+      fetch(server_url + "/write_workout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify([wktInProgress]),
+        mode: "cors",
+      }).then((res) => console.log(res));
+    },
+  });
 
   const workoutsQuery = useQuery(["workouts"], () => {
     return fetchAPI(server_url + "/workouts");
@@ -111,12 +125,7 @@ export default function WkoutBuilder() {
           ? "selected-inp-plaque"
           : "inp-plaque"
       }
-      style={
-        (wktInProgress.inputs[inp].ref_joint_id !== ""
-          ? { backgroundColor: "lightgreen" }
-          : { backgroundColor: "lightgray" },
-        { display: "flex", justifyContent: "center" })
-      }
+      style={{ display: "flex", justifyContent: "center" }}
       bordered
       header={
         wktInProgress.inputs[inp].ref_joint_id &&
@@ -127,7 +136,7 @@ export default function WkoutBuilder() {
         )
       }>
       {wktInProgress.inputs[inp].completed
-        ? `RPE: ${wktInProgress.inputs[inp].rpe}/10, Duration: ${wktInProgress.inputs[inp].rpe}/10`
+        ? `RPE: ${wktInProgress.inputs[inp].rpe}/10, Duration: ${wktInProgress.inputs[inp].rpe} secs`
         : "Building workout..."}
     </Panel>
   ));
@@ -160,7 +169,8 @@ export default function WkoutBuilder() {
             </h3>
             <Divider />
             <InputForm
-              /* CRITICAL ? key= */
+              key={`${selectedInput}`}
+              updateDB={updateDB}
               setSelectedInput={setSelectedInput}
               default_new_input={default_new_input}
               setWktInProgress={setWktInProgress}
@@ -180,6 +190,10 @@ export default function WkoutBuilder() {
               gap: 10,
             }}
             className='workoutSchema'>
+            <WktTitle
+              title={wktInProgress.workout_title}
+              onChange={updateWkt}
+            />
             {rx_inputs}
           </Stack.Item>
         </Stack.Item>
@@ -190,7 +204,7 @@ export default function WkoutBuilder() {
             justifyContent: "center",
             gap: 20,
           }}>
-          <Button as={RsNavLink} href='/mover'>
+          <Button as={RsNavLink} href='/mover' onClick={updateDB.mutate}>
             Save Workout
           </Button>
           <Button as={RsNavLink} href='/wbuilder'>

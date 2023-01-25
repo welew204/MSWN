@@ -44,6 +44,14 @@ def add_mover_to_db():
     add_new_mover(db, fname, lname)
     return f"{fname} {lname} is added to the DB!", 201
 
+@bp.route('/write_workout', methods=('POST',))
+def write_workout():
+    db=get_db()
+    req = request.get_json()[0]
+    print(f"record_workout request: {req})", file=sys.stderr)
+    
+    return f"Request is recieved!", 201
+
 @bp.route('/record_workout', methods=('POST',))
 def record_workout():
     db=get_db()
