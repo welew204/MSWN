@@ -37,10 +37,8 @@ export default function WkoutBuilder() {
     ref_zones_id_b: "",
     fixed_side_anchor_id: "",
     rotational_bias: "",
-    joint_motion: "",
     start_coord: "",
     end_coord: "",
-    tissue_id: "",
     drill_name: "",
     duration: "",
     passive_duration: "",
@@ -61,10 +59,10 @@ export default function WkoutBuilder() {
     },
     schema: { A: { circuit: ["1"], iterations: 1 } },
   });
-  console.log(wktInProgress);
+  /* console.log(wktInProgress); */
 
   const [selectedInput, setSelectedInput] = useState(1);
-  console.log("SELECTED INPUT: " + selectedInput);
+  /* console.log("SELECTED INPUT: " + selectedInput); */
 
   useEffect(() => {
     setWktInProgress((prev) => {
@@ -136,7 +134,7 @@ export default function WkoutBuilder() {
         )
       }>
       {wktInProgress.inputs[inp].completed
-        ? `RPE: ${wktInProgress.inputs[inp].rpe}/10, Duration: ${wktInProgress.inputs[inp].rpe} secs`
+        ? `RPE: ${wktInProgress.inputs[inp].rpe}/10, Duration: ${wktInProgress.inputs[inp].duration} secs`
         : "Building workout..."}
     </Panel>
   ));

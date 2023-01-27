@@ -73,6 +73,8 @@ export default function Home() {
       eventKey={`${mvr[0]}`}>{`${mvr[1]} ${mvr[2]}`}</Nav.Item>
   ));
 
+  console.log(movers.data);
+
   return (
     <Container className='home-frame'>
       <Header>

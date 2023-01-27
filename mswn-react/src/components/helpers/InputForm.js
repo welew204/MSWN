@@ -49,15 +49,15 @@ export default function InputForm({
   const [drillDate, setDrillDate] = useState("");
 
   const [jointSelected, setJointSelected] = useState("");
-  console.log(jointSelected);
+  /* console.log(jointSelected);*/
 
   const [jointID, setJointID] = useState(0);
   const [zoneID, setZoneID] = useState(0);
 
   useEffect(() => setJointID(wktInProgress[selectedInput]?.ref_joint_id), []);
   useEffect(() => setZoneID(wktInProgress[selectedInput]?.ref_zones_id_a), []);
-  console.log("jointId in state: " + jointID);
-  console.log("zoneId in state: " + zoneID);
+  /* console.log("jointId in state: " + jointID); */
+  /* console.log("zoneId in state: " + zoneID); */
 
   if (boutLogData.isLoading) {
     return <p>Getting your bout data...</p>;
@@ -169,7 +169,7 @@ export default function InputForm({
         .at(0)
         .charCodeAt() + 1
     );
-    console.log(next_set);
+
     return Promise.resolve(
       updateWkt("inputs", {
         ...wktInProgress.inputs,
@@ -194,8 +194,7 @@ export default function InputForm({
           };
         })
       )
-      .then((res) => setSelectedInput(input_index))
-      .then(() => updateDB.mutate());
+      .then((res) => setSelectedInput(input_index));
   }
   /* TODO need to add 'model' for schema to do validation correctly */
   const jointRule = Schema.Types.StringType().isRequired(

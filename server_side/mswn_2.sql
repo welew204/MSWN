@@ -343,7 +343,6 @@ CREATE TABLE workouts (
     comments TEXT,
     FOREIGN KEY (coach_id) REFERENCES coaches (id),
     FOREIGN KEY (moverid) REFERENCES movers (id)
-
 );
 
 CREATE TABLE programmed_drills (
@@ -352,26 +351,26 @@ CREATE TABLE programmed_drills (
     moverid INTEGER NOT NULL,
     joint_id INTEGER NOT NULL,
     workout_id INTEGER NOT NULL,
+    input_sequence TEXT,
+    circuit_iterations INTEGER,
     ref_zones_id_a INTEGER NOT NULL,
     ref_zones_id_b INTEGER,
     fixed_side_anchor_id INTEGER NOT NULL,
-    rotational_bias TEXT,
-    joint_motion TEXT NOT NULL, 
+    rotational_value INTEGER,
     start_coord INTEGER,
     end_coord INTEGER,
-    tissue_id INTEGER,
     drill_name TEXT,
+    rails TEXT,
     duration INTEGER NOT NULL,
     passive_duration INTEGER,
     rpe INT NOT NULL,
     external_load INTEGER,
-    comments TEXT, 
+    comments TEXT,
     FOREIGN KEY (fixed_side_anchor_id) REFERENCES anchor (id),
     FOREIGN KEY (joint_id) REFERENCES joints (id),
     FOREIGN KEY (ref_zones_id_a) REFERENCES ref_zones (id),
     FOREIGN KEY (ref_zones_id_b) REFERENCES ref_zones (id),
     FOREIGN KEY (workout_id) REFERENCES workout (id),
-    FOREIGN KEY (tissue_id) REFERENCES tissues (id),
     FOREIGN KEY (moverid) REFERENCES movers (id)
 );
 
