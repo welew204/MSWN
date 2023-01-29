@@ -35,7 +35,7 @@ export default function MoverSelect(props) {
   const [selectedWorkout, setSelectedWorkout, activeMover] = useOutletContext();
 
   const workoutsQuery = useQuery(["workouts"], () => {
-    return fetchAPI(server_url + "/workouts");
+    return fetchAPI(server_url + `/workouts/${activeMover}`);
   });
   if (workoutsQuery.isLoading) return "Loading...";
   if (workoutsQuery.isError) return `Error: error`;

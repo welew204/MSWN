@@ -34,7 +34,7 @@ export default function RecordWkout() {
   const [workoutResults, setWorkoutResults] = useState({});
 
   const workoutsQuery = useQuery(["workouts"], () => {
-    return fetchAPI(server_url + "/workouts");
+    return fetchAPI(server_url + `/workouts/${activeMover}`);
   });
   /*   setWorkoutResults(workoutsQuery.data
    */
@@ -75,11 +75,16 @@ export default function RecordWkout() {
 
   if (workoutsQuery.isLoading) return "Loading...";
   if (workoutsQuery.isError) return `Error: error`;
-  //TODO
+
   const workouts = workoutsQuery.data;
 
+  /* HACK: the DEFAULT TITLE behavior here is handled locally,, but needs to get handled higher up */
   const wkoutSelect = workouts.map((wkt) => {
-    return { label: wkt.workout_title, value: wkt.id };
+    var wkt_label = "";
+    wkt.workout_title
+      ? (wkt_label = wkt.workout_title)
+      : (wkt_label = `${wkt.date_init} Workout`);
+    return { label: wkt_label, value: wkt.id };
   });
 
   const index_of_selectedWorkout = () => {
@@ -88,9 +93,8 @@ export default function RecordWkout() {
     );
     return selWktIndex;
   };
-  /* need INPUTS to dynamically update even BEFORE selectedWorkout is set; right now I'm just drawing the '0'-th workout!! */
 
-  const inputs = workouts[index_of_selectedWorkout()].inputs.map((inp) => (
+  const inputs = workouts[index_of_selectedWorkout()]?.inputs.map((inp) => (
     <Panel
       key={inp.id}
       onClick={() => setSelectInp(inp.id)}
@@ -198,7 +202,7 @@ export default function RecordWkout() {
               key={selectInp}
               selectedInput={
                 selectInp
-                  ? findWorkout(selectedWorkout).inputs.find(
+                  ? findWorkout(selectedWorkout)?.inputs.find(
                       (inp) => inp.id == selectInp
                     )
                   : ""

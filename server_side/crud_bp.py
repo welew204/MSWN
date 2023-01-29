@@ -135,12 +135,96 @@ def record_workout():
     
     return f"Request is recieved!", 201
     
-@bp.route('/workouts')
-def get_workouts():
-    with open('/Users/williamhbelew/Hacking/MSWN/server_side/wkoutsFakeData.json') as w:
-        wkouts = json.load(w)
-        return jsonify(wkouts), 200
+@bp.route('/workouts/<int:mover_id>')
+def get_workouts(mover_id):
+    if mover_id == 0:
+        return json.dumps([]), 200
+    db = get_db()
+    curs = db.cursor()
+    workout_rows = curs.execute('''SELECT 
+                                    workouts.id, 
+                                    date_init, 
+                                    last_done, 
+                                    workout_title, 
+                                    workouts.moverid, 
+                                    workouts.comments
+                                    FROM workouts
+                                    WHERE workouts.moverid = (?)
+                                    ''', (mover_id,)).fetchall()
+    
+    wkouts = {}
+    def schema_factory():
+        return {"circuit": [], "iterations": 0}
 
+    for row in workout_rows:
+        wkout = {k: row[k] for k in row.keys()}
+        wkout["inputs"] = []
+        wkout["schema"] = defaultdict(schema_factory)
+        wkouts[wkout['id']] = wkout
+
+    pprint(wkouts)
+
+    for workout_id in wkouts.keys():
+        input_rows = curs.execute('''SELECT
+                                    programmed_drills.id,
+                                    programmed_drills.moverid,
+                                    
+                                    input_sequence,
+                                    circuit_iterations,
+                                    ref_zones_id_a, 
+                                    ref_zones_id_b,
+                                    fixed_side_anchor_id, 
+                                    rotational_value,
+                                    start_coord,
+                                    end_coord,
+                                    drill_name,
+                                    rails,
+                                    duration, 
+                                    passive_duration,
+                                    rpe, 
+                                    external_load,
+                                    comments,
+                                    joints.side,
+                                    ref_joints.rowid, 
+                                    ref_joints.joint_name, 
+                                    ref_joints.joint_type,
+                                    ref_joints.joint_name
+                                    FROM programmed_drills
+                                    LEFT JOIN joints
+                                    ON joints.id = joint_id 
+                                    LEFT JOIN ref_joints
+                                    ON ref_joints.rowid = joints.ref_joints_id
+                                    WHERE programmed_drills.moverid = (?) AND workout_id = (?)''', (mover_id, workout_id))
+        for row in input_rows:
+            input = {k: row[k] for k in row.keys() if k != "moverid"}
+
+            input_sequence = input.pop("input_sequence")
+            circuit_iterations = input.pop("circuit_iterations")
+
+            input["ref_joint_name"]=input.pop("joint_name")
+            input["ref_joint_type"]=input.pop("joint_type")
+            input["ref_joint_id"]=input.pop("rowid")
+            
+            wkout["schema"][input_sequence[0]]["circuit"].append((input_sequence[1], input["id"]))
+            wkout["schema"][input_sequence[0]]["iterations"] = circuit_iterations
+            
+
+            wkout["inputs"].append(input)
+
+        for circ in wkout["schema"]:
+            # sort the "circuit" array based on passed in ordering
+            wkout["schema"][circ]["circuit"].sort(key=lambda inp: inp[0])
+            # list-comprehension to only snag the id part of each tuple
+            new_circuit = [inp[1] for inp in wkout["schema"][circ]["circuit"]]
+            # replace old "circuit" with streamlined array!
+            wkout["schema"][circ]["circuit"] = new_circuit
+            
+        array_to_send = [value for (key, value) in wkouts.items()]
+
+        pprint(array_to_send)
+    return json.dumps(array_to_send), 200
+
+# inputs is not getting used for anything right now
 @bp.route('/inputs')
 def get_inputs():
     with open('/Users/williamhbelew/Hacking/MSWN/server_side/fakeInputData.json') as w:

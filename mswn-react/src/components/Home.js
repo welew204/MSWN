@@ -26,7 +26,7 @@ export default function Home() {
 
   const workoutsQuery = useQuery({
     queryKey: ["workouts"],
-    queryFn: () => fetchAPI(server_url + "/workouts"),
+    queryFn: () => fetchAPI(server_url + "/workouts/0"),
   });
 
   function fetchAPI(url) {
@@ -50,11 +50,15 @@ export default function Home() {
       setActiveMover(data[1][0])
     );
   }, []);
+  console.log(activeMover);
+
+  /* HACK: this useEffect feels hacky a bit, in that the original item returned gets a 404
+  (before the activeMover is set) */
   useEffect(() => {
-    fetchAPI(`${server_url}/workouts`).then((data) =>
-      setSelectedWorkout(data[0].id)
-    );
-  }, []);
+    fetchAPI(`${server_url}/workouts/${activeMover}`)
+      .then((data) => setSelectedWorkout(data[0].id))
+      .then(console.log(`Got the workouts for id: ${activeMover}`));
+  }, [activeMover]);
 
   if (movers.isLoading) return "Loading...";
   if (movers.isError) return `Error: error`;

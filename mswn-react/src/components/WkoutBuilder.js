@@ -83,7 +83,7 @@ export default function WkoutBuilder() {
   });
 
   const workoutsQuery = useQuery(["workouts"], () => {
-    return fetchAPI(server_url + "/workouts");
+    return fetchAPI(server_url + `/workouts/${activeMover}`);
   });
 
   const boutLogData = useQuery(["boutLog"], () =>

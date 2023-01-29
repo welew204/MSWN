@@ -1,4 +1,14 @@
+from pprint import pprint
+from collections import defaultdict
 
-workout_q_marks = ("?" for _ in range(5))
-qmarks = workout_q_marks
-print(",".join(qmarks))
+def schema_factory():
+    return {"dictionary": 1}
+
+funtimez = defaultdict(schema_factory)
+
+pprint(funtimez)
+
+funtimez[1]
+funtimez["farts"]
+
+pprint(funtimez)
