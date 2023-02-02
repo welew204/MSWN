@@ -1,0 +1,62 @@
+{
+    "5": {
+        "Rx": {
+            "comments": "None",
+            "drill_name": "IC1",
+            "duration": 80,
+            "end_coord": "",
+            "external_load": "",
+            "fixed_side_anchor_id": 41,
+            "id": 5,
+            "passive_duration": 91,
+            "rails": "True",
+            "ref_joint_id": 6,
+            "ref_joint_name": "GH",
+            "ref_joint_type": "synovial",
+            "ref_zones_id_a": 21,
+            "ref_zones_id_b": "",
+            "rotational_value": "",
+            "rpe": 6,
+            "side": "R",
+            "start_coord": ""
+        },
+        "results": {
+            "duration": "80",
+            "external_load": 0,
+            "passive_duration": "90",
+            "rails": "True",
+            "rpe": 7
+        }
+    },
+    "6": {
+        "Rx": {
+            "comments": "None",
+            "drill_name": "IC2",
+            "duration": 84,
+            "end_coord": "",
+            "external_load": "",
+            "fixed_side_anchor_id": 61,
+            "id": 6,
+            "passive_duration": 70,
+            "rails": "True",
+            "ref_joint_id": 7,
+            "ref_joint_name": "GH",
+            "ref_joint_type": "synovial",
+            "ref_zones_id_a": 31,
+            "ref_zones_id_b": "",
+            "rotational_value": "",
+            "rpe": 3,
+            "side": "L",
+            "start_coord": ""
+        },
+        "results": {
+            "duration": "10",
+            "external_load": 0,
+            "passive_duration": "37",
+            "rails": "False",
+            "rpe": 3
+        }
+    },
+    "date_done": "2023-02-01T19:05:28.905Z",
+    "mover_id": "1"
+}

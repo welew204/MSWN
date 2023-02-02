@@ -47,27 +47,11 @@ export default function RecordWkoutForm({
     });
   }
 
-  /* QUESTION FOR HACKERS: 
-  seems that state doesn't get updated IN the actual function--
-  so do I just have to chain a bunch of functions together, or??? 
-  OR: am I doing something else wrong bc I am not seeing the fully 
-  updated state when I submit the form...
-  */
-
-  if (selectedInput == "")
+  if (!selectedInput)
     return <h2>Select an input to begin recording results...</h2>;
-
-  /* console.log(jointRefData.data) */
-
-  /* this function logs the ref_joint or ref_zone id into state, so that can be sent off with 'submit_form' */
-  /* function find_tissue(item) {
-    const id = item.id;
-    if (item.children) {
-      setJointID(id);
-    } else {
-      setZoneID(id);
-    }
-  } */
+  else {
+    console.log(selectedInput);
+  }
 
   return (
     <div className='inp-form'>
@@ -81,26 +65,39 @@ export default function RecordWkoutForm({
           HOW-To do a certain drill, & Rotation or P/R position-value)***
         </p>
         <Divider />
-        <Form.Group controlId='rails'>
-          <Form.ControlLabel>RAILs tissue trained...?</Form.ControlLabel>
-          {<h4>not indicated</h4>}
-          <Toggle
-            key={selectedInput.id}
-            onChange={(v, e) => updateInputForm(["rails", v])}
-            checked={workoutResults[selectedInput.id].results.rails}
-          />
-        </Form.Group>
+
+        {workoutResults[selectedInput.id].Rx.rails != null ? (
+          <Form.Group controlId='rails'>
+            <Form.ControlLabel>RAILs tissue trained...?</Form.ControlLabel>
+            {workoutResults[selectedInput.id].Rx.rails ? (
+              <h4>Rx: RAILs indicated</h4>
+            ) : (
+              <h4>Rx: RAILs not indicated</h4>
+            )}
+            <Toggle
+              key={selectedInput.id}
+              onChange={(v) => updateInputForm(["rails", v])}
+              checked={workoutResults[selectedInput.id].results.rails}
+            />
+          </Form.Group>
+        ) : (
+          void 0
+        )}
 
         <br />
-        <Form.Group controlId='p_dur'>
-          <Form.ControlLabel>Duration of passive stretch:</Form.ControlLabel>
-          <h4>{`Rx: ${selectedInput.passive_duration}sec`}</h4>
-          <InputNumber
-            onChange={(v, e) => updateInputForm(["passive_duration", v])}
-            value={workoutResults[selectedInput.id].results.passive_duration}
-            postfix='seconds'
-          />
-        </Form.Group>
+        {workoutResults[selectedInput.id].Rx.passive_duration ? (
+          <Form.Group controlId='p_dur'>
+            <Form.ControlLabel>Duration of passive stretch:</Form.ControlLabel>
+            <h4>{`Rx: ${selectedInput.passive_duration}sec`}</h4>
+            <InputNumber
+              onChange={(v, e) => updateInputForm(["passive_duration", v])}
+              value={workoutResults[selectedInput.id].results.passive_duration}
+              postfix='seconds'
+            />
+          </Form.Group>
+        ) : (
+          void 0
+        )}
         <br />
 
         <Form.Group controlId='duration'>

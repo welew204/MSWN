@@ -33,11 +33,12 @@ export default function RecordWkout() {
   const [selectInp, setSelectInp] = useState("");
   const [workoutResults, setWorkoutResults] = useState({});
 
-  const workoutsQuery = useQuery(["workouts"], () => {
+  console.log(selectInp);
+
+  const workoutsQuery = useQuery(["workouts", activeMover], () => {
     return fetchAPI(server_url + `/workouts/${activeMover}`);
   });
-  /*   setWorkoutResults(workoutsQuery.data
-   */
+
   function updateWorkoutResults(inputId, UpdValue) {
     setWorkoutResults((prev) => ({ ...prev, [inputId]: UpdValue }));
   }
@@ -48,23 +49,45 @@ export default function RecordWkout() {
       fetch(server_url + "/record_workout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify([workoutResults]),
+        body: JSON.stringify(workoutResults),
         mode: "cors",
       }).then((res) => console.log(res));
     },
   });
 
-  /* need to use workoutsQuery to set workoutResults right away,
-    then make function to update these results,
-    then pass that function to Child RecordWorkoutForm, 
-    then use that prop on 'Save Input' click;
-    then submit form (useMutation) to DB,
-    DB has to parse all the inputs into Bouts!
-    */
-
   function fetchAPI(url) {
     return fetch(url).then((res) => res.json());
   }
+
+  console.log("Selected Workout (ID) " + selectedWorkout);
+
+  useEffect(() => {
+    if (workoutsQuery.isSuccess) {
+      const selWkt = findWorkout(selectedWorkout);
+      let blankResults = {
+        mover_id: activeMover,
+        date_done: new Date().toISOString(),
+      };
+      for (let w in [...selWkt.inputs.keys()]) {
+        blankResults = {
+          ...blankResults,
+          [selWkt.inputs[w].id]: {
+            Rx: { ...selWkt.inputs[w] },
+            results: {
+              rails: false,
+              passive_duration: 0,
+              duration: 0,
+              rpe: 0,
+              external_load: 0,
+            },
+          },
+        };
+      }
+      setWorkoutResults(blankResults);
+    } else {
+      void 0;
+    }
+  }, [selectedWorkout]);
 
   const boutLogData = useQuery(["boutLog"], () =>
     fetchAPI(server_url + `/bout_log/${activeMover}`)
@@ -97,7 +120,7 @@ export default function RecordWkout() {
   const inputs = workouts[index_of_selectedWorkout()]?.inputs.map((inp) => (
     <Panel
       key={inp.id}
-      onClick={() => setSelectInp(inp.id)}
+      onClick={() => setSelectInp(`${inp.id}`)}
       shaded
       className={selectInp == inp.id ? "selected-inp-plaque" : "inp-plaque"}
       bordered
@@ -105,14 +128,18 @@ export default function RecordWkout() {
   ));
 
   function findWorkout(wktid) {
-    const selWkt = workouts.find((wkt) => wkt.id == wktid);
+    const selWkt = workoutsQuery.data.find((wkt) => wkt.id == wktid);
+    console.log(selWkt);
     return selWkt;
   }
 
-  if (Object.keys(workoutResults).length == 0) {
+  /*   if (Object.keys(workoutResults).length == 0) {
     const selWkt = findWorkout(selectedWorkout);
-    for (let w in Object.keys(selWkt.inputs)) {
+    console.log(selWkt);
+
+    for (let w in [...selWkt.inputs.keys()]) {
       updateWorkoutResults(selWkt.inputs[w].id, {
+        mover_id: activeMover,
         Rx: { ...selWkt.inputs[w] },
         results: {
           rails: false,
@@ -122,12 +149,9 @@ export default function RecordWkout() {
           external_load: 0,
         },
       });
-      /* NEXT: ALSO a seperate results object that will get the recorded stuff, that is then grabbed to send to server!
-      Then, clean up the earlier version, get the end-point delivering!
-      then, write the parser in python :)
-      then, build the workoutbuilder */
     }
   }
+  */
   console.log(workoutResults);
 
   const bout_array = boutLogData.data["bout_log"];
@@ -190,9 +214,12 @@ export default function RecordWkout() {
             {workoutsQuery.isSuccess ? inputs : <Loader size='lg' />}
             <Divider />
             <DatePicker
-              onChange={(value) => updateWorkoutResults("date", value)}
+              preventOverflow
+              onChange={(value) =>
+                updateWorkoutResults("date_done", value.toISOString())
+              }
               format='yyyy-MM-dd HH:mm'
-              placeholder={"Select Date"}
+              placeholder={Date(workoutResults.date_done)}
             />
           </Stack.Item>
           <Divider vertical style={{ height: "70vh" }} />

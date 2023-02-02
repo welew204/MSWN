@@ -399,8 +399,8 @@ export default function InputForm({
           <Slider
             key={`${selectedInput}-rotation`}
             value={
-              InputInProgress.rotational_bias
-                ? InputInProgress.rotational_bias
+              InputInProgress.rotational_value
+                ? InputInProgress.rotational_value
                 : void 0
             }
             disabled={InputInProgress.ref_joint_id ? false : true}
@@ -420,7 +420,7 @@ export default function InputForm({
             style={{ width: "80%" }}
             onChange={void 0}
             onChangeCommitted={(value) =>
-              updateInputInProgress(["rotational_bias", value])
+              updateInputInProgress(["rotational_value", value])
             }
           />
         </Form.Group>
@@ -440,7 +440,7 @@ export default function InputForm({
                 value={
                   InputInProgress.passive_duration
                     ? InputInProgress.passive_duration
-                    : 0
+                    : ""
                 }
                 postfix='seconds'
               />
@@ -457,7 +457,7 @@ export default function InputForm({
             key={`${selectedInput}-duration`}
             disabled={InputInProgress.drill_name ? false : true}
             onChange={(value) => updateInputInProgress(["duration", value])}
-            value={InputInProgress.duration ? InputInProgress.duration : 0}
+            value={InputInProgress.duration ? InputInProgress.duration : ""}
             postfix='seconds'
           />
         </Form.Group>
@@ -481,8 +481,8 @@ export default function InputForm({
               return mark;
             }}
             style={{ width: "80%" }}
-            onChange={void 0}
-            onChangeCommitted={(value) => updateInputInProgress(["rpe", value])}
+            onChange={(value) => updateInputInProgress(["rpe", value])}
+            /* onChangeCommitted={(value) => updateInputInProgress(["rpe", value])} */
           />
         </Form.Group>
         <br />
@@ -490,7 +490,7 @@ export default function InputForm({
           <Form.ControlLabel>External Load (optional):</Form.ControlLabel>
           <InputNumber
             value={
-              InputInProgress.external_load ? InputInProgress.external_load : 0
+              InputInProgress.external_load ? InputInProgress.external_load : ""
             }
             disabled={InputInProgress.drill_name ? false : true}
             postfix='lbs'

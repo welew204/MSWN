@@ -23,10 +23,13 @@ const server_url = "http://127.0.0.1:8000";
 
 export default function Home() {
   /* query: SELECT movers */
+  const [activeMover, setActiveMover] = useState(0);
+  const [selectedWorkout, setSelectedWorkout] = useState("");
+  const [addMoverOpen, setAddMoverOpen] = useState(false);
 
   const workoutsQuery = useQuery({
-    queryKey: ["workouts"],
-    queryFn: () => fetchAPI(server_url + "/workouts/0"),
+    queryKey: ["workouts", activeMover],
+    queryFn: () => fetchAPI(server_url + `/workouts/${activeMover}`),
   });
 
   function fetchAPI(url) {
@@ -40,11 +43,6 @@ export default function Home() {
     onSuccess: () => console.log("movers re-queried!"),
   });
 
-  const [activeMover, setActiveMover] = useState("");
-  const [selectedWorkout, setSelectedWorkout] = useState("");
-
-  const [addMoverOpen, setAddMoverOpen] = useState(false);
-
   useEffect(() => {
     fetchAPI(`${server_url}/movers_list`).then((data) =>
       setActiveMover(data[1][0])
@@ -56,7 +54,7 @@ export default function Home() {
   (before the activeMover is set) */
   useEffect(() => {
     fetchAPI(`${server_url}/workouts/${activeMover}`)
-      .then((data) => setSelectedWorkout(data[0].id))
+      .then((data) => (data != [] ? setSelectedWorkout(data[0]?.id) : void 0))
       .then(console.log(`Got the workouts for id: ${activeMover}`));
   }, [activeMover]);
 
@@ -77,7 +75,7 @@ export default function Home() {
       eventKey={`${mvr[0]}`}>{`${mvr[1]} ${mvr[2]}`}</Nav.Item>
   ));
 
-  console.log(movers.data);
+  /* console.log(movers.data); */
 
   return (
     <Container className='home-frame'>

@@ -36,7 +36,7 @@ export default function WkoutBuilder() {
     ref_zones_id_a: "",
     ref_zones_id_b: "",
     fixed_side_anchor_id: "",
-    rotational_bias: "",
+    rotational_value: "",
     start_coord: "",
     end_coord: "",
     drill_name: "",
