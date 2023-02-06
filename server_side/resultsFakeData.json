@@ -15,7 +15,7 @@
             "ref_joint_type": "synovial",
             "ref_zones_id_a": 21,
             "ref_zones_id_b": "",
-            "rotational_value": "",
+            "rotational_value": -100,
             "rpe": 6,
             "side": "R",
             "start_coord": ""
@@ -44,7 +44,7 @@
             "ref_joint_type": "synovial",
             "ref_zones_id_a": 31,
             "ref_zones_id_b": "",
-            "rotational_value": "",
+            "rotational_value": -20,
             "rpe": 3,
             "side": "L",
             "start_coord": ""

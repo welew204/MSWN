@@ -119,13 +119,10 @@ export default function Home() {
           </Sidenav>
         </Sidebar>
         <Content className='content'>
-          {selectedWorkout ? (
-            <Outlet
-              context={[selectedWorkout, setSelectedWorkout, activeMover]}
-            />
-          ) : (
-            <Loader size='lg' />
-          )}
+          <Outlet
+            context={[selectedWorkout, setSelectedWorkout, activeMover]}
+          />
+
           {/* one of MoverSelect, WorkoutBuilder, RecordWorkout */}
         </Content>
       </Container>

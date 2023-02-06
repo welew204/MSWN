@@ -23,7 +23,7 @@ bp = Blueprint('tissues', __name__)
 
 @bp.route('/')
 def index(mover_id):
-    #print(f"Got this far (to {index})", file=sys.stderr)
+    # print(f"Got this far (to {index})", file=sys.stderr)
     db = get_db()
     bouts = db.execute(
         'SELECT * FROM bout_log'
@@ -69,7 +69,7 @@ def write_workout():
         else:
             workout_to_add.append(val)
     workout_q_marks = ",".join("?" for _ in range(len(workout_to_add)))
-    #print(f"WORKOUT qmarks: {workout_q_marks}", file=sys.stderr)
+    # print(f"WORKOUT qmarks: {workout_q_marks}", file=sys.stderr)
     cursor.execute(f'INSERT INTO workouts (workout_title, date_init, moverid, comments) VALUES ({workout_q_marks})',
                    tuple(workout_to_add))
     db.commit()
@@ -79,7 +79,7 @@ def write_workout():
         for i, inputID in enumerate(info["circuit"]):
             input_sequence = set + str(i+1)
             schema_lookups[inputID] = (input_sequence, str(info["iterations"]))
-    #print(f"workout schema transcribed (schema_lookups): {schema_lookups}", file=sys.stderr)
+    # print(f"workout schema transcribed (schema_lookups): {schema_lookups}", file=sys.stderr)
 
     workout_title, date_init, moverid, comments = workout_to_add
     mover_dict = mover_info_dict(db, moverid)
@@ -103,7 +103,7 @@ def write_workout():
         if "ref_zone_name" in payload:
             fixed_side_anchor = mover_dict[joint_key_string]["zones"][payload["ref_zone_name"]
                                                                       ]["anchors"]["proximal"]
-            #print(f"ANCHOR ID for mover: {fixed_side_anchor}", file=sys.stderr)
+            # print(f"ANCHOR ID for mover: {fixed_side_anchor}", file=sys.stderr)
             payload["fixed_side_anchor_id"] = fixed_side_anchor
             payload.pop("ref_zone_name")
 
@@ -119,18 +119,18 @@ def write_workout():
         payload["workout_id"] = wkt_id
 
         input_fields = list(payload.keys())
-        #input_fields[input_fields.index('rotational_bias')] = 'rotational_value'
+        # input_fields[input_fields.index('rotational_bias')] = 'rotational_value'
 
         input_vals = list(payload.values())
         # pprint(payload)
 
-        #print(f"INPUT fields: {input_fields}", file=sys.stderr)
-        #print(f"INPUT values: {input_vals}", file=sys.stderr)
+        # print(f"INPUT fields: {input_fields}", file=sys.stderr)
+        # print(f"INPUT values: {input_vals}", file=sys.stderr)
 
         input_q_marks = ",".join("?" for _ in range(len(input_fields)))
-        #print(f"INPUT qmarks: {input_q_marks}", file=sys.stderr)
+        # print(f"INPUT qmarks: {input_q_marks}", file=sys.stderr)
         sql_statement = f"INSERT INTO programmed_drills {tuple(input_fields)} VALUES ({input_q_marks})"
-        #print(f"FINISHED SQL statement: {sql_statement}", file=sys.stderr)
+        # print(f"FINISHED SQL statement: {sql_statement}", file=sys.stderr)
 
         cursor.execute(sql_statement, tuple(input_vals))
         db.commit()
@@ -147,9 +147,11 @@ def record_workout():
     print(f"record_workout request: ", file=sys.stderr)
     pprint(req)
     moverid = req.pop("mover_id")
-    date_done = req.pop("date_done")
+    date_done = req["date_done"][:10]
+    time_stamp = req.pop("date_done")[10:]
     mover_dict = mover_info_dict(db, moverid)
     # pprint(mover_dict)
+    bout_array = []
     for inputID, vals in req.items():
 
         # these Rx values are based on the prescription of the drill
@@ -176,6 +178,7 @@ def record_workout():
         ref_joint_name_string = str(side + " " + ref_joint_name)
         ref_zones_id_a = vals["Rx"]["ref_zones_id_a"]
         ref_zones_id_b = vals["Rx"]["ref_zones_id_b"]
+        joint_id = mover_dict[ref_joint_name_string]["id"]
 
         # these 'results' values are based on the execution of the drill
         duration = int(vals["results"]["duration"])
@@ -183,6 +186,11 @@ def record_workout():
         rpe = int(vals["results"]["rpe"])
         external_load = int(vals["results"]["external_load"])
         rails = vals["results"]["rails"]
+        if rails == "True":
+            rails = True
+        else:
+            rails = False
+
         if rotational_value < 0:
             # if joint is rotated ER, the tissues trained will be IR tissues in a lengethend position
             rotational_bias = "fwd"
@@ -196,7 +204,27 @@ def record_workout():
         # then fill this for each type...
         # DATA Needed for each item >>
         # ["<one of 'capsular', 'rotational', 'linear'>", tissue, joint_motion, (pos_a, pos_b), passive_duration, duration, rpe, load]
-        bout_array = []
+
+        def bout_dict_maker(tissue_type, tissue_id, joint_motion, tissue_start, tissue_end, passive_duration, duration, rpe, external_load):
+            bout_hash = {}
+            # input-specific vals
+            bout_hash["date"] = date_done
+            bout_hash["moverid"] = moverid
+            bout_hash["joint_id"] = joint_id
+            bout_hash["programmed_drills_id"] = inputID
+            bout_hash["rotational_value"] = rotational_value
+            # handed in vals
+            bout_hash["tissue_type"] = tissue_type
+            bout_hash["tissue_id"] = tissue_id
+            bout_hash["joint_motion"] = joint_motion
+            bout_hash["start_coord"] = tissue_start
+            bout_hash["end_coord"] = tissue_end
+            bout_hash["passive_duration"] = passive_duration
+            bout_hash["duration"] = duration
+            bout_hash["rpe"] = rpe
+            bout_hash["external_load"] = external_load
+            return bout_hash
+
         if drill == "CARs":
             # run appropriate drill_function
             pass
@@ -211,22 +239,24 @@ def record_workout():
 
                 # grabbing CAPSULE tissue impacts
                 target_tissue = mover_dict[ref_joint_name_string]["zones"][zone]["capsule_adj_id"]
-
-                bout_array.append(
-                    ["capsular", target_tissue, "isometric", (100, 100), passive_duration, duration, rpe, 0])
-
+                capsule_bout = bout_dict_maker(
+                    "capsular", target_tissue, "isometric", 100, 100, passive_duration, duration, rpe, external_load)
+                bout_array.append(capsule_bout)
             # grabbing ROTATIONAL tissue impacts
 
             rot_target_tissues = mover_dict[ref_joint_name_string]["rotational_tissues"][rotational_bias]
             for rot_tissue in rot_target_tissues:
-                bout_array.append(["rotational", rot_tissue, "isometric",
-                                  (pails_length_value, pails_length_value), passive_duration, duration, rpe, 0])
+                rot_bout = bout_dict_maker("rotational", rot_tissue, "isometric",
+                                           pails_length_value, pails_length_value, passive_duration, duration, rpe, 0)
+                bout_array.append(rot_bout)
+
             if rails is True:
                 rails_rot_tissue = mover_dict[ref_joint_name_string]["rotational_tissues"][rails_bias]
-                for rot_tissue in list(rails_rot_tissue.values()):
-                    bout_array.append(
-                        ["rotational", rot_tissue, "isometric", (rails_length_value, rails_length_value), 0, duration/2, rpe, 0])
-        # nb// bout_array for IC 1 is built
+                for rot_tissue in rails_rot_tissue:
+                    rot_bout = bout_dict_maker(
+                        "rotational", rot_tissue, "isometric", rails_length_value, rails_length_value, 0, duration/2, rpe, 0)
+                    bout_array.append(rot_bout)
+        # nb// bouts for IC 1 is added to bout_array
         # testing...
             # pprint(bout_array)
         elif drill == "IC2":
@@ -235,7 +265,7 @@ def record_workout():
 
             for zone in mover_dict[ref_joint_name_string]["zones"]:
 
-                #print(f"Ref Zone {zone} id: " + f"{mover_dict[ref_joint_name_string]['zones'][zone]['ref_zone_id']}")
+                # print(f"Ref Zone {zone} id: " + f"{mover_dict[ref_joint_name_string]['zones'][zone]['ref_zone_id']}")
 
                 if mover_dict[ref_joint_name_string]['zones'][zone]['ref_zones_id'] == ref_zones_id_a:
 
@@ -250,47 +280,65 @@ def record_workout():
             # rails_length_value = 99-abs(rotational_value)
             target_rotational_tissues = mover_dict[ref_joint_name_string][
                 "rotational_tissues"][rotational_bias]
+            # can set this automatically bc IC2 indicates LENGTH of user-selected tissue
+            linear_pails_coord = 100
             if rails is True:
                 # using imported syn_zone_deque to rotate through the zone_name strings easily by integer (number of rotations)
-                zone_index = syn_zone_deque.index(target_zone)
-                rails_zone = syn_zone_deque.rotate(4)[zone_index]
+                #print(f"Syn Deque == {syn_zone_deque}")
+                #print(f"Target ZONE NAME == {target_zone_name}")
+                zone_index = syn_zone_deque.index(target_zone_name)
+                #print(f"Target ZONE INDEX == {zone_index}")
+                syn_zone_deque.rotate(4)
+                rails_zone = syn_zone_deque[zone_index]
+                #print(f"RAILs ZONE NAME == {rails_zone}")
                 rails_target_zone = mover_dict[ref_joint_name_string]["zones"][rails_zone]
+                linear_rails_coord = 1
                 rails_rot_tissues = mover_dict[ref_joint_name_string][
                     "rotational_tissues"][f"{rails_bias}"]
             # nb// making a decison that 15% or less of rotation (either direction) means only linear tissue is targeted
+
             if abs(rotational_value) < 15:
-                bout_array.append(["linear", target_zone["linear_adj_id"], "isometric",
-                                  (start_coord, end_coord), passive_duration, duration, rpe, 0])
+                p_bout = bout_dict_maker("linear", target_zone["linear_adj_id"], "isometric",
+                                         linear_pails_coord, linear_pails_coord, passive_duration, duration, rpe, 0)
+                bout_array.append(p_bout)
                 if rails is True:
-                    bout_array.append(["linear", rails_target_zone["linear_adj_id"], "isometric", (
-                        start_coord, end_coord), passive_duration, duration, rpe, 0])
+                    r_bout = bout_dict_maker(
+                        "linear", rails_target_zone["linear_adj_id"], "isometric", linear_rails_coord, linear_rails_coord, passive_duration, duration, rpe, 0)
+
+                    bout_array.append(r_bout)
             elif abs(rotational_value) < 85:
                 # trying to distrubute the load proprotionately to the amt of rotation
                 linear_portion_factor = (85-abs(rotational_value))/85
-                bout_array.append(["linear", target_zone["linear_adj_id"], "isometric", (
-                    start_coord, end_coord), passive_duration, duration, round(rpe*linear_portion_factor, 2), 0])
+                lp_p_bout = bout_dict_maker("linear", target_zone["linear_adj_id"], "isometric",
+                                            linear_pails_coord, linear_pails_coord, passive_duration, duration, round(rpe*linear_portion_factor, 2), 0)
+                bout_array.append(lp_p_bout)
                 if rails is True:
-                    bout_array.append(["linear", rails_target_zone["linear_adj_id"], "isometric", (
-                        start_coord, end_coord), passive_duration, duration, round(rpe*linear_portion_factor, 2), 0])
+                    lp_r_bout = bout_dict_maker("linear", rails_target_zone["linear_adj_id"], "isometric",
+                                                linear_rails_coord, linear_rails_coord, passive_duration, duration, round(rpe*linear_portion_factor, 2), 0)
+                    bout_array.append(lp_r_bout)
 
                 rotational_portion_factor = round(
                     (abs(rotational_value))/85, 2)
                 for rot_tissue in target_rotational_tissues:
-                    bout_array.append(["rotational", rot_tissue, "isometric", (
-                        pails_length_value, pails_length_value), passive_duration, duration, round(rpe*rotational_portion_factor, 2), 0])
+                    rp_p_bout = bout_dict_maker("rotational", rot_tissue, "isometric",
+                                                pails_length_value, pails_length_value, passive_duration, duration, round(rpe*rotational_portion_factor, 2), 0)
+                    bout_array.append(rp_p_bout)
                 if rails is True:
-                    for rails_rot_tissue in list(rails_rot_tissues.values()):
-                        bout_array.append(
-                            ["rotational", rails_rot_tissue, "isometric", (rails_length_value, rails_length_value), 0, duration/2, round(rpe*rotational_portion_factor, 2), 0])
+                    for rails_rot_tissue in rails_rot_tissues:
+                        rp_r_bout = bout_dict_maker("rotational", rails_rot_tissue, "isometric", rails_length_value,
+                                                    rails_length_value, 0, duration/2, round(rpe*rotational_portion_factor, 2), 0)
+                        bout_array.append(rp_r_bout)
             else:
                 for rot_tissue in target_rotational_tissues:
-                    bout_array.append(["rotational", rot_tissue, "isometric", (
-                        pails_length_value, pails_length_value), passive_duration, duration, rpe, 0])
+                    p_bout = bout_dict_maker("rotational", rot_tissue, "isometric",
+                                             pails_length_value, pails_length_value, passive_duration, duration, rpe, 0)
+                    bout_array.append(p_bout)
                 if rails is True:
-                    for rails_rot_tissue in list(rails_rot_tissues.values()):
-                        bout_array.append(
-                            ["rotational", rails_rot_tissue, "isometric", (rails_length_value, rails_length_value), 0, duration/2, rpe, 0])
-        # nb// bout_array for IC 2 is built
+                    for rails_rot_tissue in rails_rot_tissues:
+                        r_bout = bout_dict_maker("rotational", rails_rot_tissue, "isometric",
+                                                 rails_length_value, rails_length_value, 0, duration/2, rpe, 0)
+                        bout_array.append(r_bout)
+        # nb// bouts for IC 2 is added to bout_array
         elif drill == "IC3":
             pass
         elif drill == "PRH":
@@ -300,22 +348,54 @@ def record_workout():
         # /// START HERE ///
         # ALL items in bout_array will need some vals (inputID, anything else?)
         # before getting written to bout_log table
-        print(bout_array)
+
+    for b in bout_array:
+
+        if b["tissue_type"] == "capsular":
+            b["capsular_tissue_id"] = b.pop("tissue_id")
+            b["rotational_tissue_id"] = ""
+            b["linear_tissue_id"] = ""
+        elif b["tissue_type"] == "rotational":
+            b["capsular_tissue_id"] = ""
+            b["rotational_tissue_id"] = b.pop("tissue_id")
+            b["linear_tissue_id"] = ""
+        elif b["tissue_type"] == "linear":
+            b["capsular_tissue_id"] = ""
+            b["rotational_tissue_id"] = ""
+            b["linear_tissue_id"] = b.pop("tissue_id")
+
+        #print("AFTER update: ")
+        # pprint(bout_array)
+
+    bout_array_q_marks = ",".join(
+        "?" for _ in range(len(bout_array[0].values())))
+
+    bout_array_fields = ", ".join(bout_array[0].keys())
+
+    bout_sql_statement = f"INSERT INTO bout_log ({bout_array_fields}) VALUES ({bout_array_q_marks})"
+
+    bout_array_values = [list(b.values()) for b in bout_array]
+    # print(bout_array_values)
+    curs = db.cursor()
+    # is this executemany written correctly? I THINK SO
+    curs.executemany(bout_sql_statement, bout_array_values)
+    db.commit()
+
     return f"Request is recieved!", 201
 
 
-@bp.route('/workouts/<int:mover_id>')
+@ bp.route('/workouts/<int:mover_id>')
 def get_workouts(mover_id):
     if mover_id == 0:
         return json.dumps(["Sorry! No workouts yet."]), 200
     db = get_db()
     curs = db.cursor()
-    workout_rows = curs.execute('''SELECT 
-                                    workouts.id, 
-                                    date_init, 
-                                    last_done, 
-                                    workout_title, 
-                                    workouts.moverid, 
+    workout_rows = curs.execute('''SELECT
+                                    workouts.id,
+                                    date_init,
+                                    last_done,
+                                    workout_title,
+                                    workouts.moverid,
                                     workouts.comments
                                     FROM workouts
                                     WHERE workouts.moverid = (?)
@@ -339,30 +419,30 @@ def get_workouts(mover_id):
         input_rows = curs.execute('''SELECT
                                     programmed_drills.id,
                                     programmed_drills.moverid,
-                                    
+
                                     input_sequence,
                                     circuit_iterations,
-                                    ref_zones_id_a, 
+                                    ref_zones_id_a,
                                     ref_zones_id_b,
-                                    fixed_side_anchor_id, 
+                                    fixed_side_anchor_id,
                                     rotational_value,
                                     start_coord,
                                     end_coord,
                                     drill_name,
                                     rails,
-                                    duration, 
+                                    duration,
                                     passive_duration,
-                                    rpe, 
+                                    rpe,
                                     external_load,
                                     comments,
                                     joints.side,
-                                    ref_joints.rowid, 
-                                    ref_joints.joint_name, 
+                                    ref_joints.rowid,
+                                    ref_joints.joint_name,
                                     ref_joints.joint_type,
                                     ref_joints.joint_name
                                     FROM programmed_drills
                                     LEFT JOIN joints
-                                    ON joints.id = joint_id 
+                                    ON joints.id = joint_id
                                     LEFT JOIN ref_joints
                                     ON ref_joints.rowid = joints.ref_joints_id
                                     WHERE programmed_drills.moverid = (?) AND workout_id = (?)''', (mover_id, workout_id))
@@ -390,8 +470,8 @@ def get_workouts(mover_id):
 
         for circ in curr_wkout["schema"]:
             # sort the "circuit" array based on passed in ordering
-            #print(f"The schema circuit in question: {curr_wkout['schema'][circ]['circuit']}")
-            #print(f"More info about the wonky one: ...")
+            # print(f"The schema circuit in question: {curr_wkout['schema'][circ]['circuit']}")
+            # print(f"More info about the wonky one: ...")
             curr_wkout["schema"][circ]["circuit"].sort(key=lambda inp: inp[0])
             # list-comprehension to only snag the id part of each tuple
             new_circuit = [inp[1]
@@ -408,14 +488,14 @@ def get_workouts(mover_id):
 # inputs is not getting used for anything right now
 
 
-@bp.route('/inputs')
+@ bp.route('/inputs')
 def get_inputs():
     with open('/Users/williamhbelew/Hacking/MSWN/server_side/fakeInputData.json') as w:
         inputs = json.load(w)
         return jsonify(inputs), 200
 
 
-@bp.route('/drill_ref')
+@ bp.route('/drill_ref')
 def drill_ref():
     drills_to_send = {
         "CARs": {},
@@ -430,23 +510,23 @@ def drill_ref():
     return jsonify(drills_to_send), 200
 
 
-@bp.route('/joint_ref')
+@ bp.route('/joint_ref')
 def joint_ref():
-    #print(f"Got this far (to {index})", file=sys.stderr)
+    # print(f"Got this far (to {index})", file=sys.stderr)
     db = get_db()
     joint_ref = defaultdict(list)
     joint_ref_final = []
 
     # BELOW returns a list of sqlite3.Row objects (with index, and keys), but is NOT a real dict
-    zone_ref_rows = db.execute('''SELECT 
-                            ref_zones.id, 
-                            ref_zones.side, 
-                            ref_zones.zone_name, 
+    zone_ref_rows = db.execute('''SELECT
+                            ref_zones.id,
+                            ref_zones.side,
+                            ref_zones.zone_name,
                             ref_joints.joint_type,
                             ref_joints.joint_name,
                             ref_joints.rowid
-                            FROM ref_zones 
-                            INNER JOIN ref_joints 
+                            FROM ref_zones
+                            INNER JOIN ref_joints
                             ON ref_zones.ref_joints_id=ref_joints.rowid''').fetchall()
     for row in zone_ref_rows:
         zone = {k: row[k] for k in row.keys()}
@@ -464,9 +544,9 @@ def joint_ref():
     return jsonify(joint_ref_final), 200
 
 
-@bp.route('/ttstatus/<int:mover_id>')
+@ bp.route('/ttstatus/<int:mover_id>')
 def ttstatus(mover_id):
-    #print(f"Got this far (to {index})", file=sys.stderr)
+    # print(f"Got this far (to {index})", file=sys.stderr)
     db = get_db()
     tissue_status = []
     # BELOW returns a list of sqlite3.Row objects (with index, and keys), but is NOT a real dict
@@ -479,9 +559,9 @@ def ttstatus(mover_id):
     return jsonify({"tissue_status": tissue_status}), 200
 
 
-@bp.route('/bout_log/<int:mover_id>')
+@ bp.route('/bout_log/<int:mover_id>')
 def bout_log(mover_id):
-    #print(f"Got this far (to {index})", file=sys.stderr)
+    # print(f"Got this far (to {index})", file=sys.stderr)
     db = get_db()
     bout_log = []
     # BELOW returns a list of sqlite3.Row objects (with index, and keys), but is NOT a real dict
@@ -496,7 +576,7 @@ def bout_log(mover_id):
     return jsonify({"bout_log": bout_log_final}), 200
 
 
-@bp.route('/add_bout/<int:moverid>', methods=('POST',))
+@ bp.route('/add_bout/<int:moverid>', methods=('POST',))
 def add_bout(moverid):
     req = request.get_json()
     print(req, file=sys.stderr)
