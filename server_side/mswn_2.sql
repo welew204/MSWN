@@ -366,7 +366,7 @@ CREATE TABLE programmed_drills (
     FOREIGN KEY (joint_id) REFERENCES joints (id),
     FOREIGN KEY (ref_zones_id_a) REFERENCES ref_zones (id),
     FOREIGN KEY (ref_zones_id_b) REFERENCES ref_zones (id),
-    FOREIGN KEY (workout_id) REFERENCES workout (id),
+    FOREIGN KEY (workout_id) REFERENCES workouts (id),
     FOREIGN KEY (moverid) REFERENCES movers (id)
 );
 

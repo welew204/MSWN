@@ -76,7 +76,7 @@ export default function WkoutBuilder() {
       fetch(server_url + "/write_workout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify([wktInProgress]),
+        body: JSON.stringify(wktInProgress),
         mode: "cors",
       }).then((res) => console.log(res));
     },

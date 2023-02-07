@@ -11,6 +11,7 @@ import {
   DatePicker,
   Timeline,
   Schema,
+  RangeSlider,
 } from "rsuite";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { find } from "rsuite/esm/utils/ReactChildren";
@@ -243,7 +244,8 @@ export default function InputForm({
       <Form>
         <Form.Group
           controlId='joint'
-          style={{ display: "flex", justifyContent: "space-evenly" }}>
+          /* style={{ display: "flex", justifyContent: "space-evenly" }} */
+        >
           <Form.Group>
             <Form.ControlLabel>Joint / Zone trained:</Form.ControlLabel>
             {/* <Form.Control name='joint' rule={jointRule} /> */}
@@ -262,11 +264,11 @@ export default function InputForm({
               }}
             />
           </Form.Group>
-          <Form.Group>
+          {/* <Form.Group>
             <Form.ControlLabel>Secondary zone trained: (opt)</Form.ControlLabel>
             <Cascader
               key={`${selectedInput}-b_zone`}
-              disabled={InputInProgress.drill_name == "IC3" ? false : true}
+              disabled={true}
               data={
                 jointID
                   ? [jointsArray.find((joint) => joint.id == jointID)]
@@ -287,20 +289,22 @@ export default function InputForm({
                 }
               }}
             />
-          </Form.Group>
+          </Form.Group> */}
         </Form.Group>
         <Form.Group controlId='drills'>
           <Form.ControlLabel>Drill:</Form.ControlLabel>
           {/* <Form.Control name='drill' rule={drillRule} /> */}
           <SelectPicker
             key={`${selectedInput}-drill`}
+            cleanable
+            onClean={() => updateInputInProgress(["drill_name", ""])}
             value={`${InputInProgress.drill_name}`}
             data={drills}
             disabled={InputInProgress.ref_joint_id ? false : true}
             disabledItemValues={
               zoneID
                 ? ["CARs"]
-                : ["PRH", "PRLO", "IC1", "IC2", "IC3", "capsule CAR"]
+                : ["PRH", "Muscular Scan", "IC1", "IC2", "IC3", "capsule CAR"]
             }
             searchable={false}
             style={{ width: 224 }}
@@ -324,72 +328,82 @@ export default function InputForm({
         ) : (
           void 0
         )}
-        {InputInProgress.drill_name == "IC3" ? (
+        {["IC3", "Muscular Scan"].includes(InputInProgress.drill_name) ? (
           <Form.Group
             controlId='position'
-            style={{ display: "flex", justifyContent: "space-evenly" }}>
-            <Form.Group>
-              <Form.ControlLabel>(Start) Position of Tissue:</Form.ControlLabel>
-              <Slider
-                key={`${selectedInput}-position_a`}
-                handleStyle={{ marginLeft: "0%", fontSize: "x-small" }}
-                /*the slider does not update automatically, slide with the cursor.....?*/
-                min={0}
-                step={25}
-                max={100}
-                value={
-                  InputInProgress.start_coord ? InputInProgress.start_coord : 50
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+            }}>
+            <Form.ControlLabel>
+              Select Start/End of Contraction
+            </Form.ControlLabel>
+            <RangeSlider
+              key={`${selectedInput}-rangeSlider`}
+              handleStyle={{ marginLeft: "0%", fontSize: "x-small" }}
+              value={InputInProgress.coords}
+              min={0}
+              step={5}
+              max={100}
+              graduated
+              progress
+              renderMark={(mark) => {
+                if (mark === 0) {
+                  return position[0];
+                } else if (mark === 100) {
+                  return position[1];
                 }
-                graduated
-                progress
-                renderMark={(mark) => {
-                  if (mark === 0) {
-                    return position[0];
-                  } else if (mark === 100) {
-                    return position[2];
-                  }
-                }}
-                style={{ width: "80%" }}
-                onChange={void 0}
-                onChangeCommitted={(value) =>
-                  updateInputInProgress(["start_coord", value])
-                }
-              />
-            </Form.Group>
-            <Form.Group>
-              <Form.ControlLabel>
-                End Position of Tissue: (opt)
-              </Form.ControlLabel>
-              <Slider
-                key={`${selectedInput}-position_b`}
-                handleStyle={{ marginLeft: "0%", fontSize: "x-small" }}
-                value={
-                  InputInProgress.end_coord ? InputInProgress.end_coord : 50
-                }
-                min={0}
-                step={25}
-                max={100}
-                graduated
-                progress
-                renderMark={(mark) => {
-                  if (mark === 0) {
-                    return position[0];
-                  } else if (mark === 100) {
-                    return position[2];
-                  }
-                }}
-                style={{ width: "80%" }}
-                onChange={(value) => {
-                  void 0;
-                }}
-                onChangeCommitted={(value) =>
-                  updateInputInProgress(["end_coord", value])
-                }
-              />
-            </Form.Group>
+              }}
+              style={{ width: "80%" }}
+              onChange={(value) => {
+                updateInputInProgress(["coords", value]);
+              }}
+            />
           </Form.Group>
         ) : (
-          void 0
+          <Form.Group
+            controlId='position'
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+            }}>
+            <Form.ControlLabel>Position of Tissue:</Form.ControlLabel>
+            <Slider
+              key={`${selectedInput}-position`}
+              handleStyle={{ marginLeft: "0%", fontSize: "x-small" }}
+              min={0}
+              step={5}
+              max={100}
+              disabled={
+                ["PRH", "CARs", "capsule CAR", "IC1"].includes(
+                  InputInProgress.drill_name
+                )
+                  ? true
+                  : false
+              }
+              value={
+                InputInProgress.drill_name == "PRH"
+                  ? 0
+                  : parseInt(InputInProgress.start_coord)
+              }
+              graduated
+              progress
+              renderMark={(mark) => {
+                if (mark === 0) {
+                  return position[0];
+                } else if (mark === 100) {
+                  return position[1];
+                }
+              }}
+              style={{ width: "80%" }}
+              onChange={(v) => updateInputInProgress(["start_coord", v])}
+              /* onChangeCommitted={(value) =>
+                  updateInputInProgress(["start_coord", value])
+                } */
+            />
+          </Form.Group>
         )}
         <br />
         <Form.Group controlId='rotation'>
@@ -403,7 +417,13 @@ export default function InputForm({
                 ? InputInProgress.rotational_value
                 : void 0
             }
-            disabled={InputInProgress.ref_joint_id ? false : true}
+            disabled={
+              InputInProgress.ref_joint_id
+                ? ["capsule CAR", "CARs"].includes(InputInProgress.drill_name)
+                  ? true
+                  : false
+                : true
+            }
             defaultValue={0}
             min={-100}
             step={5}
@@ -411,10 +431,16 @@ export default function InputForm({
             graduated
             progress
             renderMark={(mark) => {
-              if (mark % 25 === 0) {
-                return mark;
+              if (["IC1"].includes(InputInProgress.drill_name)) {
+                if (Math.abs(mark) === 100) {
+                  return mark;
+                }
               } else {
-                return null;
+                if (mark % 25 === 0) {
+                  return mark;
+                } else {
+                  return null;
+                }
               }
             }}
             style={{ width: "80%" }}
@@ -492,7 +518,13 @@ export default function InputForm({
             value={
               InputInProgress.external_load ? InputInProgress.external_load : ""
             }
-            disabled={InputInProgress.drill_name ? false : true}
+            disabled={
+              InputInProgress.drill_name
+                ? ["IC1", "IC2"].includes(InputInProgress.drill_name)
+                  ? true
+                  : false
+                : true
+            }
             postfix='lbs'
             onChange={(value) =>
               updateInputInProgress(["external_load", value])
@@ -504,7 +536,16 @@ export default function InputForm({
             <Button appearance='primary' onClick={submit_form}>
               Add to Workout
             </Button>
-            <Button appearance='default'>Cancel</Button>
+            <Button
+              appearance='default'
+              onClick={() =>
+                updateWkt("inputs", {
+                  ...wktInProgress.inputs,
+                  [selectedInput]: default_new_input,
+                })
+              }>
+              Cancel
+            </Button>
           </ButtonToolbar>
         </Form.Group>
       </Form>

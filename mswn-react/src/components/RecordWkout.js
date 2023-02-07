@@ -59,7 +59,8 @@ export default function RecordWkout() {
     return fetch(url).then((res) => res.json());
   }
 
-  console.log("Selected Workout (ID) " + selectedWorkout);
+  console.log("Workout Results...");
+  console.log(workoutResults);
 
   useEffect(() => {
     if (workoutsQuery.isSuccess) {
