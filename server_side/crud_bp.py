@@ -681,6 +681,23 @@ def record_workout():
     return f"Request is recieved!", 201
 
 
+@bp.route('/delete_workout', methods=('POST',))
+def delete_workout():
+    db = get_db()
+    curs = db.cursor()
+    req = request.get_json()
+    mover_id, id_to_delete = req
+
+    pprint(req)
+    curs.execute('''DELETE FROM workouts
+                    WHERE workouts.moverid = (?)
+                    AND workouts.id = (?)
+                    ''', (mover_id, id_to_delete))
+    print("Got this far")
+    db.commit()
+    return f"Workout {id_to_delete} deleted", 201
+
+
 @ bp.route('/workouts/<int:mover_id>')
 def get_workouts(mover_id):
     if mover_id == 0:
@@ -855,22 +872,33 @@ def ttstatus(mover_id):
         tissue_status.append({k: row[k] for k in row.keys()})
     return jsonify({"tissue_status": tissue_status}), 200
 
+# TODO work on fixing THIS endpoint
 
-@ bp.route('/bout_log/<int:mover_id>')
-def bout_log(mover_id):
+
+@ bp.route('/training_log/<int:mover_id>')
+def training_log(mover_id):
     # print(f"Got this far (to {index})", file=sys.stderr)
     db = get_db()
-    bout_log = []
-    # BELOW returns a list of sqlite3.Row objects (with index, and keys), but is NOT a real dict
-    bout_log_rows = db.execute(
-        'SELECT * FROM bout_log WHERE moverid = (?)', (mover_id,)
+    training_log = []
+    # BELOW returns a list of sqlite3.Row objects (with index, and keys),
+    # but is NOT a real dict
+
+    # START HERE ... I now need this
+    # to select from bout_log ONLY
+    # unique workouts
+    # (left join on programmed_drills)
+    # so that I can list them in the timeline
+    training_log_rows = db.execute(
+        'SELECT workouts.workout_title, bout_log.date, FROM bout_log WHERE moverid = (?)', (
+            mover_id,)
     ).fetchall()
     # this converts all rows returned into dictiornary, that is added to the tissue_status list
-    for row in bout_log_rows:
-        bout_log.append({k: row[k] for k in row.keys()})
+    for row in training_log_rows:
+        training_log.append({k: row[k] for k in row.keys()})
     # sort on way to react into DESCENDING order from most recent (by ['date'])
-    bout_log_final = sorted(bout_log, key=itemgetter('date'), reverse=True)
-    return jsonify({"bout_log": bout_log_final}), 200
+    training_log_final = sorted(
+        training_log, key=itemgetter('date'), reverse=True)
+    return jsonify({"training_log": training_log_final}), 200
 
 
 @ bp.route('/add_bout/<int:moverid>', methods=('POST',))

@@ -90,12 +90,12 @@ export default function RecordWkout() {
     }
   }, [selectedWorkout]);
 
-  const boutLogData = useQuery(["boutLog"], () =>
+  /* const boutLogData = useQuery(["boutLog"], () =>
     fetchAPI(server_url + `/bout_log/${activeMover}`)
   );
   if (boutLogData.isLoading) {
     return <p>Getting your bout data...</p>;
-  }
+  } */
 
   if (workoutsQuery.isLoading) return "Loading...";
   if (workoutsQuery.isError) return `Error: error`;
@@ -155,7 +155,7 @@ export default function RecordWkout() {
   */
   console.log(workoutResults);
 
-  const bout_array = boutLogData.data["bout_log"];
+  /* const bout_array = boutLogData.data["bout_log"];
   const bouts = bout_array.map((bout, i) => {
     return (
       <Timeline.Item key={`bout_${bout_array[i].id}`} time={bout_array[i].date}>
@@ -163,7 +163,7 @@ export default function RecordWkout() {
         {bout_array[i].external_load}
       </Timeline.Item>
     );
-  });
+  }); */
   /* console.log(bouts.len()); */
 
   return (
@@ -270,13 +270,13 @@ export default function RecordWkout() {
           alignSelf: "stretch",
           padding: 40,
         }}>
-        <Timeline endless>
+        {/* <Timeline endless>
           {bouts.len != 0 ? (
             bouts
           ) : (
-            <Timeline.Item>**No Bouts Yet!**</Timeline.Item>
+            <Timeline.Item>**No Workouts Yet!**</Timeline.Item>
           )}
-        </Timeline>
+        </Timeline> */}
       </Stack.Item>
     </Stack>
   );

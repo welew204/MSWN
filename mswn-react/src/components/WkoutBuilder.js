@@ -19,9 +19,12 @@ import {
   Whisper,
   Tooltip,
   Loader,
+  IconButton,
 } from "rsuite";
 import CogIcon from "@rsuite/icons/legacy/Cog";
+import TrashIcon from "@rsuite/icons/Trash";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { DragDropContext } from "react-beautiful-dnd";
 import { NavToggle } from "./helpers/NavToggle";
 import InputForm from "./helpers/InputForm";
 import WktTitle from "./helpers/WktTitle";
@@ -59,7 +62,7 @@ export default function WkoutBuilder() {
     },
     schema: { A: { circuit: ["1"], iterations: 1 } },
   });
-  /* console.log(wktInProgress); */
+  console.log(wktInProgress);
 
   const [selectedInput, setSelectedInput] = useState(1);
   /* console.log("SELECTED INPUT: " + selectedInput); */
@@ -86,13 +89,13 @@ export default function WkoutBuilder() {
     return fetchAPI(server_url + `/workouts/${activeMover}`);
   });
 
-  const boutLogData = useQuery(["boutLog"], () =>
+  /* const trainingLogData = useQuery(["trainingLog"], () =>
     fetchAPI(server_url + `/bout_log/${activeMover}`)
-  );
+  ); */
 
   if (workoutsQuery.isLoading) return "Loading...";
   if (workoutsQuery.isError) return `Error: error`;
-  if (boutLogData.isLoading) {
+  /* if (boutLogData.isLoading) {
     return <p>Getting your bout data...</p>;
   }
 
@@ -104,7 +107,7 @@ export default function WkoutBuilder() {
         {bout_array[i].external_load}
       </Timeline.Item>
     );
-  });
+  }); */
 
   function fetchAPI(url) {
     return fetch(url).then((res) => res.json());
@@ -113,9 +116,73 @@ export default function WkoutBuilder() {
     setWktInProgress((prev) => ({ ...prev, [field]: UpdValue }));
   }
 
+  function removeInput(inputID) {
+    console.log(inputID);
+
+    const targetSet = Object.keys(wktInProgress.schema).find((set) =>
+      wktInProgress.schema[set].circuit.includes(inputID.toString())
+    );
+
+    console.log(targetSet);
+    var new_schema = {};
+    if (wktInProgress.schema[targetSet].circuit.length > 1) {
+      console.log(wktInProgress.schema[targetSet].circuit);
+      const new_circuit = wktInProgress.schema[targetSet].circuit.filter(
+        (val) => val != inputID
+      );
+      new_schema = {
+        ...wktInProgress.schema,
+        [targetSet]: {
+          ...wktInProgress.schema[targetSet],
+          circuit: [new_circuit],
+        },
+      };
+    } else {
+      /* update `schema` to remove empty set, then update proceeding sets LETTER (decrement by 1)*/
+      const schemaAsArray = Object.entries(wktInProgress.schema);
+      const newSchemaAsArray = schemaAsArray.filter(
+        ([key, val]) => key != targetSet
+      );
+      console.log(newSchemaAsArray);
+      const targetSetCharCode = targetSet.charCodeAt(0);
+      for (let index in newSchemaAsArray) {
+        var setLetterCode = newSchemaAsArray[index][0].charCodeAt(0);
+        if (setLetterCode < targetSetCharCode) {
+          continue;
+        } else {
+          var newSetLetter = String.fromCharCode(setLetterCode - 1);
+          newSchemaAsArray[index][0] = newSetLetter;
+        }
+      }
+      console.log(newSchemaAsArray);
+      new_schema = Object.fromEntries(newSchemaAsArray);
+    }
+    /* convert object to array */
+    const inputsAsArray = Object.entries(wktInProgress.inputs);
+    /* filter array to leave out clicked input */
+    const newInputsArray = inputsAsArray.filter(([key, val]) => key != inputID);
+    /* grab id of last input in NEW array to be the new selectedInput */
+    const newSelectedInput = newInputsArray.at(-1)[0];
+    /* convert updated list back into object */
+    const newInputs = Object.fromEntries(newInputsArray);
+    /* update wktInProgress */
+    setWktInProgress((prev) => ({
+      ...prev,
+      inputs: newInputs,
+      schema: new_schema,
+    }));
+    setSelectedInput(newSelectedInput);
+  }
+
   const rx_inputs = Object.keys(wktInProgress.inputs).map((inp) => (
     <Panel
       key={wktInProgress.inputs[inp].id}
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        height: "85px",
+      }}
       onClick={() => setSelectedInput(wktInProgress.inputs[inp].id)}
       shaded
       className={
@@ -123,27 +190,49 @@ export default function WkoutBuilder() {
           ? "selected-inp-plaque"
           : "inp-plaque"
       }
-      style={{ display: "flex", justifyContent: "center" }}
-      bordered
-      header={
-        wktInProgress.inputs[inp].ref_joint_id &&
-        wktInProgress.inputs[inp].drill_name ? (
-          `${wktInProgress.inputs[inp].ref_joint_side} ${wktInProgress.inputs[inp].ref_joint_name} ${wktInProgress.inputs[inp].drill_name}`
-        ) : (
-          <Loader vertical speed='slow' size='md'></Loader>
-        )
-      }>
-      {wktInProgress.inputs[inp].completed
-        ? `RPE: ${wktInProgress.inputs[inp].rpe}/10, Duration: ${wktInProgress.inputs[inp].duration} secs`
-        : "Building workout..."}
+      bordered>
+      {wktInProgress.inputs[inp].ref_joint_id &&
+      wktInProgress.inputs[inp].drill_name ? (
+        <h5 style={{ margin: "auto" }}>
+          {`${wktInProgress.inputs[inp].ref_joint_side} ${wktInProgress.inputs[inp].ref_joint_name} ${wktInProgress.inputs[inp].drill_name}`}
+        </h5>
+      ) : (
+        <Loader vertical speed='slow' size='md'></Loader>
+      )}
+      {wktInProgress.inputs[inp].completed ? (
+        <h6 style={{ margin: "auto" }}>
+          {`RPE: ${wktInProgress.inputs[inp].rpe}/10`} <br />
+          {`Duration: ${wktInProgress.inputs[inp].duration} secs`}
+        </h6>
+      ) : (
+        <h5 style={{ margin: "auto" }}>...building workout...</h5>
+      )}
+      {wktInProgress.inputs[inp].completed ? (
+        <div>
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              removeInput(wktInProgress.inputs[inp].id);
+            }}
+            style={{ marginLeft: "auto" }}
+            size='md'
+            icon={<TrashIcon />}
+          />
+        </div>
+      ) : (
+        void 0
+      )}
     </Panel>
   ));
 
   return (
     <Stack
-      style={{ height: "100%", minHeight: "100%" }}
-      justifyContent='space-around'
-      alignItems='center'>
+      style={{
+        height: "100%",
+        minHeight: "100%",
+        justifyContent: "space-around",
+        alignItems: "center",
+      }}>
       <Stack.Item
         style={{
           height: "100%",
@@ -218,7 +307,7 @@ export default function WkoutBuilder() {
           alignSelf: "stretch",
           padding: 40,
         }}>
-        <Timeline endless>{bouts}</Timeline>
+        {/* <Timeline endless>{bouts}</Timeline> */}
       </Stack.Item>
     </Stack>
   );

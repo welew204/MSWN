@@ -11,6 +11,7 @@
 .homescreen-mid {
   display: flex;
   height: auto;
+  
 }
 
 .content {
@@ -23,10 +24,11 @@
   flex-direction: row;
 }
 
-.rs-footer {
-  position: relative;
-  bottom: 0;
+.rs-panel-body {
+  display: flex;
+  width: 100%
 }
+
 
 .wbld {
   display: flex;

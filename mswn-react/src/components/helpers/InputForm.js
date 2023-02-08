@@ -38,9 +38,9 @@ export default function InputForm({
   const drillRefData = useQuery(["drillRef"], () =>
     fetchAPI(server_url + "/drill_ref")
   );
-  const boutLogData = useQuery(["boutLog"], () =>
+  /* const boutLogData = useQuery(["boutLog"], () =>
     fetchAPI(server_url + "/bout_log/1")
-  );
+  ); */
   const jointRefData = useQuery(["jointsRef"], () =>
     fetchAPI(server_url + "/joint_ref")
   );
@@ -60,9 +60,9 @@ export default function InputForm({
   /* console.log("jointId in state: " + jointID); */
   /* console.log("zoneId in state: " + zoneID); */
 
-  if (boutLogData.isLoading) {
+  /* if (boutLogData.isLoading) {
     return <p>Getting your bout data...</p>;
-  }
+  } */
   if (jointRefData.isLoading) {
     return <p>Ish is loading!</p>;
   }
@@ -162,7 +162,7 @@ export default function InputForm({
   updateInputInProgress(["ref_joint_name", label]); */
 
   async function submit_form() {
-    const input_index = Object.keys(wktInProgress.inputs).length + 1;
+    const input_index = parseInt(Object.keys(wktInProgress.inputs).at(-1)) + 1;
     const sets = Object.entries(wktInProgress.schema);
     const next_set = String.fromCharCode(
       sets
@@ -213,7 +213,7 @@ export default function InputForm({
 
   const position = ["Regressive (short)", "Progressive (long)"];
 
-  const bout_array = boutLogData.data["bout_log"];
+  /*   const bout_array = boutLogData.data["bout_log"];
   const bouts = bout_array.map((bout, i) => {
     return (
       <Timeline.Item key={`bout_${bout_array[i].id}`} time={bout_array[i].date}>
@@ -221,7 +221,7 @@ export default function InputForm({
         {bout_array[i].external_load}
       </Timeline.Item>
     );
-  });
+  }); */
 
   function updateInputInProgress(value) {
     const [field, updVal] = value;

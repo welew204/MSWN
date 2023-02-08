@@ -48,6 +48,7 @@ export default function MoverSelect(props) {
         className={wkt.id == selectedWorkout ? "selected-workout" : ""}
         wkt={wkt}
         onClick={() => setSelectedWorkout(wkt.id)}
+        onDelete={() => setSelectedWorkout(workoutsQuery.data[0].id)}
       />
     </Stack.Item>
   ));

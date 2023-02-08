@@ -126,8 +126,14 @@ export default function Home() {
           {/* one of MoverSelect, WorkoutBuilder, RecordWorkout */}
         </Content>
       </Container>
-
-      <Footer>TM Controlled Fall Engineering</Footer>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          paddingTop: "20px",
+        }}>
+        TM Controlled Fall Engineering
+      </div>
     </Container>
   );
 }
