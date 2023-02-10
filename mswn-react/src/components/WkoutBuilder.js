@@ -24,7 +24,7 @@ import {
 import CogIcon from "@rsuite/icons/legacy/Cog";
 import TrashIcon from "@rsuite/icons/Trash";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { DragDropContext } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { NavToggle } from "./helpers/NavToggle";
 import InputForm from "./helpers/InputForm";
 import WktTitle from "./helpers/WktTitle";
@@ -65,9 +65,34 @@ export default function WkoutBuilder() {
   console.log(wktInProgress);
 
   const [selectedInput, setSelectedInput] = useState(1);
+  const [schemaArray, setSchemaArray] = useState([]);
   /* console.log("SELECTED INPUT: " + selectedInput); */
 
+  function flatten_schema(schema) {
+    /* given an object (schema), recursively walk into it:
+    - concatenated SETxINPUT (eg: A1)
+    - append this to a schemaArray object
+    - when done pass this into state, and */
+    const schemaArrayDraft = Object.keys(schema).map((set) => {
+      var tagged_circuit = [];
+      for (let inp in schema[set].circuit) {
+        const tagged_inp = set + (parseInt(inp) + 1).toString();
+        tagged_circuit.push(tagged_inp);
+      }
+      return tagged_circuit;
+    });
+    return schemaArrayDraft.flat();
+  }
+
+  function update_schema() {
+    /* given a schemaArray:
+    - split into KEY and circuit-value
+    - write a new schema object for wktInProgress
+    - updateWkt */
+  }
+
   useEffect(() => {
+    setSchemaArray(flatten_schema(wktInProgress.schema));
     setWktInProgress((prev) => {
       const date = new Date().toJSON();
       return { ...prev, date_init: date.slice(0, 10) };
@@ -174,141 +199,163 @@ export default function WkoutBuilder() {
     setSelectedInput(newSelectedInput);
   }
 
-  const rx_inputs = Object.keys(wktInProgress.inputs).map((inp) => (
-    <Panel
-      key={wktInProgress.inputs[inp].id}
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        height: "85px",
-      }}
-      onClick={() => setSelectedInput(wktInProgress.inputs[inp].id)}
-      shaded
-      className={
-        selectedInput == wktInProgress.inputs[inp].id
-          ? "selected-inp-plaque"
-          : "inp-plaque"
-      }
-      bordered>
-      {wktInProgress.inputs[inp].ref_joint_id &&
-      wktInProgress.inputs[inp].drill_name ? (
-        <h5 style={{ margin: "auto" }}>
-          {`${wktInProgress.inputs[inp].ref_joint_side} ${wktInProgress.inputs[inp].ref_joint_name} ${wktInProgress.inputs[inp].drill_name}`}
-        </h5>
-      ) : (
-        <Loader vertical speed='slow' size='md'></Loader>
-      )}
-      {wktInProgress.inputs[inp].completed ? (
-        <h6 style={{ margin: "auto" }}>
-          {`RPE: ${wktInProgress.inputs[inp].rpe}/10`} <br />
-          {`Duration: ${wktInProgress.inputs[inp].duration} secs`}
-        </h6>
-      ) : (
-        <h5 style={{ margin: "auto" }}>...building workout...</h5>
-      )}
-      {wktInProgress.inputs[inp].completed ? (
-        <div>
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              removeInput(wktInProgress.inputs[inp].id);
+  const rx_inputs = Object.keys(wktInProgress.inputs).map((inp, index) => (
+    <Draggable
+      key={`${wktInProgress.inputs[inp].id}`}
+      draggableId={`${wktInProgress.inputs[inp].id}`}
+      index={index}>
+      {(provided, snapshot) => (
+        <div
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+          ref={provided.innerRef}>
+          <Panel
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              height: "85px",
             }}
-            style={{ marginLeft: "auto" }}
-            size='md'
-            icon={<TrashIcon />}
-          />
+            onClick={() => setSelectedInput(wktInProgress.inputs[inp].id)}
+            shaded
+            className={
+              selectedInput == wktInProgress.inputs[inp].id
+                ? "selected-inp-plaque"
+                : "inp-plaque"
+            }
+            bordered>
+            {wktInProgress.inputs[inp].ref_joint_id &&
+            wktInProgress.inputs[inp].drill_name ? (
+              <h5 style={{ margin: "auto" }}>
+                {`${wktInProgress.inputs[inp].ref_joint_side} ${wktInProgress.inputs[inp].ref_joint_name} ${wktInProgress.inputs[inp].drill_name}`}
+              </h5>
+            ) : (
+              <Loader vertical speed='slow' size='md'></Loader>
+            )}
+            {wktInProgress.inputs[inp].completed ? (
+              <h6 style={{ margin: "auto" }}>
+                {`RPE: ${wktInProgress.inputs[inp].rpe}/10`} <br />
+                {`Duration: ${wktInProgress.inputs[inp].duration} secs`}
+              </h6>
+            ) : (
+              <h5 style={{ margin: "auto" }}>...building workout...</h5>
+            )}
+            {wktInProgress.inputs[inp].completed ? (
+              <div>
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeInput(wktInProgress.inputs[inp].id);
+                  }}
+                  style={{ marginLeft: "auto" }}
+                  size='md'
+                  icon={<TrashIcon />}
+                />
+              </div>
+            ) : (
+              void 0
+            )}
+          </Panel>
         </div>
-      ) : (
-        void 0
       )}
-    </Panel>
+    </Draggable>
   ));
 
   return (
-    <Stack
-      style={{
-        height: "100%",
-        minHeight: "100%",
-        justifyContent: "space-around",
-        alignItems: "center",
-      }}>
-      <Stack.Item
+    <DragDropContext onDragEnd={() => console.log("dropped the thing!")}>
+      <Stack
         style={{
           height: "100%",
           minHeight: "100%",
-          flexGrow: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "stretch",
-          justifyContent: "space-between",
+          justifyContent: "space-around",
+          alignItems: "center",
         }}>
-        <Stack.Item style={{ display: "flex", justifyContent: "space-around" }}>
-          <h1>Build A Workout</h1>
-        </Stack.Item>
-        <Divider />
-        <Stack.Item style={{ display: "flex", justifyContent: "space-evenly" }}>
+        <Stack.Item
+          style={{
+            height: "100%",
+            minHeight: "100%",
+            flexGrow: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "stretch",
+            justifyContent: "space-between",
+          }}>
           <Stack.Item
-            className='THIS ONE'
-            style={{ width: "100%", padding: 10 }}>
-            <h3 style={{ display: "flex", justifyContent: "space-around" }}>
-              Define an Input...
-            </h3>
-            <Divider />
-            <InputForm
-              key={`${selectedInput}`}
-              updateDB={updateDB}
-              setSelectedInput={setSelectedInput}
-              default_new_input={default_new_input}
-              setWktInProgress={setWktInProgress}
-              wktInProgress={wktInProgress}
-              updateWkt={updateWkt}
-              selectedInput={selectedInput}
-            />
+            style={{ display: "flex", justifyContent: "space-around" }}>
+            <h1>Build A Workout</h1>
           </Stack.Item>
-          <Divider vertical style={{ height: "60vh", alignSelf: "center" }} />
+          <Divider />
+          <Stack.Item
+            style={{ display: "flex", justifyContent: "space-evenly" }}>
+            <Stack.Item
+              className='THIS ONE'
+              style={{ width: "100%", padding: 10 }}>
+              <h3 style={{ display: "flex", justifyContent: "space-around" }}>
+                Define an Input...
+              </h3>
+              <Divider />
+              <InputForm
+                key={`${selectedInput}`}
+                updateDB={updateDB}
+                setSelectedInput={setSelectedInput}
+                default_new_input={default_new_input}
+                setWktInProgress={setWktInProgress}
+                wktInProgress={wktInProgress}
+                updateWkt={updateWkt}
+                selectedInput={selectedInput}
+              />
+            </Stack.Item>
+            <Divider vertical style={{ height: "60vh", alignSelf: "center" }} />
+            <Stack.Item
+              className='workoutSchema'
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignContent: "stretch",
+                minWidth: 200,
+                width: "100%",
+                gap: 10,
+              }}>
+              <WktTitle
+                title={wktInProgress.workout_title}
+                onChange={updateWkt}
+              />
+              <Droppable droppableId='droppable'>
+                {(provided, snapshot) => (
+                  <div {...provided.droppableProps} ref={provided.innerRef}>
+                    {rx_inputs}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </Stack.Item>
+          </Stack.Item>
           <Stack.Item
             style={{
               display: "flex",
-              flexDirection: "column",
-              alignContent: "stretch",
-              minWidth: 200,
-              width: "100%",
-              gap: 10,
-            }}
-            className='workoutSchema'>
-            <WktTitle
-              title={wktInProgress.workout_title}
-              onChange={updateWkt}
-            />
-            {rx_inputs}
+              padding: 10,
+              justifyContent: "center",
+              gap: 20,
+            }}>
+            <Button as={RsNavLink} href='/mover' onClick={updateDB.mutate}>
+              Save Workout
+            </Button>
+            <Button as={RsNavLink} href='/wbuilder'>
+              Save Workout Draft
+            </Button>
           </Stack.Item>
         </Stack.Item>
+        <Divider vertical style={{ height: "70vh" }} />
         <Stack.Item
           style={{
-            display: "flex",
-            padding: 10,
-            justifyContent: "center",
-            gap: 20,
+            height: "100%",
+            minHeight: "100%",
+            alignSelf: "stretch",
+            padding: 40,
           }}>
-          <Button as={RsNavLink} href='/mover' onClick={updateDB.mutate}>
-            Save Workout
-          </Button>
-          <Button as={RsNavLink} href='/wbuilder'>
-            Save Workout Draft
-          </Button>
+          {/* <Timeline endless>{bouts}</Timeline> */}
         </Stack.Item>
-      </Stack.Item>
-      <Divider vertical style={{ height: "70vh" }} />
-      <Stack.Item
-        style={{
-          height: "100%",
-          minHeight: "100%",
-          alignSelf: "stretch",
-          padding: 40,
-        }}>
-        {/* <Timeline endless>{bouts}</Timeline> */}
-      </Stack.Item>
-    </Stack>
+      </Stack>
+    </DragDropContext>
   );
 }

@@ -237,7 +237,7 @@ export default function InputForm({
   }
   /* nb... InputInProgress, shortened here to assist with readability  */
   const InputInProgress = wktInProgress.inputs[selectedInput];
-  console.log(InputInProgress);
+  /* console.log(InputInProgress); */
 
   return (
     <div className='inp-form'>

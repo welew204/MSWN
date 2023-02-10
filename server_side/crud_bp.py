@@ -695,7 +695,8 @@ def delete_workout():
                     ''', (mover_id, id_to_delete))
     print("Got this far")
     db.commit()
-    return f"Workout {id_to_delete} deleted", 201
+    to_return = get_workouts(mover_id)
+    return to_return
 
 
 @ bp.route('/workouts/<int:mover_id>')

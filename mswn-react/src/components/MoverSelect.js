@@ -19,7 +19,7 @@ import {
   Whisper,
 } from "rsuite";
 import CogIcon from "@rsuite/icons/legacy/Cog";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { NavToggle } from "./helpers/NavToggle";
 import WorkoutBadge from "./helpers/WorkoutBadge";
 
@@ -31,13 +31,31 @@ export default function MoverSelect(props) {
       return res.json();
     });
   }
+  /* const queryClient = useQueryClient(); */
 
   const [selectedWorkout, setSelectedWorkout, activeMover] = useOutletContext();
 
   const workoutsQuery = useQuery(["workouts", activeMover], () => {
     return fetchAPI(server_url + `/workouts/${activeMover}`);
   });
+  const handleDelete = useMutation({
+    mutationFn: (wktID) => {
+      fetch(server_url + "/delete_workout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify([activeMover, wktID]),
+        mode: "cors",
+      })
+        .then((res) => console.log(res.json()))
+        .then(setSelectedWorkout(workoutsQuery.data[0].id));
+    },
+    /* onSuccess: (data) => {
+      queryClient.setQueryData(["workouts", activeMover], data); 
+    },
+    */
+  });
   if (workoutsQuery.isLoading) return "Loading...";
+  if (workoutsQuery.isFetching) return "Loading...";
   if (workoutsQuery.isError) return `Error: error`;
 
   const wkouts = workoutsQuery.data.map((wkt) => (
@@ -48,7 +66,7 @@ export default function MoverSelect(props) {
         className={wkt.id == selectedWorkout ? "selected-workout" : ""}
         wkt={wkt}
         onClick={() => setSelectedWorkout(wkt.id)}
-        onDelete={() => setSelectedWorkout(workoutsQuery.data[0].id)}
+        onDelete={(wkt_to_delete) => handleDelete.mutate(wkt_to_delete)}
       />
     </Stack.Item>
   ));

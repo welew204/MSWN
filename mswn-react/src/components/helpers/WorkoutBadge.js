@@ -23,8 +23,6 @@ import { RsNavLink } from "./RsNavLink";
 const server_url = "http://127.0.0.1:8000";
 
 export default function WorkoutBadge({ wkt, onClick, className, onDelete }) {
-  const [selectedWorkout, setSelectedWorkout, activeMover] = useOutletContext();
-
   const inputs = wkt.inputs.map((inp) => {
     return (
       <li key={inp.id}>
@@ -41,17 +39,6 @@ export default function WorkoutBadge({ wkt, onClick, className, onDelete }) {
         </Stack>
       </li>
     );
-  });
-
-  const handleDelete = useMutation({
-    mutationFn: () => {
-      fetch(server_url + "/delete_workout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify([activeMover, wkt.id]),
-        mode: "cors",
-      }).then(onDelete());
-    },
   });
 
   return (
@@ -96,7 +83,7 @@ export default function WorkoutBadge({ wkt, onClick, className, onDelete }) {
           size='md'
           onClick={(e) => {
             e.stopPropagation();
-            handleDelete.mutate();
+            onDelete(wkt.id);
           }}
         />
       </div>
