@@ -23,6 +23,7 @@ import {
 } from "rsuite";
 import CogIcon from "@rsuite/icons/legacy/Cog";
 import TrashIcon from "@rsuite/icons/Trash";
+import ConversionIcon from "@rsuite/icons/Conversion";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { NavToggle } from "./helpers/NavToggle";
@@ -35,7 +36,7 @@ export default function WkoutBuilder() {
   const default_new_input = {
     ref_joint_id: "",
     ref_joint_name: "",
-    id: "1",
+    id: 1,
     ref_zones_id_a: "",
     ref_zones_id_b: "",
     fixed_side_anchor_id: "",
@@ -76,23 +77,39 @@ export default function WkoutBuilder() {
     const schemaArrayDraft = Object.keys(schema).map((set) => {
       var tagged_circuit = [];
       for (let inp in schema[set].circuit) {
-        const tagged_inp = set + (parseInt(inp) + 1).toString();
+        const tagged_inp = `${set}${parseInt(inp) + 1}-${
+          schema[set].circuit[inp]
+        }`;
         tagged_circuit.push(tagged_inp);
       }
       return tagged_circuit;
     });
-    return schemaArrayDraft.flat();
+    const res = schemaArrayDraft.flat();
+    console.log(res);
+    return res;
   }
 
-  function update_schema() {
+  /* function update_schema(sArray) {
     /* given a schemaArray:
     - split into KEY and circuit-value
     - write a new schema object for wktInProgress
     - updateWkt */
-  }
+  /* var schema_result = {};
+    for (let inp in sArray) {
+      var set = inp[0];
+      var index = inp.slice(1);
+      schema_result = {
+        ...schema_result,
+        [set]: { circuit: [...circuit.splice(index)] },
+      };
+    }
+  } */
 
   useEffect(() => {
     setSchemaArray(flatten_schema(wktInProgress.schema));
+  }, [wktInProgress.schema]);
+
+  useEffect(() => {
     setWktInProgress((prev) => {
       const date = new Date().toJSON();
       return { ...prev, date_init: date.slice(0, 10) };
@@ -141,6 +158,37 @@ export default function WkoutBuilder() {
     setWktInProgress((prev) => ({ ...prev, [field]: UpdValue }));
   }
 
+  /*   function reorderSchema(result) {
+    const source = result.source.index;
+    const destination = result.destination.index;
+    var newly_ordered_schema = Array.from(schemaArray);
+    const [removed] = newly_ordered_schema.splice(source, 1);
+    // correctly ORDERED inputs, tho just need to re-write for proper set-assignment
+    newly_ordered_schema.splice(destination, 0, removed);
+    // break up 'removed' into constituent parts (set, index, input_id)
+    const moved_item_array = removed.split("-");
+    const set = moved_item_array[0][0];
+    const drill_index = moved_item_array[0].slice(1);
+    const input_id = moved_item_array[1][0];
+    var current_set = "A";
+    var result = [];
+    for (let i in newly_ordered_schema) {
+      var current_item_array = newly_ordered_schema[i].split("-");
+      var drill_set = current_item_array[0][0];
+      var circuit_index = current_item_array[0].slice(1);
+      var current_input_id = current_item_array[1][0];
+      if (drill_set === current_set) {
+        continue;
+      }
+      // eventually this will need to also handle walking through the circuit of drills IN that set
+      else {
+        var new_schema_tag = `${current_set}${circuit_index}-${current_input_id}`;
+        result.push(new_schema_tag);
+        current_set = (current_set.charCodeAt(0) + 1).fromCharCode();
+      }
+    }
+  } */
+
   function removeInput(inputID) {
     console.log(inputID);
 
@@ -182,6 +230,7 @@ export default function WkoutBuilder() {
       console.log(newSchemaAsArray);
       new_schema = Object.fromEntries(newSchemaAsArray);
     }
+    setSchemaArray(flatten_schema(new_schema));
     /* convert object to array */
     const inputsAsArray = Object.entries(wktInProgress.inputs);
     /* filter array to leave out clicked input */
@@ -199,70 +248,89 @@ export default function WkoutBuilder() {
     setSelectedInput(newSelectedInput);
   }
 
-  const rx_inputs = Object.keys(wktInProgress.inputs).map((inp, index) => (
-    <Draggable
-      key={`${wktInProgress.inputs[inp].id}`}
-      draggableId={`${wktInProgress.inputs[inp].id}`}
-      index={index}>
-      {(provided, snapshot) => (
-        <div
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          ref={provided.innerRef}>
-          <Panel
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              height: "85px",
-            }}
-            onClick={() => setSelectedInput(wktInProgress.inputs[inp].id)}
-            shaded
-            className={
-              selectedInput == wktInProgress.inputs[inp].id
-                ? "selected-inp-plaque"
-                : "inp-plaque"
-            }
-            bordered>
-            {wktInProgress.inputs[inp].ref_joint_id &&
-            wktInProgress.inputs[inp].drill_name ? (
-              <h5 style={{ margin: "auto" }}>
-                {`${wktInProgress.inputs[inp].ref_joint_side} ${wktInProgress.inputs[inp].ref_joint_name} ${wktInProgress.inputs[inp].drill_name}`}
-              </h5>
-            ) : (
-              <Loader vertical speed='slow' size='md'></Loader>
-            )}
-            {wktInProgress.inputs[inp].completed ? (
-              <h6 style={{ margin: "auto" }}>
-                {`RPE: ${wktInProgress.inputs[inp].rpe}/10`} <br />
-                {`Duration: ${wktInProgress.inputs[inp].duration} secs`}
-              </h6>
-            ) : (
-              <h5 style={{ margin: "auto" }}>...building workout...</h5>
-            )}
-            {wktInProgress.inputs[inp].completed ? (
-              <div>
-                <IconButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeInput(wktInProgress.inputs[inp].id);
-                  }}
-                  style={{ marginLeft: "auto" }}
-                  size='md'
-                  icon={<TrashIcon />}
-                />
-              </div>
-            ) : (
-              void 0
-            )}
-          </Panel>
-        </div>
-      )}
-    </Draggable>
-  ));
+  const n_rx_inputs = schemaArray.map((inp, index) => {
+    // break up the inp into useful pieces
+    var split = inp.split("-");
+    var set = split[0][0];
+    var drill_index = split[0].slice(1);
+    var input_id = split[1][0];
+    console.log(input_id);
+    console.log(wktInProgress.inputs[input_id]);
+    return (
+      <Draggable key={input_id} draggableId={input_id} index={index}>
+        {(provided, snapshot) => (
+          <div
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            ref={provided.innerRef}>
+            <Panel
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                height: "85px",
+              }}
+              onClick={() => setSelectedInput(input_id)}
+              shaded
+              className={
+                selectedInput == input_id ? "selected-inp-plaque" : "inp-plaque"
+              }
+              bordered>
+              {wktInProgress.inputs[input_id]?.ref_joint_id &&
+              wktInProgress.inputs[input_id]?.drill_name ? (
+                <h5 style={{ margin: "auto" }}>
+                  {`${wktInProgress.inputs[input_id].ref_joint_side} ${wktInProgress.inputs[input_id].ref_joint_name} ${wktInProgress.inputs[input_id].drill_name}`}
+                </h5>
+              ) : (
+                <Loader vertical speed='slow' size='md'></Loader>
+              )}
+              {wktInProgress.inputs[input_id].completed ? (
+                <h6 style={{ margin: "auto" }}>
+                  {`RPE: ${wktInProgress.inputs[input_id].rpe}/10`} <br />
+                  {`Duration: ${wktInProgress.inputs[input_id].duration} secs`}
+                </h6>
+              ) : (
+                <h5 style={{ margin: "auto" }}>...building workout...</h5>
+              )}
+              {wktInProgress.inputs[input_id].completed ? (
+                <div>
+                  <IconButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeInput(input_id);
+                    }}
+                    style={{ marginLeft: "auto" }}
+                    size='md'
+                    icon={<TrashIcon />}
+                  />
+                </div>
+              ) : (
+                void 0
+              )}
+              {index !== 0 && wktInProgress.inputs[input_id].completed ? (
+                <div>
+                  <IconButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log("This will link inputs into a circuit");
+                    }}
+                    style={{ position: "absolute", transform: "" }}
+                    icon={<ConversionIcon />}
+                    size='sm'
+                  />
+                </div>
+              ) : (
+                void 0
+              )}
+            </Panel>
+          </div>
+        )}
+      </Draggable>
+    );
+  });
 
   return (
-    <DragDropContext onDragEnd={() => console.log("dropped the thing!")}>
+    <DragDropContext onDragEnd={(result) => console.log(result)}>
       <Stack
         style={{
           height: "100%",
@@ -323,7 +391,7 @@ export default function WkoutBuilder() {
               <Droppable droppableId='droppable'>
                 {(provided, snapshot) => (
                   <div {...provided.droppableProps} ref={provided.innerRef}>
-                    {rx_inputs}
+                    {n_rx_inputs}
                     {provided.placeholder}
                   </div>
                 )}

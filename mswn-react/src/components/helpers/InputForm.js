@@ -162,6 +162,7 @@ export default function InputForm({
   updateInputInProgress(["ref_joint_name", label]); */
 
   async function submit_form() {
+    console.log(wktInProgress.inputs);
     const input_index = parseInt(Object.keys(wktInProgress.inputs).at(-1)) + 1;
     const sets = Object.entries(wktInProgress.schema);
     const next_set = String.fromCharCode(

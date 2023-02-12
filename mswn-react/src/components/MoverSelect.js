@@ -31,7 +31,7 @@ export default function MoverSelect(props) {
       return res.json();
     });
   }
-  /* const queryClient = useQueryClient(); */
+  const queryClient = useQueryClient();
 
   const [selectedWorkout, setSelectedWorkout, activeMover] = useOutletContext();
 
@@ -49,10 +49,9 @@ export default function MoverSelect(props) {
         .then((res) => console.log(res.json()))
         .then(setSelectedWorkout(workoutsQuery.data[0].id));
     },
-    /* onSuccess: (data) => {
-      queryClient.setQueryData(["workouts", activeMover], data); 
+    onSuccess: (data) => {
+      queryClient.setQueryData(["workouts", [activeMover]], data);
     },
-    */
   });
   if (workoutsQuery.isLoading) return "Loading...";
   if (workoutsQuery.isFetching) return "Loading...";
