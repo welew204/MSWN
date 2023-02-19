@@ -39,6 +39,10 @@ export default function RecordWkout() {
     return fetchAPI(server_url + `/workouts/${activeMover}`);
   });
 
+  const doneWorkoutsQuery = useQuery(["doneWorkouts", activeMover], () => {
+    return fetchAPI(server_url + `/training_log/${activeMover}`);
+  });
+
   function updateWorkoutResults(inputId, UpdValue) {
     setWorkoutResults((prev) => ({ ...prev, [inputId]: UpdValue }));
   }
@@ -46,7 +50,7 @@ export default function RecordWkout() {
   /* //TODO... need to make this go the right end-point */
   const updateDB = useMutation({
     mutationFn: (newMover) => {
-      fetch(server_url + "/record_workout", {
+      return fetch(server_url + "/record_workout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(workoutResults),
@@ -67,6 +71,7 @@ export default function RecordWkout() {
       const selWkt = findWorkout(selectedWorkout);
       let blankResults = {
         mover_id: activeMover,
+        workout_id: selectedWorkout,
         date_done: new Date().toISOString(),
       };
       for (let w in [...selWkt.inputs.keys()]) {
@@ -99,6 +104,8 @@ export default function RecordWkout() {
 
   if (workoutsQuery.isLoading) return "Loading...";
   if (workoutsQuery.isError) return `Error: error`;
+  if (doneWorkoutsQuery.isLoading) return "Loading...";
+  if (doneWorkoutsQuery.isError) return `Error: error`;
 
   const workouts = workoutsQuery.data;
 
@@ -134,37 +141,23 @@ export default function RecordWkout() {
     return selWkt;
   }
 
-  /*   if (Object.keys(workoutResults).length == 0) {
-    const selWkt = findWorkout(selectedWorkout);
-    console.log(selWkt);
-
-    for (let w in [...selWkt.inputs.keys()]) {
-      updateWorkoutResults(selWkt.inputs[w].id, {
-        mover_id: activeMover,
-        Rx: { ...selWkt.inputs[w] },
-        results: {
-          rails: false,
-          passive_duration: 0,
-          duration: 0,
-          rpe: 0,
-          external_load: 0,
-        },
-      });
-    }
-  }
-  */
   console.log(workoutResults);
 
-  /* const bout_array = boutLogData.data["bout_log"];
-  const bouts = bout_array.map((bout, i) => {
-    return (
-      <Timeline.Item key={`bout_${bout_array[i].id}`} time={bout_array[i].date}>
-        {bout_array[i].comments}, RPE: {bout_array[i].rpe}, External Load:{" "}
-        {bout_array[i].external_load}
-      </Timeline.Item>
-    );
-  }); */
-  /* console.log(bouts.len()); */
+  const doneWorkoutsSelected = doneWorkoutsQuery.data["training_log"].map(
+    (wkt) => {
+      if (wkt.id !== selectedWorkout) {
+        void 0;
+      } else {
+        return (
+          <Timeline.Item
+            key={`doneWorkout_${wkt.id}`}
+            time={new Date(wkt.date).toLocaleString()}>
+            <p>{wkt.workout_title}</p>
+          </Timeline.Item>
+        );
+      }
+    }
+  );
 
   return (
     <Stack
@@ -270,13 +263,7 @@ export default function RecordWkout() {
           alignSelf: "stretch",
           padding: 40,
         }}>
-        {/* <Timeline endless>
-          {bouts.len != 0 ? (
-            bouts
-          ) : (
-            <Timeline.Item>**No Workouts Yet!**</Timeline.Item>
-          )}
-        </Timeline> */}
+        <Timeline endless>{doneWorkoutsSelected}</Timeline>
       </Stack.Item>
     </Stack>
   );

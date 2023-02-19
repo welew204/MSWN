@@ -97,7 +97,7 @@ export default function Home() {
           </Nav>
         </Navbar>
       </Header>
-      <Container className='homescreen-mid' style={{ height: "90vh" }}>
+      <Container className='homescreen-mid'>
         <AddMoverModal open={addMoverOpen} close={setAddMoverOpen} />
         <Sidebar style={{ overflow: "auto" }} className='sidebar' collapsible>
           <Sidenav
@@ -126,14 +126,15 @@ export default function Home() {
           {/* one of MoverSelect, WorkoutBuilder, RecordWorkout */}
         </Content>
       </Container>
-      <div
-        style={{
+      <Footer
+      /* style={{
           display: "flex",
           justifyContent: "center",
           paddingTop: "20px",
-        }}>
+        }} */
+      >
         TM Controlled Fall Engineering
-      </div>
+      </Footer>
     </Container>
   );
 }

@@ -62,14 +62,7 @@ export default function WorkoutBadge({ wkt, onClick, className, onDelete }) {
         }}>
         <Stack direction='column' alignItems='center'>
           {wkt.last_done ? (
-            <h6
-              style={
-                {
-                  /* margin: "5px" */
-                }
-              }>
-              Last done: {wkt.last_done}
-            </h6>
+            <h6>Last done: {new Date(wkt.last_done).toDateString()}</h6>
           ) : (
             <p style={{ fontStyle: "italic" }}>~Never done!~</p>
           )}

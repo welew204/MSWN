@@ -5,15 +5,17 @@ import click
 
 from server_side.f_db import get_db
 
+
 def add_new_mover(db, first_name, last_name):
     date = datetime.now().strftime("%Y-%m-%d")
     # create db cnx
     curs = db.cursor()
     # add mover to table
     curs.execute('INSERT INTO movers (first_name, last_name, date_added) VALUES (?,?,?)',
-        (first_name, last_name, date))
+                 (first_name, last_name, date))
     db.commit()
-    mover_id_Row = curs.execute('SELECT id FROM movers WHERE first_name = (?) AND last_name = (?)', (first_name, last_name)).fetchone()
+    mover_id_Row = curs.execute(
+        'SELECT id FROM movers WHERE first_name = (?) AND last_name = (?)', (first_name, last_name)).fetchone()
     mover_id = mover_id_Row[0]
     # SELECT vals from ref tables
     joint_template = curs.execute('SELECT rowid, * FROM ref_joints').fetchall()
@@ -22,13 +24,14 @@ def add_new_mover(db, first_name, last_name):
     joints_to_add = []
     for joint in joint_template:
         ref_joint_id, date_updated, bone_end_id_a, bone_end_id_b, joint_name, side, joint_type, ref_pcapsule_ir_rom, ref_pcapsule_er_rom, ref_acapsule_ir_rom, ref_acapsule_er_rom = joint
-        to_write = [ref_joint_id, mover_id, side, joint_type, ref_pcapsule_ir_rom, ref_pcapsule_er_rom, ref_acapsule_ir_rom, ref_acapsule_er_rom]
+        to_write = [ref_joint_id, mover_id, side, joint_type, ref_pcapsule_ir_rom,
+                    ref_pcapsule_er_rom, ref_acapsule_ir_rom, ref_acapsule_er_rom]
         joints_to_add.append(to_write)
     curs.executemany('''INSERT INTO joints 
                     (ref_joints_id, moverid, side, 
                     joint_type, pcapsule_ir_rom, pcapsule_er_rom, 
                     acapsule_ir_rom, acapsule_er_rom) VALUES (?,?,?,?,?,?,?,?)''',
-                    joints_to_add)
+                     joints_to_add)
     db.commit()
     anchors_to_add = []
     for anchor in anchor_template:
@@ -37,7 +40,7 @@ def add_new_mover(db, first_name, last_name):
         anchors_to_add.append(to_write)
     curs.executemany('''INSERT INTO anchor 
                     (moverid, ref_zones_id, ref_anchor_id) VALUES (?,?,?)''',
-                    anchors_to_add)
+                     anchors_to_add)
     db.commit()
 
     anchor_lookups = {}
@@ -94,7 +97,8 @@ def add_new_mover(db, first_name, last_name):
         ref_capsule_adj_id, ref_zones_id, ref_ct_training_status, ref_anchor_id_a, ref_anchor_id_b, joints_id = cadj
         anchor_id_a = anchor_lookups[ref_anchor_id_a]
         anchor_id_b = anchor_lookups[ref_anchor_id_b]
-        to_write = [mover_id, joints_id, ref_zones_id, ref_ct_training_status, None, None, 'default', 'default', None, anchor_id_a, anchor_id_b]
+        to_write = [mover_id, joints_id, ref_zones_id, ref_ct_training_status,
+                    None, None, 'default', 'default', None, anchor_id_a, anchor_id_b]
         caps_adj_to_add.append(to_write)
     curs.executemany('''INSERT INTO capsule_adj
                     (moverid, joint_id, ref_zones_id, ct_training_status, a_rom, p_rom, a_rom_source, p_rom_source, assess_event_id, anchor_id_a, anchor_id_b)
@@ -106,7 +110,8 @@ def add_new_mover(db, first_name, last_name):
         ref_rotational_adj_id, ref_musc_training_status, ref_ct_training_status, ref_anchor_id_a, ref_anchor_id_b, rotational_bias, joints_id = radj
         anchor_id_a = anchor_lookups[ref_anchor_id_a]
         anchor_id_b = anchor_lookups[ref_anchor_id_b]
-        to_write = [mover_id, joints_id, ref_musc_training_status, ref_ct_training_status, anchor_id_a, anchor_id_b, rotational_bias]
+        to_write = [mover_id, joints_id, ref_musc_training_status,
+                    ref_ct_training_status, anchor_id_a, anchor_id_b, rotational_bias]
         rot_adj_to_add.append(to_write)
     curs.executemany('''INSERT INTO rotational_adj
                     (moverid, joint_id, musc_training_status, ct_training_status, anchor_id_a, anchor_id_b, rotational_bias)
@@ -118,14 +123,17 @@ def add_new_mover(db, first_name, last_name):
         ref_lin_adj_id, ref_zones_id, ref_musc_training_status, ref_ct_training_status, ref_anchor_id_a, ref_anchor_id_b, joints_id = ladj
         anchor_id_a = anchor_lookups[ref_anchor_id_a]
         anchor_id_b = anchor_lookups[ref_anchor_id_b]
-        to_write = [mover_id, joints_id, ref_zones_id, ref_musc_training_status, ref_ct_training_status, anchor_id_a, anchor_id_b, None, None, 'default', 'default', None]
+        to_write = [mover_id, joints_id, ref_zones_id, ref_musc_training_status,
+                    ref_ct_training_status, anchor_id_a, anchor_id_b, None, None, 'default', 'default', None]
         lin_adj_to_add.append(to_write)
     curs.executemany('''INSERT INTO linear_adj
                     (moverid, joint_id, ref_zones_id, musc_training_status, ct_training_status, anchor_id_a, anchor_id_b, a_rom, p_rom, a_rom_source, p_rom_source, assess_event_id)
                     VALUES (?,?,?,?,?,?,?,?,?,?,?,?)''', lin_adj_to_add)
     db.commit()
-        
-    print(f'New mover added! Name: {first_name} {last_name}\n>>>Total tissues added: {len(caps_adj_to_add) + len(rot_adj_to_add) + len(lin_adj_to_add)}')
+
+    print(
+        f'New mover added! Name: {first_name} {last_name}\n>>>Total tissues added: {len(caps_adj_to_add) + len(rot_adj_to_add) + len(lin_adj_to_add)}')
+
 
 @click.command('mswn-add-mover')
 def add_user_command():
@@ -135,11 +143,14 @@ def add_user_command():
     add_new_mover(db, fname, lname)
     click.echo('Flask: new mover added.')
 
+
 def add_user_to_app(app):
     app.cli.add_command(add_user_command)
 
+
 if __name__ == "__main__":
     # testing flow...
-    db=sqlite3.connect('/Users/williamhbelew/Hacking/MSWN/instance/mswnapp.sqlite')
+    db = sqlite3.connect(
+        '/Users/williamhbelew/Hacking/MSWN/instance/mswnapp.sqlite')
     add_new_mover(db, 'Tester', 'Dummy')
     add_new_mover(db, 'Test', 'Ickle')

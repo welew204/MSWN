@@ -24,7 +24,7 @@ import {
 import CogIcon from "@rsuite/icons/legacy/Cog";
 import TrashIcon from "@rsuite/icons/Trash";
 import ConversionIcon from "@rsuite/icons/Conversion";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { NavToggle } from "./helpers/NavToggle";
 import InputForm from "./helpers/InputForm";
@@ -116,14 +116,20 @@ export default function WkoutBuilder() {
     });
   }, []);
 
+  const queryClient = useQueryClient();
+
   const updateDB = useMutation({
     mutationFn: () => {
-      fetch(server_url + "/write_workout", {
+      return fetch(server_url + "/write_workout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(wktInProgress),
         mode: "cors",
       }).then((res) => console.log(res));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["workouts", activeMover] });
+      console.log("The mutation is sucessful!");
     },
   });
 
@@ -131,25 +137,8 @@ export default function WkoutBuilder() {
     return fetchAPI(server_url + `/workouts/${activeMover}`);
   });
 
-  /* const trainingLogData = useQuery(["trainingLog"], () =>
-    fetchAPI(server_url + `/bout_log/${activeMover}`)
-  ); */
-
   if (workoutsQuery.isLoading) return "Loading...";
   if (workoutsQuery.isError) return `Error: error`;
-  /* if (boutLogData.isLoading) {
-    return <p>Getting your bout data...</p>;
-  }
-
-  const bout_array = boutLogData.data["bout_log"];
-  const bouts = bout_array.map((bout, i) => {
-    return (
-      <Timeline.Item key={`bout_${bout_array[i].id}`} time={bout_array[i].date}>
-        {bout_array[i].comments}, RPE: {bout_array[i].rpe}, External Load:{" "}
-        {bout_array[i].external_load}
-      </Timeline.Item>
-    );
-  }); */
 
   function fetchAPI(url) {
     return fetch(url).then((res) => res.json());
@@ -282,7 +271,7 @@ export default function WkoutBuilder() {
                   {`${wktInProgress.inputs[input_id].ref_joint_side} ${wktInProgress.inputs[input_id].ref_joint_name} ${wktInProgress.inputs[input_id].drill_name}`}
                 </h5>
               ) : (
-                <Loader vertical speed='slow' size='md'></Loader>
+                void 0
               )}
               {wktInProgress.inputs[input_id].completed ? (
                 <h6 style={{ margin: "auto" }}>
@@ -290,7 +279,7 @@ export default function WkoutBuilder() {
                   {`Duration: ${wktInProgress.inputs[input_id].duration} secs`}
                 </h6>
               ) : (
-                <h5 style={{ margin: "auto" }}>...building workout...</h5>
+                <h5 style={{ margin: "auto" }}>... input in progress ...</h5>
               )}
               {wktInProgress.inputs[input_id].completed ? (
                 <div>
@@ -307,6 +296,8 @@ export default function WkoutBuilder() {
               ) : (
                 void 0
               )}
+              {/* THIS IS AN iconButton to help with schema-building eventuallY 
+              
               {index !== 0 && wktInProgress.inputs[input_id].completed ? (
                 <div>
                   <IconButton
@@ -321,7 +312,7 @@ export default function WkoutBuilder() {
                 </div>
               ) : (
                 void 0
-              )}
+              )} */}
             </Panel>
           </div>
         )}

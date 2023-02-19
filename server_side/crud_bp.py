@@ -7,6 +7,7 @@ from flask import (
 )
 import sys
 import json
+import datetime
 
 from werkzeug.exceptions import abort
 
@@ -34,6 +35,7 @@ def index(mover_id):
 
 @bp.route('/movers_list')
 def get_movers():
+    print(datetime.datetime.now())
     db = get_db()
     mover_rows = db.execute('SELECT * FROM movers').fetchall()
     res = {}
@@ -44,6 +46,8 @@ def get_movers():
 
 @bp.route('/add_mover', methods=('POST',))
 def add_mover_to_db():
+    # Nathan wants to know when they;re coming in
+    print(datetime.datetime.now())
     db = get_db()
     req = request.get_json()[0]
     fname = req['firstName']
@@ -152,8 +156,8 @@ def record_workout():
     print(f"record_workout request: ", file=sys.stderr)
     pprint(req)
     moverid = req.pop("mover_id")
-    date_done = req["date_done"][:10]
-    time_stamp = req.pop("date_done")[10:]
+    workout_id = str(req.pop("workout_id"))
+    date_done = req.pop("date_done")
     mover_dict = mover_info_dict(db, moverid)
     # pprint(mover_dict)
     bout_array = []
@@ -674,11 +678,18 @@ def record_workout():
     bout_array_values = [list(b.values()) for b in bout_array]
     # print(bout_array_values)
     curs = db.cursor()
-    # is this executemany written correctly? I THINK SO
     curs.executemany(bout_sql_statement, bout_array_values)
     db.commit()
 
-    return f"Request is recieved!", 201
+    curs.execute(
+        '''UPDATE workouts 
+            SET last_done = (?) 
+            WHERE id = (?) 
+            AND moverid = (?)''',
+        (date_done, workout_id, moverid))
+    db.commit()
+
+    return f"Workout/results recorded!", 201
 
 
 @bp.route('/delete_workout', methods=('POST',))
@@ -890,7 +901,15 @@ def training_log(mover_id):
     # (left join on programmed_drills)
     # so that I can list them in the timeline
     training_log_rows = db.execute(
-        'SELECT workouts.workout_title, bout_log.date, FROM bout_log WHERE moverid = (?)', (
+        '''SELECT DISTINCT workouts.workout_title, 
+                    workouts.id,
+                    bout_log.date 
+                    FROM bout_log 
+                    LEFT JOIN programmed_drills  
+                    ON bout_log.programmed_drills_id = programmed_drills.id
+                    LEFT JOIN workouts 
+                    ON programmed_drills.workout_id = workouts.id 
+                    WHERE bout_log.moverid = (?)''', (
             mover_id,)
     ).fetchall()
     # this converts all rows returned into dictiornary, that is added to the tissue_status list

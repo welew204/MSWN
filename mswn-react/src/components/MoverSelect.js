@@ -35,12 +35,16 @@ export default function MoverSelect(props) {
 
   const [selectedWorkout, setSelectedWorkout, activeMover] = useOutletContext();
 
+  const doneWorkoutsQuery = useQuery(["doneWorkouts", activeMover], () => {
+    return fetchAPI(server_url + `/training_log/${activeMover}`);
+  });
+
   const workoutsQuery = useQuery(["workouts", activeMover], () => {
     return fetchAPI(server_url + `/workouts/${activeMover}`);
   });
   const handleDelete = useMutation({
     mutationFn: (wktID) => {
-      fetch(server_url + "/delete_workout", {
+      return fetch(server_url + "/delete_workout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify([activeMover, wktID]),
@@ -56,6 +60,9 @@ export default function MoverSelect(props) {
   if (workoutsQuery.isLoading) return "Loading...";
   if (workoutsQuery.isFetching) return "Loading...";
   if (workoutsQuery.isError) return `Error: error`;
+  if (doneWorkoutsQuery.isLoading) return "Loading...";
+  if (doneWorkoutsQuery.isFetching) return "Loading...";
+  if (doneWorkoutsQuery.isError) return `Error: error`;
 
   const wkouts = workoutsQuery.data.map((wkt) => (
     <Stack.Item
@@ -69,6 +76,18 @@ export default function MoverSelect(props) {
       />
     </Stack.Item>
   ));
+
+  const doneWorkouts = doneWorkoutsQuery.data["training_log"].map((wkt) => (
+    <Timeline.Item key={`doneWorkout_${wkt.id}`} time={formatDate(wkt.date)}>
+      <p>{wkt.workout_title}</p>
+    </Timeline.Item>
+  ));
+
+  // HACK --> MDN recommends NEVER to make a Date() w/ dateString, since different browsers.parse() differently
+  function formatDate(dateString) {
+    const d = new Date(dateString);
+    return d.toLocaleString();
+  }
 
   return (
     <Stack
@@ -104,11 +123,7 @@ export default function MoverSelect(props) {
           alignSelf: "stretch",
           padding: 40,
         }}>
-        <Timeline endless>
-          <Timeline.Item>**last workout**</Timeline.Item>
-          <Timeline.Item>**last workout**</Timeline.Item>
-          <Timeline.Item>**last workout**</Timeline.Item>
-        </Timeline>
+        <Timeline endless>{doneWorkouts}</Timeline>
       </Stack.Item>
     </Stack>
   );

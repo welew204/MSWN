@@ -17,7 +17,7 @@ export default function AddMoverModal({ open, close }) {
 
   const addMover = useMutation({
     mutationFn: (newMover) => {
-      fetch("http://127.0.0.1:8000/add_mover", {
+      return fetch("http://127.0.0.1:8000/add_mover", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify([newMover]),
@@ -25,7 +25,7 @@ export default function AddMoverModal({ open, close }) {
       }).then((res) => console.log(res));
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["movers"]);
+      queryClient.invalidateQueries({ queryKey: ["movers"] });
       console.log("The mutation is sucessful!");
     },
   });
