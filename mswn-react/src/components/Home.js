@@ -89,12 +89,12 @@ export default function Home() {
               Move
             </Nav.Item>
             <Nav.Item>Status</Nav.Item>
-            <Nav.Item>Assess</Nav.Item>
+            {/* <Nav.Item>Assess</Nav.Item> */}
           </Nav>
 
-          <Nav pullRight>
+          {/* <Nav pullRight>
             <Nav.Item icon={<CogIcon />}>Settings</Nav.Item>
-          </Nav>
+          </Nav> */}
         </Navbar>
       </Header>
       <Container className='homescreen-mid'>

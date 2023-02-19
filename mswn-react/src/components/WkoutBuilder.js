@@ -61,7 +61,7 @@ export default function WkoutBuilder() {
     inputs: {
       1: default_new_input,
     },
-    schema: { A: { circuit: ["1"], iterations: 1 } },
+    schema: [{ circuit: ["1"], iterations: 1 }],
   });
   console.log(wktInProgress);
 
@@ -69,15 +69,18 @@ export default function WkoutBuilder() {
   const [schemaArray, setSchemaArray] = useState([]);
   /* console.log("SELECTED INPUT: " + selectedInput); */
 
+  /* 
+  given an object (schema), recursively walk into it:
+  - concatenated SETxINPUT (eg: A1)
+  - append this to a schemaArray object
+  - when done pass this into state, and....
+  
   function flatten_schema(schema) {
-    /* given an object (schema), recursively walk into it:
-    - concatenated SETxINPUT (eg: A1)
-    - append this to a schemaArray object
-    - when done pass this into state, and */
-    const schemaArrayDraft = Object.keys(schema).map((set) => {
+    const schemaArrayDraft = schema.map((set) => {
+      const set_letter = String.fromCharCode(65+set)
       var tagged_circuit = [];
-      for (let inp in schema[set].circuit) {
-        const tagged_inp = `${set}${parseInt(inp) + 1}-${
+      for (let inp in set.circuit) {
+        const tagged_inp = `${set_letter}${parseInt(inp) + 1}-${
           schema[set].circuit[inp]
         }`;
         tagged_circuit.push(tagged_inp);
@@ -87,7 +90,7 @@ export default function WkoutBuilder() {
     const res = schemaArrayDraft.flat();
     console.log(res);
     return res;
-  }
+  } */
 
   /* function update_schema(sArray) {
     /* given a schemaArray:
@@ -105,9 +108,9 @@ export default function WkoutBuilder() {
     }
   } */
 
-  useEffect(() => {
+  /*   useEffect(() => {
     setSchemaArray(flatten_schema(wktInProgress.schema));
-  }, [wktInProgress.schema]);
+  }, [wktInProgress.schema]); */
 
   useEffect(() => {
     setWktInProgress((prev) => {
@@ -181,31 +184,32 @@ export default function WkoutBuilder() {
   function removeInput(inputID) {
     console.log(inputID);
 
-    const targetSet = Object.keys(wktInProgress.schema).find((set) =>
-      wktInProgress.schema[set].circuit.includes(inputID.toString())
-    );
+    const targetSet = wktInProgress.schema.find((set) => {
+      return set.circuit.includes(inputID.toString());
+    });
+
+    const target_set_index = wktInProgress.schema.indexOf(targetSet);
 
     console.log(targetSet);
-    var new_schema = {};
-    if (wktInProgress.schema[targetSet].circuit.length > 1) {
-      console.log(wktInProgress.schema[targetSet].circuit);
-      const new_circuit = wktInProgress.schema[targetSet].circuit.filter(
-        (val) => val != inputID
-      );
-      new_schema = {
+    console.log(target_set_index);
+    var new_schema = [];
+    if (targetSet.circuit.length > 1) {
+      const new_circuit = targetSet.circuit.filter((val) => val != inputID);
+      new_schema = [
         ...wktInProgress.schema,
-        [targetSet]: {
-          ...wktInProgress.schema[targetSet],
+        {
+          ...wktInProgress.schema[target_set_index],
           circuit: [new_circuit],
         },
-      };
+      ];
     } else {
       /* update `schema` to remove empty set, then update proceeding sets LETTER (decrement by 1)*/
-      const schemaAsArray = Object.entries(wktInProgress.schema);
-      const newSchemaAsArray = schemaAsArray.filter(
-        ([key, val]) => key != targetSet
-      );
-      console.log(newSchemaAsArray);
+      new_schema = wktInProgress.schema.filter((set) => set != targetSet);
+      console.log(new_schema);
+      /* THIS ISN'T needed now that the schema is already an array, 
+      tho this code may help w/ translating 
+      index into set-letter, eventually....
+      
       const targetSetCharCode = targetSet.charCodeAt(0);
       for (let index in newSchemaAsArray) {
         var setLetterCode = newSchemaAsArray[index][0].charCodeAt(0);
@@ -215,11 +219,12 @@ export default function WkoutBuilder() {
           var newSetLetter = String.fromCharCode(setLetterCode - 1);
           newSchemaAsArray[index][0] = newSetLetter;
         }
+        console.log(newSchemaAsArray);
+        new_schema = Object.fromEntries(newSchemaAsArray);
       }
-      console.log(newSchemaAsArray);
-      new_schema = Object.fromEntries(newSchemaAsArray);
+      setSchemaArray(flatten_schema(new_schema));
+      */
     }
-    setSchemaArray(flatten_schema(new_schema));
     /* convert object to array */
     const inputsAsArray = Object.entries(wktInProgress.inputs);
     /* filter array to leave out clicked input */
@@ -237,14 +242,11 @@ export default function WkoutBuilder() {
     setSelectedInput(newSelectedInput);
   }
 
-  const n_rx_inputs = schemaArray.map((inp, index) => {
+  const n_rx_inputs = wktInProgress.schema.map((inp, index) => {
     // break up the inp into useful pieces
-    var split = inp.split("-");
-    var set = split[0][0];
-    var drill_index = split[0].slice(1);
-    var input_id = split[1][0];
-    console.log(input_id);
-    console.log(wktInProgress.inputs[input_id]);
+    var set = String.fromCharCode(65 + index);
+    var input_id = inp.circuit[0];
+    const inp_details = wktInProgress.inputs[input_id];
     return (
       <Draggable key={input_id} draggableId={input_id} index={index}>
         {(provided, snapshot) => (
@@ -265,23 +267,22 @@ export default function WkoutBuilder() {
                 selectedInput == input_id ? "selected-inp-plaque" : "inp-plaque"
               }
               bordered>
-              {wktInProgress.inputs[input_id]?.ref_joint_id &&
-              wktInProgress.inputs[input_id]?.drill_name ? (
+              {inp_details?.ref_joint_id && inp_details?.drill_name ? (
                 <h5 style={{ margin: "auto" }}>
-                  {`${wktInProgress.inputs[input_id].ref_joint_side} ${wktInProgress.inputs[input_id].ref_joint_name} ${wktInProgress.inputs[input_id].drill_name}`}
+                  {`${inp_details.ref_joint_side} ${inp_details.ref_joint_name} ${inp_details.drill_name}`}
                 </h5>
               ) : (
                 void 0
               )}
-              {wktInProgress.inputs[input_id].completed ? (
+              {inp_details.completed ? (
                 <h6 style={{ margin: "auto" }}>
-                  {`RPE: ${wktInProgress.inputs[input_id].rpe}/10`} <br />
-                  {`Duration: ${wktInProgress.inputs[input_id].duration} secs`}
+                  {`RPE: ${inp_details.rpe}/10`} <br />
+                  {`Duration: ${inp_details.duration} secs`}
                 </h6>
               ) : (
                 <h5 style={{ margin: "auto" }}>... input in progress ...</h5>
               )}
-              {wktInProgress.inputs[input_id].completed ? (
+              {inp_details.completed ? (
                 <div>
                   <IconButton
                     onClick={(e) => {
@@ -320,8 +321,18 @@ export default function WkoutBuilder() {
     );
   });
 
+  function handleDrag(result) {
+    const target_input = result.draggableId;
+    const source = result.source.index;
+    const destination = result.destination.index;
+    const new_schema = Array.from(wktInProgress.schema);
+    const [removed] = new_schema.splice(source, 1);
+    new_schema.splice(destination, 0, removed);
+    setWktInProgress((prev) => ({ ...prev, schema: new_schema }));
+  }
+
   return (
-    <DragDropContext onDragEnd={(result) => console.log(result)}>
+    <DragDropContext onDragEnd={(result) => handleDrag(result)}>
       <Stack
         style={{
           height: "100%",
@@ -403,16 +414,6 @@ export default function WkoutBuilder() {
               Save Workout Draft
             </Button>
           </Stack.Item>
-        </Stack.Item>
-        <Divider vertical style={{ height: "70vh" }} />
-        <Stack.Item
-          style={{
-            height: "100%",
-            minHeight: "100%",
-            alignSelf: "stretch",
-            padding: 40,
-          }}>
-          {/* <Timeline endless>{bouts}</Timeline> */}
         </Stack.Item>
       </Stack>
     </DragDropContext>
