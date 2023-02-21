@@ -127,12 +127,11 @@ export default function Home() {
         </Content>
       </Container>
       <Footer
-      /* style={{
+        style={{
           display: "flex",
           justifyContent: "center",
           paddingTop: "20px",
-        }} */
-      >
+        }}>
         TM Controlled Fall Engineering
       </Footer>
     </Container>

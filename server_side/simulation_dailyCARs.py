@@ -8,12 +8,19 @@ import pprint
 #from server_side.f_db import get_db
 #from server_side.add_mover import add_new_mover
 import add_mover
+import crud_bp
 
 
 def dailyCARs(db, name, days_per_week, time_span, all=True, selected_CARs=[]):
     curs = db.cursor()
     tuday = datetime.date.today()
     add_mover.add_new_mover(db, name, 'SIM')
+    # GET THIS ROW TO USE for mover_dict lookups
+    moverid = curs.execute(
+        'SELECT id FROM movers WHERE first_name = (?) AND last_name = (?)', (name, 'SIM'))
+    curs.execute('''INSERT INTO workouts''')
+
+    crud_bp.write_workout()
 
     dates_array = [
         tuday + datetime.timedelta(days=x) for x in range(time_span)]
