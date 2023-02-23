@@ -33,8 +33,6 @@ export default function RecordWkout() {
   const [selectInp, setSelectInp] = useState("");
   const [workoutResults, setWorkoutResults] = useState({});
 
-  console.log(selectInp);
-
   const workoutsQuery = useQuery(["workouts", activeMover], () => {
     return fetchAPI(server_url + `/workouts/${activeMover}`);
   });
@@ -47,13 +45,29 @@ export default function RecordWkout() {
     setWorkoutResults((prev) => ({ ...prev, [inputId]: UpdValue }));
   }
 
-  /* //TODO... need to make this go the right end-point */
   const updateDB = useMutation({
-    mutationFn: (newMover) => {
-      return fetch(server_url + "/record_workout", {
+    mutationFn: () => {
+      return fetch(server_url + "/record_bout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(workoutResults),
+        mode: "cors",
+      }).then((res) => console.log(res));
+    },
+  });
+
+  const workout_confirmation = [
+    workoutResults.date_done,
+    workoutResults.workout_id,
+    workoutResults.mover_id,
+  ];
+
+  const confirm_workout = useMutation({
+    mutationFn: () => {
+      return fetch(server_url + "/record_workout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(workout_confirmation),
         mode: "cors",
       }).then((res) => console.log(res));
     },
@@ -247,12 +261,12 @@ export default function RecordWkout() {
           <Button
             as={RsNavLink}
             href='/mover'
-            onClickCapture={() => updateDB.mutate()}>
+            onClick={() => confirm_workout.mutate()}>
             Record Workout
           </Button>
-          <Button as={RsNavLink} href='/record'>
+          {/* <Button as={RsNavLink} href='/record'>
             Pause Workout
-          </Button>
+          </Button> */}
         </Stack.Item>
       </Stack.Item>
       <Divider vertical style={{ height: "70vh" }} />

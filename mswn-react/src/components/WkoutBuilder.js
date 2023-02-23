@@ -410,9 +410,9 @@ export default function WkoutBuilder() {
             <Button as={RsNavLink} href='/mover' onClick={updateDB.mutate}>
               Save Workout
             </Button>
-            <Button as={RsNavLink} href='/wbuilder'>
+            {/* <Button as={RsNavLink} href='/wbuilder'>
               Save Workout Draft
-            </Button>
+            </Button> */}
           </Stack.Item>
         </Stack.Item>
       </Stack>
