@@ -7,7 +7,7 @@ from server_side.mover_info_dict import mover_info_dict
 def workout_writer(db, req):
     cursor = db.cursor()
 
-    pprint(req)
+    # pprint(req)
 
     workout_to_add = []
     for key, val in req.items():
@@ -29,7 +29,10 @@ def workout_writer(db, req):
             input_sequence = f"{j}-{str(i+1)}"
             # example of input_sequence: 0-1, 1-1, etc (aka SET - inputIndex)
             # it IS ZERO-INDEXED!
-            schema_lookups[inputID] = (input_sequence, str(info["iterations"]))
+            schema_lookups[int(inputID)] = (
+                input_sequence, str(info["iterations"]))
+    # pprint(schema_lookups)
+
     # print(f"workout schema transcribed (schema_lookups): {schema_lookups}", file=sys.stderr)
 
     workout_title, date_init, moverid, comments = workout_to_add

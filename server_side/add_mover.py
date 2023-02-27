@@ -15,9 +15,9 @@ def add_new_mover(db, first_name, last_name):
                  (first_name, last_name, date))
     db.commit()
     mover_id = curs.lastrowid
-    #mover_id_Row = curs.execute(
+    # mover_id_Row = curs.execute(
     #    'SELECT id FROM movers WHERE first_name = (?) AND last_name = (?)', (first_name, last_name)).fetchone()
-    
+
     # SELECT vals from ref tables
     joint_template = curs.execute('SELECT rowid, * FROM ref_joints').fetchall()
     anchor_template = curs.execute('SELECT * FROM ref_anchor').fetchall()
@@ -136,6 +136,7 @@ def add_new_mover(db, first_name, last_name):
         f'New mover added! Name: {first_name} {last_name}\n>>>Total tissues added: {len(caps_adj_to_add) + len(rot_adj_to_add) + len(lin_adj_to_add)}')
 
     return mover_id
+
 
 @click.command('mswn-add-mover')
 def add_user_command():

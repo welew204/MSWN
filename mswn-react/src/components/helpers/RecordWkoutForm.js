@@ -151,7 +151,22 @@ export default function RecordWkoutForm({
             <Button appearance='primary' onClick={updateDB}>
               Save Input
             </Button>
-            <Button appearance='default'>Cancel</Button>
+            <Button
+              appearance='default'
+              onClick={() =>
+                updateWorkoutResults(selectedInput.id, {
+                  ...workoutResults[selectedInput.id],
+                  results: {
+                    rails: false,
+                    passive_duration: 0,
+                    duration: 0,
+                    rpe: 0,
+                    external_load: 0,
+                  },
+                })
+              }>
+              Cancel
+            </Button>
           </ButtonToolbar>
         </Form.Group>
       </Form>

@@ -8,20 +8,27 @@ from server_side.db_ref_vals import ses_zone_deque
 from server_side.db_ref_vals import spine_zone_deque
 
 
-def workout_recorder(db, req):
+def unpack_workout(req):
 
-    print(f"record_bout request: ", file=sys.stderr)
-    pprint(req)
     moverid = req.pop("mover_id")
     workout_id = str(req.pop("workout_id"))
     date_done = req.pop("date_done")
-    mover_dict = mover_info_dict(db, moverid)
-    # pprint(mover_dict)
+
+    return (moverid, workout_id, date_done)
+
+
+def unpack_inputs(inputs, mover_dict, date_done, moverid):
     bout_array = []
-    for inputID, vals in req.items():
+
+    for inputID, vals in inputs:
 
         # these Rx values are based on the prescription of the drill
         drill = vals["Rx"]["drill_name"]
+
+        # should I even consider this input or not!?!?!?
+        if int(vals['results']['duration']) == 0 or int(vals['results']['rpe']) == 0:
+            continue
+
         if vals["Rx"]["rotational_value"] != "":
             rotational_value = int(vals["Rx"]["rotational_value"])
         else:
@@ -112,23 +119,35 @@ def workout_recorder(db, req):
 
             time_remaining_in_input = duration
             moving_direction = "fwd"
+            rotate_int = 1
 
             rotational_position_value = 199
             # Each direction: Zonal ER and Linear isometric bout, then use a rotational (all fwd OR bkwd tissues) concentric bout to get from one zone to next
-            working_index = syn_zone_deque.index("add")
+            if mover_dict[ref_joint_name_string]['type'] == 'spinal':
+                deque_to_use = spine_zone_deque
+                working_index = spine_zone_deque.index('flex')
+            elif mover_dict[ref_joint_name_string]['type'] == 'sesamoid':
+                deque_to_use = ses_zone_deque
+                working_index = ses_zone_deque.index('protract')
+            else:
+                deque_to_use = syn_zone_deque
+                working_index = syn_zone_deque.index('add')
+            rotations_until_switch_direction = len(deque_to_use)
+            rotation_counter = 0
             while time_remaining_in_input >= 20:
                 if moving_direction == "fwd":
+                    # "fwd" for spine is Rightward
                     sinch_adj = "rot_b_adj_id"
                 else:
                     sinch_adj = "rot_a_adj_id"
                 rotational_tissues = mover_dict[ref_joint_name_string]["rotational_tissues"][moving_direction]
-                for _ in range(len(syn_zone_deque)):
+                for _ in range(len(deque_to_use)):
                     rotational_value = rotational_position_value - 100
                     # ^^^this will be written to the db
                     # as each bout_dict is make'd,
                     # essentially naming the rotated
                     # position at each zone of the CAR (cool!)
-                    target_zone = mover_dict[ref_joint_name_string]["zones"][syn_zone_deque[working_index]]
+                    target_zone = mover_dict[ref_joint_name_string]["zones"][deque_to_use[working_index]]
                     # ASSUME the length of the shortened tissue is 5
                     lin_iso_bout = bout_dict_maker(
                         "linear", target_zone['linear_adj_id'], "isometric", 5, 5, 0, 1, rpe, external_load)
@@ -141,16 +160,22 @@ def workout_recorder(db, req):
                         rot_conc_bout = bout_dict_maker(
                             "rotational", tissue, "concentric", rotational_position_value, abs(rotational_position_value-25), 0, 1, rpe, external_load)
                         bout_array.append(rot_conc_bout)
-                    syn_zone_deque.rotate(1)
+                    deque_to_use.rotate(rotate_int)
                     rotational_position_value -= 25
 
                     # reset the length value now that we'll be rotating the OTHER direction
                 rotational_position_value = 199
 
-                if moving_direction == "fwd":
+                if rotation_counter == rotations_until_switch_direction and moving_direction == "fwd":
                     moving_direction = "bkwd"
-                else:
+                    rotation_counter = 0
+                    rotate_int = -1
+                elif rotation_counter == rotations_until_switch_direction and moving_direction == "bkwd":
                     moving_direction = "fwd"
+                    rotation_counter = 0
+                    rotate_int = 1
+                else:
+                    rotation_counter += 1 * rotate_int
                 time_remaining_in_input -= 20
 
         # nb// bouts for CARs is added to bout_array!
@@ -519,9 +544,10 @@ def workout_recorder(db, req):
             b["rotational_tissue_id"] = ""
             b["linear_tissue_id"] = b.pop("tissue_id")
 
-        #print("AFTER update: ")
-        # pprint(bout_array)
+    return bout_array
 
+
+def prep_bouts_for_insertion(bout_array):
     bout_array_q_marks = ",".join(
         "?" for _ in range(len(bout_array[0].values())))
 
@@ -530,7 +556,59 @@ def workout_recorder(db, req):
     bout_sql_statement = f"INSERT INTO bout_log ({bout_array_fields}) VALUES ({bout_array_q_marks})"
 
     bout_array_values = [list(b.values()) for b in bout_array]
+
+    return bout_sql_statement, bout_array_values
+
+
+def workout_recorder(db, req):
+
+    # print(f"record_bout request: ", file=sys.stderr)
+    # pprint(req)
+
+    moverid, workout_id, date_done = unpack_workout(req)
+
+    mover_dict = mover_info_dict(db, moverid)
+
+    inputs = req.items()
+
+    bout_array = unpack_inputs(inputs, mover_dict, date_done, moverid)
+
+    bout_sql_statement, bout_array_values = prep_bouts_for_insertion(
+        bout_array)
     # print(bout_array_values)
     curs = db.cursor()
     curs.executemany(bout_sql_statement, bout_array_values)
+    db.commit()
+
+
+def multiple_workout_recorder(db, workout_array):
+    '''This is intended to spare DB calls by running through
+    an array of workouts to build one LARGE array of all consistuent 
+    bouts'''
+
+    sim_bout_array = []
+
+    # doing this one time JUST to get the mover_dict with a single db call
+    # (and not during each loop of the iterator below)
+    moverid = workout_array[0].get('mover_id')
+    mover_dict = mover_info_dict(db, moverid)
+
+    for w in workout_array:
+        moverid, workout_id, date_done = unpack_workout(w)
+        inputs = w.items()
+        this_bout_array = unpack_inputs(
+            inputs, mover_dict, date_done, moverid)
+        sim_bout_array.extend(this_bout_array)
+
+    # pprint(sim_bout_array[0])
+
+    all_bouts_sql_statement, all_bouts_array_values = prep_bouts_for_insertion(
+        sim_bout_array)
+
+    # for item in all_bouts_array_values[:1]:
+    # print(all_bouts_sql_statement)
+    # print(item)
+
+    curs = db.cursor()
+    curs.executemany(all_bouts_sql_statement, all_bouts_array_values)
     db.commit()

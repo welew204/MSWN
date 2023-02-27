@@ -20,6 +20,7 @@ import {
   Tooltip,
   Loader,
   IconButton,
+  Toggle,
 } from "rsuite";
 import CogIcon from "@rsuite/icons/legacy/Cog";
 import TrashIcon from "@rsuite/icons/Trash";
@@ -29,6 +30,7 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { NavToggle } from "./helpers/NavToggle";
 import InputForm from "./helpers/InputForm";
 import WktTitle from "./helpers/WktTitle";
+import MultiJointInput from "./helpers/MultiJointInput";
 
 const server_url = "http://127.0.0.1:8000";
 
@@ -52,6 +54,8 @@ export default function WkoutBuilder() {
   };
 
   const [selectedWorkout, setSelectedWorkout, activeMover] = useOutletContext();
+  const [multiJointInput, setMultiJointInput] = useState(true);
+
   const [wktInProgress, setWktInProgress] = useState({
     id: "",
     workout_title: "",
@@ -363,17 +367,28 @@ export default function WkoutBuilder() {
               <h3 style={{ display: "flex", justifyContent: "space-around" }}>
                 Define an Input...
               </h3>
+              <Toggle
+                style={{ display: "flex", justifyContent: "space-around" }}
+                checked={multiJointInput}
+                onChange={setMultiJointInput}
+                size='lg'
+                checkedChildren='Multi Joint'
+                unCheckedChildren='Single Joint'></Toggle>
               <Divider />
-              <InputForm
-                key={`${selectedInput}`}
-                updateDB={updateDB}
-                setSelectedInput={setSelectedInput}
-                default_new_input={default_new_input}
-                setWktInProgress={setWktInProgress}
-                wktInProgress={wktInProgress}
-                updateWkt={updateWkt}
-                selectedInput={selectedInput}
-              />
+              {multiJointInput ? (
+                <MultiJointInput />
+              ) : (
+                <InputForm
+                  key={`${selectedInput}`}
+                  updateDB={updateDB}
+                  setSelectedInput={setSelectedInput}
+                  default_new_input={default_new_input}
+                  setWktInProgress={setWktInProgress}
+                  wktInProgress={wktInProgress}
+                  updateWkt={updateWkt}
+                  selectedInput={selectedInput}
+                />
+              )}
             </Stack.Item>
             <Divider vertical style={{ height: "60vh", alignSelf: "center" }} />
             <Stack.Item

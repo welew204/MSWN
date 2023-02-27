@@ -17,6 +17,7 @@ def mover_info_dict(db, moverid):
     def make_joint_ddict():
         dict_template = {
             "id": 0,
+            "ref_joint_id": 0,
             "type": "",
             "side": "",
             "zones": defaultdict(make_zone_ddict),
@@ -33,7 +34,8 @@ def mover_info_dict(db, moverid):
                 capsule_adj.anchor_id_a,
                 capsule_adj.anchor_id_b,
                 ref_zones.zone_name,
-                ref_joints.joint_name
+                ref_joints.joint_name,
+                ref_joints.rowid
                 FROM capsule_adj
                 LEFT JOIN joints
                 ON joints.id = capsule_adj.joint_id
@@ -82,10 +84,11 @@ def mover_info_dict(db, moverid):
                 WHERE linear_adj.moverid = (?)''',
                                (moverid,)).fetchall()
     for cadj in caps_adj_all:
-        joints_id, joint_type, side, capsule_adj_id, ref_zones_id, anchor_id_a, anchor_id_b, zone_name, joint_name = cadj
+        joints_id, joint_type, side, capsule_adj_id, ref_zones_id, anchor_id_a, anchor_id_b, zone_name, joint_name, ref_joint_id = cadj
         if side != 'mid':
             joint_name = side + " " + joint_name
         mover_joints_dict[joint_name]["id"] = joints_id
+        mover_joints_dict[joint_name]["ref_joint_id"] = ref_joint_id
         mover_joints_dict[joint_name]["type"] = joint_type
         mover_joints_dict[joint_name]["side"] = side
         mover_joints_dict[joint_name]["zones"][zone_name]["ref_zones_id"] = ref_zones_id
