@@ -53,8 +53,8 @@ export default function MoverSelect(props) {
         .then((res) => console.log(res.json()))
         .then(setSelectedWorkout(workoutsQuery.data[0].id));
     },
-    onSuccess: (data) => {
-      queryClient.setQueryData(["workouts", [activeMover]], data);
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["workouts", activeMover] });
     },
   });
   if (workoutsQuery.isLoading) return "Loading...";

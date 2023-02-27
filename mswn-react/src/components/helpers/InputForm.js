@@ -46,12 +46,6 @@ export default function InputForm({
   );
   /* console.log(jointRefData.isLoading ? "" : jointRefData.data) */
 
-  /* state for form components */
-  const [drillDate, setDrillDate] = useState("");
-
-  const [jointSelected, setJointSelected] = useState("");
-  /* console.log(jointSelected);*/
-
   const [jointID, setJointID] = useState(0);
   const [zoneID, setZoneID] = useState(0);
 
@@ -186,13 +180,13 @@ export default function InputForm({
               ...prev.inputs,
               [input_index]: { ...default_new_input, id: input_index },
             },
-            schema: {
+            schema: [
               ...prev.schema,
-              [next_set]: {
+              {
                 circuit: [`${input_index}`],
                 iterations: 1,
               },
-            },
+            ],
           };
         })
       )

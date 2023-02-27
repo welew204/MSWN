@@ -89,12 +89,12 @@ export default function Home() {
               Move
             </Nav.Item>
             <Nav.Item>Status</Nav.Item>
-            <Nav.Item>Assess</Nav.Item>
+            {/* <Nav.Item>Assess</Nav.Item> */}
           </Nav>
 
-          <Nav pullRight>
+          {/* <Nav pullRight>
             <Nav.Item icon={<CogIcon />}>Settings</Nav.Item>
-          </Nav>
+          </Nav> */}
         </Navbar>
       </Header>
       <Container className='homescreen-mid'>
@@ -127,12 +127,11 @@ export default function Home() {
         </Content>
       </Container>
       <Footer
-      /* style={{
+        style={{
           display: "flex",
           justifyContent: "center",
           paddingTop: "20px",
-        }} */
-      >
+        }}>
         TM Controlled Fall Engineering
       </Footer>
     </Container>
