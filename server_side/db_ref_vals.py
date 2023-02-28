@@ -5,7 +5,8 @@ from datetime import datetime
 import copy
 import pprint
 
-syn_zone_relations_list = ["flex", "flex-abd", "abd", "ext-abd", "ext", "ext-add", "add", "flex-add"]
+syn_zone_relations_list = ["flex", "flex-abd", "abd",
+                           "ext-abd", "ext", "ext-add", "add", "flex-add"]
 sesamoid_zone_relations_list = ["protract", "elevate", "retract", "depress"]
 spinal_zone_relations_list = ["flex", "r_rotate", "ext", "l_rotate"]
 syn_zone_deque = deque(syn_zone_relations_list)
@@ -69,47 +70,48 @@ def_values = {
         "acapsule_ir_rom": 0,
         "acapsule_er_rom": 0
     },
-    ## need to update for following joints:
+    # need to update for following joints:
     # - AO
     # - TC
     # - LT
     # - SI
     # - illiac
     # - scapular-thoracic
-    #each spine section corresponds to the ROTATION of the bony body
+    # each spine section corresponds to the ROTATION of the bony body
     "spine": {
         "AO": {},
         "TC": {},
         "LT": {},
         "SI": {},
-        "specific_segment_values" :{
-        "c1": {"flexion": 7.5,"extension": 7.5},
-        "c2": {"flexion": 5.6,"extension": 5.6},
-        "c3": {"flexion": 8.8,"extension": 8.8},
-        "c4": {"flexion": 11.0,"extension": 11.0},
-        "c5": {"flexion": 11.0,"extension": 11.0},
-        "c6": {"flexion": 16.5,"extension": 16.5},
-        "c7": {"flexion": 4.9,"extension": 4.9},
-        "t1": {"flexion": 1.9,"extension": 2.3},
-        "t2": {"flexion": 1.5,"extension": 2.2},
-        "t3": {"flexion": 1.4,"extension": 2.1},
-        "t4": {"flexion": 1.5,"extension": 1.9},
-        "t5": {"flexion": 1.6,"extension": 1.6},
-        "t6": {"flexion": 1.7,"extension": 1.5},
-        "t7": {"flexion": 1.8,"extension": 1.4},
-        "t8": {"flexion": 2.0,"extension": 1.4},
-        "t9": {"flexion": 2.2,"extension": 1.5},
-        "t10": {"flexion": 2.5,"extension": 1.7},
-        "t11": {"flexion": 3.4,"extension": 2.0},
-        "t12": {"flexion": 4.5,"extension": 2.4},
-        "l1": {"flexion": 2.6,"extension": 2.6},
-        "l2": {"flexion": 2.6,"extension": 2.6},
-        "l3": {"flexion": 2.6,"extension": 2.6},
-        "l4": {"flexion": 2.6,"extension": 2.6},
-        "l5": {"flexion": 2.3,"extension": 2.3},
-        "s1": {"flexion": 2.3,"extension": 2.3},
+        "specific_segment_values": {
+            "c1": {"flexion": 7.5, "extension": 7.5},
+            "c2": {"flexion": 5.6, "extension": 5.6},
+            "c3": {"flexion": 8.8, "extension": 8.8},
+            "c4": {"flexion": 11.0, "extension": 11.0},
+            "c5": {"flexion": 11.0, "extension": 11.0},
+            "c6": {"flexion": 16.5, "extension": 16.5},
+            "c7": {"flexion": 4.9, "extension": 4.9},
+            "t1": {"flexion": 1.9, "extension": 2.3},
+            "t2": {"flexion": 1.5, "extension": 2.2},
+            "t3": {"flexion": 1.4, "extension": 2.1},
+            "t4": {"flexion": 1.5, "extension": 1.9},
+            "t5": {"flexion": 1.6, "extension": 1.6},
+            "t6": {"flexion": 1.7, "extension": 1.5},
+            "t7": {"flexion": 1.8, "extension": 1.4},
+            "t8": {"flexion": 2.0, "extension": 1.4},
+            "t9": {"flexion": 2.2, "extension": 1.5},
+            "t10": {"flexion": 2.5, "extension": 1.7},
+            "t11": {"flexion": 3.4, "extension": 2.0},
+            "t12": {"flexion": 4.5, "extension": 2.4},
+            "l1": {"flexion": 2.6, "extension": 2.6},
+            "l2": {"flexion": 2.6, "extension": 2.6},
+            "l3": {"flexion": 2.6, "extension": 2.6},
+            "l4": {"flexion": 2.6, "extension": 2.6},
+            "l5": {"flexion": 2.3, "extension": 2.3},
+            "s1": {"flexion": 2.3, "extension": 2.3},
         }}
-    }
+}
+
 
 def default_joint_dict():
     """this just makes a user-generic dict of joints, zones from the def_vals and *_zone_relations_list's"""
@@ -126,23 +128,23 @@ def default_joint_dict():
     return res
 
 
-
 bones = {
     "cranium": {"bone_ends": [0], "joints": ["AO"]},
-    "cervical": {"bone_ends": [0,1], "joints": ["AO", "TC"]},
-    "thoracic": {"bone_ends": [0,1,2,3], "joints": ["TC", "LT", "R scapular-thoracic", "L scapular-thoracic"]},
-    "scapula": {"bone_ends": [0,1], "joints": ["scapular-thoracic", "GH"]},
-    "humerus": {"bone_ends": [0,1], "joints": ["GH", "elbow"]},
-    "ul_rad": {"bone_ends": [0,1], "joints": ["elbow", "wrist"]},
+    "cervical": {"bone_ends": [0, 1], "joints": ["AO", "TC"]},
+    "thoracic": {"bone_ends": [0, 1, 2, 3], "joints": ["TC", "LT", "R scapular-thoracic", "L scapular-thoracic"]},
+    "scapula": {"bone_ends": [0, 1], "joints": ["scapular-thoracic", "GH"]},
+    "humerus": {"bone_ends": [0, 1], "joints": ["GH", "elbow"]},
+    "ul_rad": {"bone_ends": [0, 1], "joints": ["elbow", "wrist"]},
     "hand": {"bone_ends": [0], "joints": ["wrist"]},
-    "lumbar": {"bone_ends": [0,1], "joints": ["LT", "SI"]},
-    "pelvis": {"bone_ends": [0,1,2], "joints": ["SI", "iliac", "hip"]},
-    "femur": {"bone_ends": [0,1], "joints": ["hip", "knee"]},
-    "fib_tib": {"bone_ends": [0,1], "joints": ["knee", "ankle"]},
-    "foot": {"bone_ends": [0,1,2], "joints": ["ankle", "toes", "hallux"]},
+    "lumbar": {"bone_ends": [0, 1], "joints": ["LT", "SI"]},
+    "pelvis": {"bone_ends": [0, 1, 2], "joints": ["SI", "iliac", "hip"]},
+    "femur": {"bone_ends": [0, 1], "joints": ["hip", "knee"]},
+    "fib_tib": {"bone_ends": [0, 1], "joints": ["knee", "ankle"]},
+    "foot": {"bone_ends": [0, 1, 2], "joints": ["ankle", "toes", "hallux"]},
     "toes": {"bone_ends": [0], "joints": ["toes"]},
     "big_toe": {"bone_ends": [0], "joints": ["hallux"]}
 }
+
 
 def build_ref_bone_end_vals(db):
     curs = db.cursor()
@@ -160,18 +162,45 @@ def build_ref_bone_end_vals(db):
                 bone_end_field_vals = [bone, end, "mid"]
                 bone_ends_to_add.append(bone_end_field_vals)
 
-    curs.executemany(f'INSERT INTO ref_bone_end (bone_name, end, side) VALUES ({",".join(qmarks)})', 
-        bone_ends_to_add)
+    curs.executemany(f'INSERT INTO ref_bone_end (bone_name, end, side) VALUES ({",".join(qmarks)})',
+                     bone_ends_to_add)
     db.commit()
     print("added the BONE END reference values!")
     # builds in bone_ends (1-2+ per "bone")
+
+
+svg_joint_xy_vals = {
+    "ao": {"cx": 302, "cy": 175},
+    "tc": {"cx": 302, "cy": 349},
+    "lt": {"cx": 303, "cy": 580},
+    "si": {"cx": 305, "cy": 707},
+    "r-gh": {"cx": 142, "cy": 321},
+    "r-scapular-thoracic": {"cx": 242, "cy": 347},
+    "l-scapular-thoracic": {"cx": 367, "cy": 347},
+    "r-elbow": {"cx": 97, "cy": 576},
+    "l-elbow": {"cx": 510, "cy": 576},
+    "r-wrist": {"cx": 76, "cy": 772},
+    "r-hip": {"cx": 226, "cy": 751},
+    "r-knee": {"cx": 214, "cy": 1195},
+    "r-ankle": {"cx": 232, "cy": 1506},
+    "r-hallux": {"cx": 247, "cy": 1590},
+    "r-toes": {"cx": 207, "cy": 1583},
+    "l-toes": {"cx": 398, "cy": 1583},
+    "l-hallux": {"cx": 355, "cy": 1590},
+    "l-ankle": {"cx": 376, "cy": 1506},
+    "l-knee": {"cx": 391, "cy": 1195},
+    "l-hip": {"cx": 380, "cy": 751},
+    "l-wrist": {"cx": 531, "cy": 771},
+    "l-gh": {"cx": 471, "cy": 321},
+}
+
 
 def build_joint_ref_vals(db):
     # add ref_joints (ref vals), ref_zones, bone_anchor (*8 per)
     # create db cnx from PASSED in db
     curs = db.cursor()
     bone_ends = curs.execute('SELECT * FROM ref_bone_end').fetchall()
-    ## below updates the ref_bone_dict with actual be_ids and adds each side
+    # below updates the ref_bone_dict with actual be_ids and adds each side
     bone_joint_table = copy.deepcopy(bones)
     bone_list = list(bone_joint_table.keys())
     for bone in bone_list:
@@ -196,42 +225,49 @@ def build_joint_ref_vals(db):
             bone_joint_table[be_bone_name]["be_ids"][end] = be_id
 
     joint_dict = defaultdict(list)
-    # ^ this should result in a single-item/joint dictionary that gives a 2_id list for each that can be used as primary keys! 
+    # ^ this should result in a single-item/joint dictionary that gives a 2_id list for each that can be used as primary keys!
     for bone in bone_joint_table.keys():
         side = bone_joint_table[bone]["side"]
         for i, joint in enumerate(bone_joint_table[bone]["joints"]):
             if side != "mid":
-                joint_dict[f"{side} {joint}"].append(bone_joint_table[bone]["be_ids"][i])
+                joint_dict[f"{side} {joint}"].append(
+                    bone_joint_table[bone]["be_ids"][i])
                 #joint_dict[f"{side} {joint}"] = side
             else:
                 joint_dict[joint].append(bone_joint_table[bone]["be_ids"][i])
                 #joint_dict[joint] = side
     joints_to_add = []
     date = datetime.now().strftime("%Y-%m-%d")
-    qmarks = ["?" for i in range(10)]
 
     for joint in joint_dict.keys():
+        # print(joint)
         if "SI" in joint or "iliac" in joint:
             # for now, just skipping this issue so I can unpack the bone_ends to build joints
             continue
         bone_end_id_a, bone_end_id_b = joint_dict[joint]
         if "R" in joint:
-            side = "R"
             joint_name = joint[2:]
+            side = "R"
+            cx_val = svg_joint_xy_vals[f'{(side).lower()}-{(joint_name).lower()}']['cx']
+            cy_val = svg_joint_xy_vals[f'{(side).lower()}-{(joint_name).lower()}']['cy']
             if "scapula" in joint_name:
                 joint_type = "sesamoid"
             else:
                 joint_type = "synovial"
         elif "L" in joint and joint != "LT":
-            side = "L"
             joint_name = joint[2:]
+            side = "L"
+            cx_val = svg_joint_xy_vals[f'{(side).lower()}-{(joint_name).lower()}']['cx']
+            cy_val = svg_joint_xy_vals[f'{(side).lower()}-{(joint_name).lower()}']['cy']
             if "scapula" in joint_name:
                 joint_type = "sesamoid"
             else:
                 joint_type = "synovial"
-        else: 
+        else:
             joint_name = joint
             side = "mid"
+            cx_val = svg_joint_xy_vals[f'{(joint_name).lower()}']['cx']
+            cy_val = svg_joint_xy_vals[f'{(joint_name).lower()}']['cy']
             joint_type = "spinal"
         if joint_name in def_values.keys():
             caps_vals = copy.copy(def_values[joint_name])
@@ -251,24 +287,36 @@ def build_joint_ref_vals(db):
                 "acapsule_er_rom": ref_acapsule_er_rom,
             }
         joint_values = [
-            date, 
-            bone_end_id_a, 
-            bone_end_id_b, 
-            joint_name, 
-            side, 
-            joint_type, 
-            ref_pcapsule_ir_rom, 
-            ref_pcapsule_er_rom, 
-            ref_acapsule_ir_rom, 
-            ref_acapsule_er_rom
-            ]
+            date,
+            bone_end_id_a,
+            bone_end_id_b,
+            joint_name,
+            side,
+            joint_type,
+            ref_pcapsule_ir_rom,
+            ref_pcapsule_er_rom,
+            ref_acapsule_ir_rom,
+            ref_acapsule_er_rom,
+            cx_val,
+            cy_val,
+        ]
         joints_to_add.append(joint_values)
     # executemany to "joint_reference", commit to db
-    curs.executemany(f'INSERT INTO ref_joints (date_updated, bone_end_id_a, bone_end_id_b, joint_name, side, joint_type, ref_pcapsule_ir_rom, ref_pcapsule_er_rom, ref_acapsule_ir_rom, ref_acapsule_er_rom) VALUES ({",".join(qmarks)})', 
-        joints_to_add)
+    qmarks = ["?" for i in range(len(joints_to_add[0]))]
+    print(joints_to_add[0])
+    sql_statement = f'''INSERT INTO ref_joints 
+                    (date_updated, bone_end_id_a, 
+                    bone_end_id_b, joint_name, side, 
+                    joint_type, ref_pcapsule_ir_rom, 
+                    ref_pcapsule_er_rom, ref_acapsule_ir_rom, 
+                    ref_acapsule_er_rom, cx, cy) 
+                    VALUES ({",".join(qmarks)})'''
+    curs.executemany(sql_statement,
+                     joints_to_add)
     db.commit()
     print("added the JOINT reference values!")
-    
+
+
 def build_zone_ref_vals(db):
     # select ref_joints from db (to get joint_id, side)
     curs = db.cursor()
@@ -277,13 +325,21 @@ def build_zone_ref_vals(db):
     zones_to_add = []
     date = datetime.now().strftime("%Y-%m-%d")
     for joint in joints:
-        joint_ref_id, date_updated, bone_end_id_a, bone_end_id_b, joint_name, side, joint_type, ref_pcapsule_ir_rom, ref_pcapsule_er_rom, ref_acapsule_ir_rom, ref_acapsule_er_rom = joint
+        (joint_ref_id, date_updated,
+         bone_end_id_a, bone_end_id_b,
+         joint_name, side, joint_type,
+         ref_pcapsule_ir_rom,
+         ref_pcapsule_er_rom,
+         ref_acapsule_ir_rom,
+         ref_acapsule_er_rom,
+         cx, cy) = joint
+
         zone_ref_vals = [date, joint_ref_id, "", side, None, None, None, None]
         qmarks = ["?" for i in range(8)]
     # generate zones programatically into sql-ready format
-    # --spine joints should generate 4 (flex, ext, r_rotate, l_rotate); this can map with the positionality); 
+    # --spine joints should generate 4 (flex, ext, r_rotate, l_rotate); this can map with the positionality);
     # --HOWEVER zones with spine as joint-type should NOT be triplicated in tissue_status table
-    # ---scapula should generate 4 (pro, re, elev, dep), 
+    # ---scapula should generate 4 (pro, re, elev, dep),
     # -all other joints get 8
         if joint_type == "spinal":
             for z in spinal_zone_relations_list:
@@ -301,10 +357,11 @@ def build_zone_ref_vals(db):
                 synovial_zone_ref_vals[2] = z
                 zones_to_add.append(synovial_zone_ref_vals)
     # executemany to "zone_reference", commit to db
-    curs.executemany(f'INSERT INTO ref_zones (date_updated, ref_joints_id, zone_name, side, reference_progressive_p_rom, reference_progressive_a_rom, reference_regressive_p_rom, reference_regressive_a_rom) VALUES ({",".join(qmarks)})', 
-        zones_to_add)
+    curs.executemany(f'INSERT INTO ref_zones (date_updated, ref_joints_id, zone_name, side, reference_progressive_p_rom, reference_progressive_a_rom, reference_regressive_p_rom, reference_regressive_a_rom) VALUES ({",".join(qmarks)})',
+                     zones_to_add)
     db.commit()
     print("added the ZONE reference values!")
+
 
 def build_anchors(db):
     # each bone-end gets 1 anchor per zone
@@ -324,10 +381,11 @@ def build_anchors(db):
         anchors_to_add.append(anchor_vals_proximal)
         anchor_vals_distal = [ref_bone_end_id_b, ref_zones_id]
         anchors_to_add.append(anchor_vals_distal)
-    curs.executemany(f'INSERT INTO ref_anchor (bone_end_id, ref_zones_id) VALUES (?, ?)', 
-        anchors_to_add)
+    curs.executemany(f'INSERT INTO ref_anchor (bone_end_id, ref_zones_id) VALUES (?, ?)',
+                     anchors_to_add)
     db.commit()
     print("added the ANCHOR reference values!")
+
 
 def build_adj(db):
     # need: joint_id, zone_id
@@ -342,7 +400,7 @@ def build_adj(db):
                 FROM ref_anchor 
                 LEFT JOIN ref_zones ON ref_zones.id = ref_zones_id
                 LEFT JOIN ref_joints ON ref_joints.rowid = ref_zones.ref_joints_id''').fetchall()
-    
+
     # this gives me a dict of joints:zones:anchor_ids@each zone
     def make_zone_lib():
         joint_dict = {
@@ -357,13 +415,13 @@ def build_adj(db):
         joints[ref_joints_id]["name"] = joint_name
         joints[ref_joints_id]["type"] = joint_type
         joints[ref_joints_id]["zones"][zone_name].append(anchor)
-    
-    ## start here!
+
+    # start here!
     # need to conditionally link anchors
     capsule_adj_to_add = []
     rot_adj_to_add = []
     linear_adj_to_add = []
-## USE the zone_deque to rotate to the correct zone!!@!!!!!! then write the adj that way
+# USE the zone_deque to rotate to the correct zone!!@!!!!!! then write the adj that way
 
     for joint in joints.keys():
         rji = joint
@@ -386,11 +444,13 @@ def build_adj(db):
                     if anchor[1] == bone_end_id_b:
                         bkwd_rot_adj_anchor_b_id = anchor[0]
 
-                fwd_rot_tissue = [None, None, rji, anchor_id_a, rot_adj_anchor_b_id, "ER"]
-                bkwd_rot_tissue = [None, None, rji, anchor_id_a, bkwd_rot_adj_anchor_b_id, "IR"]
+                fwd_rot_tissue = [None, None, rji,
+                                  anchor_id_a, rot_adj_anchor_b_id, "ER"]
+                bkwd_rot_tissue = [None, None, rji,
+                                   anchor_id_a, bkwd_rot_adj_anchor_b_id, "IR"]
                 rot_adj_to_add.append(fwd_rot_tissue)
                 rot_adj_to_add.append(bkwd_rot_tissue)
-            
+
             elif joint_type == "spinal":
                 zone_ind = spine_zone_deque.index(zone_name)
                 spine_zone_deque.rotate(-1)
@@ -403,9 +463,11 @@ def build_adj(db):
                 for anchor in joints[joint]["zones"][bkwd_rot_adj_anchor_b_name]:
                     if anchor[1] == bone_end_id_b:
                         bkwd_rot_adj_anchor_b_id = anchor[0]
-                
-                fwd_rot_tissue = [None, None, rji, anchor_id_a, rot_adj_anchor_b_id, "Rt"]
-                bkwd_rot_tissue = [None, None, rji, anchor_id_a, bkwd_rot_adj_anchor_b_id, "Lf"]
+
+                fwd_rot_tissue = [None, None, rji,
+                                  anchor_id_a, rot_adj_anchor_b_id, "Rt"]
+                bkwd_rot_tissue = [None, None, rji,
+                                   anchor_id_a, bkwd_rot_adj_anchor_b_id, "Lf"]
                 rot_adj_to_add.append(fwd_rot_tissue)
                 rot_adj_to_add.append(bkwd_rot_tissue)
             else:
@@ -421,32 +483,36 @@ def build_adj(db):
                     if anchor[1] == bone_end_id_b:
                         bkwd_rot_adj_anchor_b_id = anchor[0]
 
-                fwd_rot_tissue = [None, None, rji, anchor_id_a, rot_adj_anchor_b_id, "Uh"]
-                bkwd_rot_tissue = [None, None, rji, anchor_id_a, bkwd_rot_adj_anchor_b_id, "Oh"]
+                fwd_rot_tissue = [None, None, rji,
+                                  anchor_id_a, rot_adj_anchor_b_id, "Uh"]
+                bkwd_rot_tissue = [None, None, rji,
+                                   anchor_id_a, bkwd_rot_adj_anchor_b_id, "Oh"]
                 rot_adj_to_add.append(fwd_rot_tissue)
                 rot_adj_to_add.append(bkwd_rot_tissue)
-                
+
             caps_tiss = [rji, rzi, None, anchor_id_a, anchor_id_b]
             linear_tiss = [rji, rzi, None, None, anchor_id_a, anchor_id_b]
             capsule_adj_to_add.append(caps_tiss)
             linear_adj_to_add.append(linear_tiss)
-    curs.executemany(f'INSERT INTO ref_capsule_adj (ref_joints_id, ref_zones_id, ref_ct_training_status, ref_anchor_id_a, ref_anchor_id_b) VALUES (?, ?, ?, ?, ?)', 
-        capsule_adj_to_add)
+    curs.executemany(f'INSERT INTO ref_capsule_adj (ref_joints_id, ref_zones_id, ref_ct_training_status, ref_anchor_id_a, ref_anchor_id_b) VALUES (?, ?, ?, ?, ?)',
+                     capsule_adj_to_add)
     db.commit()
-    curs.executemany(f'INSERT INTO ref_rotational_adj (ref_musc_training_status, ref_ct_training_status, ref_joints_id, ref_anchor_id_a, ref_anchor_id_b, rotational_bias) VALUES (?, ?, ?, ?, ?, ?)', 
-        rot_adj_to_add)
+    curs.executemany(f'INSERT INTO ref_rotational_adj (ref_musc_training_status, ref_ct_training_status, ref_joints_id, ref_anchor_id_a, ref_anchor_id_b, rotational_bias) VALUES (?, ?, ?, ?, ?, ?)',
+                     rot_adj_to_add)
     db.commit()
-    curs.executemany(f'INSERT INTO ref_linear_adj (ref_joints_id, ref_zones_id, ref_musc_training_status, ref_ct_training_status, ref_anchor_id_a, ref_anchor_id_b) VALUES (?, ?, ?, ?, ?, ?)', 
-        linear_adj_to_add)
+    curs.executemany(f'INSERT INTO ref_linear_adj (ref_joints_id, ref_zones_id, ref_musc_training_status, ref_ct_training_status, ref_anchor_id_a, ref_anchor_id_b) VALUES (?, ?, ?, ?, ?, ?)',
+                     linear_adj_to_add)
     db.commit()
     print("added the ADJ reference values (caps, rot, lin)!")
 
-if __name__=="__main__":
-    db = sqlite3.connect('/Users/williamhbelew/Hacking/MSWN/instance/mswnapp.sqlite')
-    #build_joint_ref_vals(db)
+
+if __name__ == "__main__":
+    db = sqlite3.connect(
+        '/Users/williamhbelew/Hacking/MSWN/instance/mswnapp.sqlite')
+    # build_joint_ref_vals(db)
     build_adj(db)
     #pp = pprint.PrettyPrinter()
-    #pp.pprint(joint_zone_lookup_table)
+    # pp.pprint(joint_zone_lookup_table)
 
     # eventually I want to harvest all this DB data into a dict, ala below...
 """     joint_zone_lookup_table[joint] = {

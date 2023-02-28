@@ -15,22 +15,26 @@ current_app = "special object that points to the Flask app handling the request
 
 """
 
+
 def get_db():
     if 'db' not in g:
         g.db = sqlite3.connect(
             current_app.config['DATABASE'],
-            detect_types = sqlite3.PARSE_DECLTYPES
+            detect_types=sqlite3.PARSE_DECLTYPES
         )
         g.db.row_factory = sqlite3.Row
-    
+
     return g.db
+
 
 def close_db(e=None):
     db = g.pop('db', None)
     if db is not None:
         db.close()
 
+
 """Python functions that will run SQL commands"""
+
 
 def init_db():
     db = get_db()
@@ -44,11 +48,13 @@ def init_db():
     build_anchors(db=db)
     build_adj(db=db)
 
+
 @click.command('init-db')
 def init_db_command():
     """clear the existing data and create new tables"""
     init_db()
     click.echo('Initialized the database.')
+
 
 def init_app(app):
     app.teardown_appcontext(close_db)

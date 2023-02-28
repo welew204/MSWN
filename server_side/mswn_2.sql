@@ -77,6 +77,8 @@ CREATE TABLE ref_joints (
     ref_pcapsule_er_rom REAL,
     ref_acapsule_ir_rom REAL,
     ref_acapsule_er_rom REAL,
+    cx INTEGER NOT NULL,
+    cy INTEGER NOT NULL, 
     PRIMARY KEY (bone_end_id_a, bone_end_id_b),
     FOREIGN KEY (bone_end_id_a) REFERENCES ref_bone_end (id),
     FOREIGN KEY (bone_end_id_b) REFERENCES ref_bone_end (id)
