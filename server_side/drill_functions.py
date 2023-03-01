@@ -7,6 +7,7 @@ from server_side.db_ref_vals import default_joint_dict
 
 """gesture = a unidirectional vector of stress that does NOT cross midline"""
 
+
 def joint_rotation(joint, moverid, fixed_side_anchor_id, mover_joint_dict, rotational_bias_start, rotational_bias_end):
     """generate set of rotational gestures:
     a "simultaneous" joint_roll tuple for all rot_tissues of a given joint,
@@ -29,26 +30,28 @@ def joint_rotation(joint, moverid, fixed_side_anchor_id, mover_joint_dict, rotat
 
     result = []
     for tissue in shortening_tissues:
-        joint_roll_to_add = joint_roll(tissue, fixed_side_anchor_id, rotational_bias_start, rotational_bias_end)
+        joint_roll_to_add = joint_roll(
+            tissue, fixed_side_anchor_id, rotational_bias_start, rotational_bias_end)
         result.append(joint_roll_to_add)
-    
+
     return result
-    # this is a list of joint_roll() results (np.arrays of integrals!), that can be 
+    # this is a list of joint_roll() results (np.arrays of integrals!), that can be
 
 
 def joint_fe(lin_tissue_id, fixed_anchor_side, start_pos, end_pos=None):
     """positions are just 0-100 values repr that dimension of np.array obj"""
-    
+
     if end_pos == None:
         contraction_motion = "isometric"
-    
+
     elif end_pos > start_pos:
         contraction_motion = "eccentric"
     else:
         contraction_motion = "concentric"
     pass
-    # HANDLE THE INTEGRAL/POINT VALUES in [] 
+    # HANDLE THE INTEGRAL/POINT VALUES in []
     # return (tissue_id, np.array(?), contraction_motion)
+
 
 def joint_roll(rot_tissue_id, fixed_anchor_side, start_pos, end_pos=None):
     """positions are -100 --  +100 values repr that dimension of np.array obj"""
@@ -61,7 +64,6 @@ def joint_roll(rot_tissue_id, fixed_anchor_side, start_pos, end_pos=None):
     pass
     # HANDLE THE INTEGRAL VALUES in [] np.array
 
-def capsuleCAR(joint, moverid, mover_joint_dict, )
 
 def CARs(joint, moverid, mover_joint_dict, reverse=False, closed_chain=False):
     '''"joint" must be sided (as in R GH), returns a series of gestures that can be passed to an apply() function'''
@@ -76,29 +78,34 @@ def CARs(joint, moverid, mover_joint_dict, reverse=False, closed_chain=False):
         rotational_tissue_fwd_id = joint_zones[zone]["rotational_adj_id"]["rot_a_adj_id"]
         rotational_tissue_bkwd_id = joint_zones[zone]["rotational_adj_id"]["rot_b_adj_id"]
         linear_tissue_id = joint_zones[zone]["linear_adj_id"]
-        pulse = (ref_zone_id, joint_fe(linear_tissue_id, fixed_side_anchor_id, 10))
+        pulse = (ref_zone_id, joint_fe(
+            linear_tissue_id, fixed_side_anchor_id, 10))
         # extra 'sinching' of joint into end-range
-        rot_pulse_a = (ref_zone_id, joint_roll(rotational_tissue_fwd_id, fixed_side_anchor_id, 5))
-        rot_pulse_b = (ref_zone_id, joint_roll(rotational_tissue_bkwd_id, fixed_side_anchor_id, 5))
+        rot_pulse_a = (ref_zone_id, joint_roll(
+            rotational_tissue_fwd_id, fixed_side_anchor_id, 5))
+        rot_pulse_b = (ref_zone_id, joint_roll(
+            rotational_tissue_bkwd_id, fixed_side_anchor_id, 5))
         # to get from one zone to the next
-        roll = (ref_zone_id, joint_rotation(joint, moverid, fixed_side_anchor_id, mover_joint_dict, start_rot_rom, start_rot_rom-25))
-        all_gestures.extend([pulse,rot_pulse_a,rot_pulse_b,roll])
+        roll = (ref_zone_id, joint_rotation(joint, moverid, fixed_side_anchor_id,
+                mover_joint_dict, start_rot_rom, start_rot_rom-25))
+        all_gestures.extend([pulse, rot_pulse_a, rot_pulse_b, roll])
         start_rot_rom -= 25
         # 25 (%) not 45 (deg) because I want to map percent rotation onto specific mover values if/when needed
-    
+
     return (moverid, joint_id, all_gestures)
 
-def apply_drill(gesture_tuple, date, rpe, duration, load=1, comments=None):
+
+'''def apply_drill(gesture_tuple, date, rpe, duration, load=1, comments=None):
     moverid, joint_id, all_gestures = gesture_tuple
     tut_for_each_gesture = duration/len(all_gestures)
     starting_moment = date
     bouts = []
     for tissue in all_gestures:
         ref_zones_id, joint_motion = tissue
-        tissue_id, <integral object>, contraction_motion = joint_motion
+        tissue_id, < integral object > , contraction_motion = joint_motion
         bout_date = starting_moment
         # get...
-        # ref_zones_id_a 
+        # ref_zones_id_a
         # ref_zones_id_b
         # rotational_bias (conditionally)
         #  from the db upon insert using tissue_id as key?? fast way to do this??
@@ -125,7 +132,6 @@ def apply_drill(gesture_tuple, date, rpe, duration, load=1, comments=None):
     comments TEXT, """
 
 
-
 class InputCycle1:
     def __init__(self, joint, bias, zone):
         self.joint = joint
@@ -134,6 +140,7 @@ class InputCycle1:
         # need to SELECT ref_tissues that correspond with this joint:bias:zone from DB, store to arrays of tissue_ref_id...
         self.tissues_trained_prog = []
         self.tissues_trained_reg = []
+
     def apply_impact(self, mover_id, duration, rpe, load=1, passive_duration=0, pails=True, rails=False):
         self.mover_id = mover_id
         self.duration = duration
@@ -157,3 +164,4 @@ class InputCycle1:
         # executemany using tissues to write to
         # seperate execute to bout_log
     # add assign() when getting to progrmaming step
+'''

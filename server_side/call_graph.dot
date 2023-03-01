@@ -1,0 +1,181 @@
+digraph G {
+    graph [rankdir=TB, clusterrank="local"];
+    subgraph cluster_G {
+
+        graph [style="filled,rounded",fillcolor="#80808018", label=""];
+        __init__ [label="__init__", style="filled", fillcolor="#ffffffb2", fontcolor="#000000", group="0"];
+        add_mover [label="add_mover", style="filled", fillcolor="#ffffffb2", fontcolor="#000000", group="1"];
+        crud_bp [label="crud_bp", style="filled", fillcolor="#ffffffb2", fontcolor="#000000", group="2"];
+        db_ref_vals [label="db_ref_vals", style="filled", fillcolor="#ffffffb2", fontcolor="#000000", group="3"];
+        drill_functions [label="drill_functions", style="filled", fillcolor="#ffffffb2", fontcolor="#000000", group="4"];
+        f_db [label="f_db", style="filled", fillcolor="#ffffffb2", fontcolor="#000000", group="5"];
+        gesture_parser [label="gesture_parser", style="filled", fillcolor="#ffffffb2", fontcolor="#000000", group="6"];
+        joint_motions [label="joint_motions", style="filled", fillcolor="#ffffffb2", fontcolor="#000000", group="7"];
+        mover_info_dict [label="mover_info_dict", style="filled", fillcolor="#ffffffb2", fontcolor="#000000", group="8"];
+        python_sandbox [label="python_sandbox", style="filled", fillcolor="#ffffffb2", fontcolor="#000000", group="9"];
+        refactor_CARs [label="refactor_CARs", style="filled", fillcolor="#ffffffb2", fontcolor="#000000", group="10"];
+        runMswn [label="runMswn", style="filled", fillcolor="#ffffffb2", fontcolor="#000000", group="11"];
+        simulation_dailyCARs [label="simulation_dailyCARs", style="filled", fillcolor="#ffffffb2", fontcolor="#000000", group="12"];
+        workout_recorder [label="workout_recorder", style="filled", fillcolor="#ffffffb2", fontcolor="#000000", group="13"];
+        workout_writer [label="workout_writer", style="filled", fillcolor="#ffffffb2", fontcolor="#000000", group="14"];
+        subgraph cluster_add_mover {
+
+            graph [style="filled,rounded",fillcolor="#80808018", label="add_mover"];
+            add_mover__add_new_mover [label="add_new_mover\n(add_mover.py:9)", style="filled", fillcolor="#fedfccb2", fontcolor="#000000", group="1"];
+            add_mover__add_user_command [label="add_user_command\n(add_mover.py:142)", style="filled", fillcolor="#fedfccb2", fontcolor="#000000", group="1"];
+            add_mover__add_user_to_app [label="add_user_to_app\n(add_mover.py:150)", style="filled", fillcolor="#fedfccb2", fontcolor="#000000", group="1"];
+        }
+        subgraph cluster_crud_bp {
+
+            graph [style="filled,rounded",fillcolor="#80808018", label="crud_bp"];
+            crud_bp__add_bout [label="add_bout\n(crud_bp.py:334)", style="filled", fillcolor="#fef2ccb2", fontcolor="#000000", group="2"];
+            crud_bp__add_mover_to_db [label="add_mover_to_db\n(crud_bp.py:51)", style="filled", fillcolor="#fef2ccb2", fontcolor="#000000", group="2"];
+            crud_bp__delete_workout [label="delete_workout\n(crud_bp.py:105)", style="filled", fillcolor="#fef2ccb2", fontcolor="#000000", group="2"];
+            crud_bp__drill_ref [label="drill_ref\n(crud_bp.py:234)", style="filled", fillcolor="#fef2ccb2", fontcolor="#000000", group="2"];
+            crud_bp__get_inputs [label="get_inputs\n(crud_bp.py:227)", style="filled", fillcolor="#fef2ccb2", fontcolor="#000000", group="2"];
+            crud_bp__get_movers [label="get_movers\n(crud_bp.py:40)", style="filled", fillcolor="#fef2ccb2", fontcolor="#000000", group="2"];
+            crud_bp__get_workouts [label="get_workouts\n(crud_bp.py:123)", style="filled", fillcolor="#fef2ccb2", fontcolor="#000000", group="2"];
+            crud_bp__index [label="index\n(crud_bp.py:29)", style="filled", fillcolor="#fef2ccb2", fontcolor="#000000", group="2"];
+            crud_bp__joint_ref [label="joint_ref\n(crud_bp.py:249)", style="filled", fillcolor="#fef2ccb2", fontcolor="#000000", group="2"];
+            crud_bp__record_bout [label="record_bout\n(crud_bp.py:73)", style="filled", fillcolor="#fef2ccb2", fontcolor="#000000", group="2"];
+            crud_bp__record_workout [label="record_workout\n(crud_bp.py:83)", style="filled", fillcolor="#fef2ccb2", fontcolor="#000000", group="2"];
+            crud_bp__training_log [label="training_log\n(crud_bp.py:300)", style="filled", fillcolor="#fef2ccb2", fontcolor="#000000", group="2"];
+            crud_bp__ttstatus [label="ttstatus\n(crud_bp.py:283)", style="filled", fillcolor="#fef2ccb2", fontcolor="#000000", group="2"];
+            crud_bp__write_workout [label="write_workout\n(crud_bp.py:63)", style="filled", fillcolor="#fef2ccb2", fontcolor="#000000", group="2"];
+            subgraph cluster_crud_bp__get_workouts {
+
+                graph [style="filled,rounded",fillcolor="#80808018", label="crud_bp.get_workouts"];
+                crud_bp__get_workouts__schema_factory [label="schema_factory\n(crud_bp.py:141)", style="filled", fillcolor="#ffe599b2", fontcolor="#000000", group="2"];
+            }
+        }
+        subgraph cluster_db_ref_vals {
+
+            graph [style="filled,rounded",fillcolor="#80808018", label="db_ref_vals"];
+            db_ref_vals__build_adj [label="build_adj\n(db_ref_vals.py:390)", style="filled", fillcolor="#f8feccb2", fontcolor="#000000", group="3"];
+            db_ref_vals__build_anchors [label="build_anchors\n(db_ref_vals.py:366)", style="filled", fillcolor="#f8feccb2", fontcolor="#000000", group="3"];
+            db_ref_vals__build_joint_ref_vals [label="build_joint_ref_vals\n(db_ref_vals.py:198)", style="filled", fillcolor="#f8feccb2", fontcolor="#000000", group="3"];
+            db_ref_vals__build_ref_bone_end_vals [label="build_ref_bone_end_vals\n(db_ref_vals.py:149)", style="filled", fillcolor="#f8feccb2", fontcolor="#000000", group="3"];
+            db_ref_vals__build_zone_ref_vals [label="build_zone_ref_vals\n(db_ref_vals.py:320)", style="filled", fillcolor="#f8feccb2", fontcolor="#000000", group="3"];
+            db_ref_vals__default_joint_dict [label="default_joint_dict\n(db_ref_vals.py:116)", style="filled", fillcolor="#f8feccb2", fontcolor="#000000", group="3"];
+            subgraph cluster_db_ref_vals__build_adj {
+
+                graph [style="filled,rounded",fillcolor="#80808018", label="db_ref_vals.build_adj"];
+                db_ref_vals__build_adj__make_zone_lib [label="make_zone_lib\n(db_ref_vals.py:405)", style="filled", fillcolor="#f2ff99b2", fontcolor="#000000", group="3"];
+            }
+        }
+        subgraph cluster_drill_functions {
+
+            graph [style="filled,rounded",fillcolor="#80808018", label="drill_functions"];
+            drill_functions__CARs [label="CARs\n(drill_functions.py:68)", style="filled", fillcolor="#e5feccb2", fontcolor="#000000", group="4"];
+            drill_functions__joint_fe [label="joint_fe\n(drill_functions.py:41)", style="filled", fillcolor="#e5feccb2", fontcolor="#000000", group="4"];
+            drill_functions__joint_roll [label="joint_roll\n(drill_functions.py:56)", style="filled", fillcolor="#e5feccb2", fontcolor="#000000", group="4"];
+            drill_functions__joint_rotation [label="joint_rotation\n(drill_functions.py:11)", style="filled", fillcolor="#e5feccb2", fontcolor="#000000", group="4"];
+        }
+        subgraph cluster_f_db {
+
+            graph [style="filled,rounded",fillcolor="#80808018", label="f_db"];
+            f_db__close_db [label="close_db\n(f_db.py:30)", style="filled", fillcolor="#d2feccb2", fontcolor="#000000", group="5"];
+            f_db__get_db [label="get_db\n(f_db.py:19)", style="filled", fillcolor="#d2feccb2", fontcolor="#000000", group="5"];
+            f_db__init_app [label="init_app\n(f_db.py:59)", style="filled", fillcolor="#d2feccb2", fontcolor="#000000", group="5"];
+            f_db__init_db [label="init_db\n(f_db.py:39)", style="filled", fillcolor="#d2feccb2", fontcolor="#000000", group="5"];
+            f_db__init_db_command [label="init_db_command\n(f_db.py:53)", style="filled", fillcolor="#d2feccb2", fontcolor="#000000", group="5"];
+        }
+        subgraph cluster_joint_motions {
+
+            graph [style="filled,rounded",fillcolor="#80808018", label="joint_motions"];
+            joint_motions__get_tissue [label="get_tissue\n(joint_motions.py:11)", style="filled", fillcolor="#ccfeebb2", fontcolor="#000000", group="7"];
+            joint_motions__joint_fe [label="joint_fe\n(joint_motions.py:57)", style="filled", fillcolor="#ccfeebb2", fontcolor="#000000", group="7"];
+            joint_motions__joint_rotation [label="joint_rotation\n(joint_motions.py:31)", style="filled", fillcolor="#ccfeebb2", fontcolor="#000000", group="7"];
+            joint_motions__write_to_bout_log [label="write_to_bout_log\n(joint_motions.py:62)", style="filled", fillcolor="#ccfeebb2", fontcolor="#000000", group="7"];
+            joint_motions__write_to_tissue_status [label="write_to_tissue_status\n(joint_motions.py:65)", style="filled", fillcolor="#ccfeebb2", fontcolor="#000000", group="7"];
+        }
+        subgraph cluster_mover_info_dict {
+
+            graph [style="filled,rounded",fillcolor="#80808018", label="mover_info_dict"];
+            mover_info_dict__mover_info_dict [label="mover_info_dict\n(mover_info_dict.py:4)", style="filled", fillcolor="#ccfefeb2", fontcolor="#000000", group="8"];
+            subgraph cluster_mover_info_dict__mover_info_dict {
+
+                graph [style="filled,rounded",fillcolor="#80808018", label="mover_info_dict.mover_info_dict"];
+                mover_info_dict__mover_info_dict__make_joint_ddict [label="make_joint_ddict\n(mover_info_dict.py:17)", style="filled", fillcolor="#99feffb2", fontcolor="#000000", group="8"];
+                mover_info_dict__mover_info_dict__make_zone_ddict [label="make_zone_ddict\n(mover_info_dict.py:7)", style="filled", fillcolor="#99feffb2", fontcolor="#000000", group="8"];
+            }
+        }
+        subgraph cluster_refactor_CARs {
+
+            graph [style="filled,rounded",fillcolor="#80808018", label="refactor_CARs"];
+            refactor_CARs__ifCARs [label="ifCARs\n(refactor_CARs.py:9)", style="filled", fillcolor="#ccd8feb2", fontcolor="#000000", group="10"];
+        }
+        subgraph cluster_runMswn {
+
+            graph [style="filled,rounded",fillcolor="#80808018", label="runMswn"];
+            runMswn__create_app [label="create_app\n(runMswn.py:8)", style="filled", fillcolor="#d2ccfeb2", fontcolor="#000000", group="11"];
+            subgraph cluster_runMswn__create_app {
+
+                graph [style="filled,rounded",fillcolor="#80808018", label="runMswn.create_app"];
+                runMswn__create_app__health [label="health\n(runMswn.py:38)", style="filled", fillcolor="#a599ffb2", fontcolor="#000000", group="11"];
+            }
+        }
+        subgraph cluster_simulation_dailyCARs {
+
+            graph [style="filled,rounded",fillcolor="#80808018", label="simulation_dailyCARs"];
+            simulation_dailyCARs__dailyCARs [label="dailyCARs\n(simulation_dailyCARs.py:78)", style="filled", fillcolor="#e5ccfeb2", fontcolor="#000000", group="12"];
+            simulation_dailyCARs__run_simulated_CARs [label="run_simulated_CARs\n(simulation_dailyCARs.py:271)", style="filled", fillcolor="#e5ccfeb2", fontcolor="#000000", group="12"];
+            simulation_dailyCARs__simulate_dailyCARs [label="simulate_dailyCARs\n(simulation_dailyCARs.py:255)", style="filled", fillcolor="#e5ccfeb2", fontcolor="#000000", group="12"];
+            subgraph cluster_simulation_dailyCARs__dailyCARs {
+
+                graph [style="filled,rounded",fillcolor="#80808018", label="simulation_dailyCARs.dailyCARs"];
+                simulation_dailyCARs__dailyCARs__record_a_workout [label="record_a_workout\n(simulation_dailyCARs.py:150)", style="filled", fillcolor="#cb99ffb2", fontcolor="#000000", group="12"];
+            }
+        }
+        subgraph cluster_workout_recorder {
+
+            graph [style="filled,rounded",fillcolor="#80808018", label="workout_recorder"];
+            workout_recorder__multiple_workout_recorder [label="multiple_workout_recorder\n(workout_recorder.py:584)", style="filled", fillcolor="#f8ccfeb2", fontcolor="#000000", group="13"];
+            workout_recorder__prep_bouts_for_insertion [label="prep_bouts_for_insertion\n(workout_recorder.py:550)", style="filled", fillcolor="#f8ccfeb2", fontcolor="#000000", group="13"];
+            workout_recorder__unpack_inputs [label="unpack_inputs\n(workout_recorder.py:20)", style="filled", fillcolor="#f8ccfeb2", fontcolor="#000000", group="13"];
+            workout_recorder__unpack_workout [label="unpack_workout\n(workout_recorder.py:11)", style="filled", fillcolor="#f8ccfeb2", fontcolor="#000000", group="13"];
+            workout_recorder__workout_recorder [label="workout_recorder\n(workout_recorder.py:563)", style="filled", fillcolor="#f8ccfeb2", fontcolor="#000000", group="13"];
+            subgraph cluster_workout_recorder__unpack_inputs {
+
+                graph [style="filled,rounded",fillcolor="#80808018", label="workout_recorder.unpack_inputs"];
+                workout_recorder__unpack_inputs__bout_dict_maker [label="bout_dict_maker\n(workout_recorder.py:95)", style="filled", fillcolor="#f299ffb2", fontcolor="#000000", group="13"];
+            }
+        }
+        subgraph cluster_workout_writer {
+
+            graph [style="filled,rounded",fillcolor="#80808018", label="workout_writer"];
+            workout_writer__workout_writer [label="workout_writer\n(workout_writer.py:7)", style="filled", fillcolor="#feccf2b2", fontcolor="#000000", group="14"];
+        }
+    }
+        add_mover -> add_mover__add_new_mover [style="solid", color="#000000"];
+        add_mover__add_user_command -> add_mover__add_new_mover [style="solid", color="#000000"];
+        add_mover__add_user_to_app -> add_mover__add_user_command [style="solid", color="#000000"];
+        crud_bp__delete_workout -> crud_bp__get_workouts [style="solid", color="#000000"];
+        crud_bp__get_workouts -> crud_bp__get_workouts__schema_factory [style="solid", color="#000000"];
+        crud_bp__training_log -> crud_bp__training_log [style="solid", color="#000000"];
+        db_ref_vals -> db_ref_vals__build_adj [style="solid", color="#000000"];
+        db_ref_vals__build_adj -> db_ref_vals__build_adj__make_zone_lib [style="solid", color="#000000"];
+        drill_functions__joint_rotation -> drill_functions__joint_roll [style="solid", color="#000000"];
+        drill_functions__CARs -> drill_functions__joint_rotation [style="solid", color="#000000"];
+        drill_functions__CARs -> drill_functions__joint_roll [style="solid", color="#000000"];
+        drill_functions__CARs -> drill_functions__joint_fe [style="solid", color="#000000"];
+        f_db__init_db -> f_db__get_db [style="solid", color="#000000"];
+        f_db__init_db_command -> f_db__init_db [style="solid", color="#000000"];
+        f_db__init_app -> f_db__init_db_command [style="solid", color="#000000"];
+        f_db__init_app -> f_db__close_db [style="solid", color="#000000"];
+        joint_motions__joint_rotation -> joint_motions__get_tissue [style="solid", color="#000000"];
+        mover_info_dict__mover_info_dict -> mover_info_dict__mover_info_dict__make_joint_ddict [style="solid", color="#000000"];
+        mover_info_dict__mover_info_dict__make_joint_ddict -> mover_info_dict__mover_info_dict__make_zone_ddict [style="solid", color="#000000"];
+        runMswn -> runMswn__create_app [style="solid", color="#000000"];
+        simulation_dailyCARs -> simulation_dailyCARs__dailyCARs [style="solid", color="#000000"];
+        simulation_dailyCARs__dailyCARs -> simulation_dailyCARs__dailyCARs__record_a_workout [style="solid", color="#000000"];
+        simulation_dailyCARs__simulate_dailyCARs -> simulation_dailyCARs__dailyCARs [style="solid", color="#000000"];
+        simulation_dailyCARs__run_simulated_CARs -> simulation_dailyCARs__simulate_dailyCARs [style="solid", color="#000000"];
+        workout_recorder__unpack_inputs -> workout_recorder__unpack_inputs__bout_dict_maker [style="solid", color="#000000"];
+        workout_recorder__workout_recorder -> workout_recorder__prep_bouts_for_insertion [style="solid", color="#000000"];
+        workout_recorder__workout_recorder -> workout_recorder__unpack_workout [style="solid", color="#000000"];
+        workout_recorder__workout_recorder -> workout_recorder__unpack_inputs [style="solid", color="#000000"];
+        workout_recorder__multiple_workout_recorder -> workout_recorder__prep_bouts_for_insertion [style="solid", color="#000000"];
+        workout_recorder__multiple_workout_recorder -> workout_recorder__unpack_workout [style="solid", color="#000000"];
+        workout_recorder__multiple_workout_recorder -> workout_recorder__unpack_inputs [style="solid", color="#000000"];
+    }
