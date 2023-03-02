@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import MoverSelect from "./components/MoverSelect";
 import RecordWkout from "./components/RecordWkout";
 import WkoutBuilder from "./components/WkoutBuilder";
+import StatusView from "./components/StatusView";
 import {
   QueryClient,
   QueryClientProvider,
@@ -23,6 +24,7 @@ function App() {
           <Route path='/mover' element={<MoverSelect />} />
           <Route path='/wbuilder' element={<WkoutBuilder />} />
           <Route path='/record' element={<RecordWkout />} />
+          <Route path='/status' element={<StatusView />} />
         </Route>
       </Routes>
       <ReactQueryDevtools initialIsOpen={false} />

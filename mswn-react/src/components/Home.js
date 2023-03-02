@@ -88,7 +88,9 @@ export default function Home() {
             <Nav.Item as={RsNavLink} href='/mover'>
               Move
             </Nav.Item>
-            <Nav.Item>Status</Nav.Item>
+            <Nav.Item as={RsNavLink} href='/status'>
+              Status
+            </Nav.Item>
             {/* <Nav.Item>Assess</Nav.Item> */}
           </Nav>
 
