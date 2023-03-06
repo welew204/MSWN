@@ -279,21 +279,172 @@ def joint_ref():
     return jsonify(joint_ref_final), 200
 
 
-@ bp.route('/ttstatus/<int:mover_id>')
-def ttstatus(mover_id):
+# can't quite get my selects working right! so just hard-coding in adjacency table...
+prox_neighbor_joints = {'l-ankle': {'proximal_joint_id': 15,
+                                    'proximal_joint_selector': 'l-knee',
+                                    'ref_joint_id': 17},
+                        'l-elbow': {'proximal_joint_id': 7,
+                                    'proximal_joint_selector': 'l-gh',
+                                    'ref_joint_id': 9},
+                        'l-gh': {'proximal_joint_id': 5,
+                                 'proximal_joint_selector': 'l-scapular-thoracic',
+                                 'ref_joint_id': 7},
+                        'l-hallux': {'proximal_joint_id': 17,
+                                     'proximal_joint_selector': 'l-ankle',
+                                     'ref_joint_id': 21},
+                        'l-hip': {'proximal_joint_id': 3,
+                                  'proximal_joint_selector': 'lt',
+                                  'ref_joint_id': 13},
+                        'l-knee': {'proximal_joint_id': 13,
+                                   'proximal_joint_selector': 'l-hip',
+                                   'ref_joint_id': 15},
+                        'l-scapular-thoracic': {'proximal_joint_id': 2,
+                                                'proximal_joint_selector': 'tc',
+                                                'ref_joint_id': 5},
+                        'l-toes': {'proximal_joint_id': 17,
+                                   'proximal_joint_selector': 'l-ankle',
+                                   'ref_joint_id': 20},
+                        'l-wrist': {'proximal_joint_id': 9,
+                                    'proximal_joint_selector': 'l-elbow',
+                                    'ref_joint_id': 11},
+                        'ao': {'proximal_joint_id': None, 'ref_joint_id': 1},
+                        'lt': {'proximal_joint_id': 2,
+                               'proximal_joint_selector': 'tc',
+                               'ref_joint_id': 3},
+                        'tc': {'proximal_joint_id': 1,
+                               'proximal_joint_selector': 'ao',
+                               'ref_joint_id': 2},
+                        'r-ankle': {'proximal_joint_id': 14,
+                                    'proximal_joint_selector': 'r-knee',
+                                    'ref_joint_id': 16},
+                        'r-elbow': {'proximal_joint_id': 6,
+                                    'proximal_joint_selector': 'r-gh',
+                                    'ref_joint_id': 8},
+                        'r-gh': {'proximal_joint_id': 4,
+                                 'proximal_joint_selector': 'r-scapular-thoracic',
+                                 'ref_joint_id': 6},
+                        'r-hallux': {'proximal_joint_id': 16,
+                                     'proximal_joint_selector': 'r-ankle',
+                                     'ref_joint_id': 19},
+                        'r-hip': {'proximal_joint_id': 3,
+                                  'proximal_joint_selector': 'lt',
+                                  'ref_joint_id': 12},
+                        'r-knee': {'proximal_joint_id': 12,
+                                   'proximal_joint_selector': 'r-hip',
+                                   'ref_joint_id': 14},
+                        'r-scapular-thoracic': {'proximal_joint_id': 2,
+                                                'proximal_joint_selector': 'tc',
+                                                'ref_joint_id': 4},
+                        'r-toes': {'proximal_joint_id': 16,
+                                   'proximal_joint_selector': 'r-ankle',
+                                   'ref_joint_id': 18},
+                        'r-wrist': {'proximal_joint_id': 8,
+                                    'proximal_joint_selector': 'r-elbow',
+                                    'ref_joint_id': 10}}
+
+
+def failed_proximal_joint_lookups():
+    db = get_db()
+    curs = db.cursor()
+    # start by building an adjacency table (neighboring joints)
+    bone_lookups = {}
+    ref_joints_rows = curs.execute('''SELECT 
+                                ref_bone_end.id,
+                                ref_bone_end.bone_name,
+                                ref_bone_end.side, 
+                                ref_bone_end.end,
+                                ref_joints.rowid AS ref_joint_id,
+                                ref_joints.joint_name 
+                                FROM ref_bone_end
+                                LEFT JOIN ref_joints
+                                ON ref_bone_end.id = ref_joints.bone_end_id_b''').fetchall()
+    for row in ref_joints_rows:
+        if row["end"] == 1:
+            print("this is a bone-end of '1'...")
+            pprint({k: row[k] for k in row.keys()})
+            continue
+            # these are bone-ends that are the bone_end_id_a for a joint!!!! thus, None in this SELECT
+        # print(row)
+        else:
+            raw_ref = {k: row[k] for k in row.keys()}
+            bone_lookups[(raw_ref["bone_name"], raw_ref["side"])
+                         ] = raw_ref
+
+    print("here are the bone lookups...")
+    pprint(bone_lookups)
+
+    neighbor_joints = {}
+
+    for k, v in bone_lookups.items():
+        res = curs.execute('''SELECT ref_joints.rowid AS ref_joint_id,
+                                        ref_joints.joint_name,
+                                        ref_joints.side, 
+                                        ref_joints.joint_type,
+                                        ref_joints.bone_end_id_a,
+                                        ref_joints.bone_end_id_b,
+                                        ref_bone_end.bone_name AS proximal_bone, 
+                                        ref_bone_end.side AS bone_side
+                                        FROM ref_joints
+                                        LEFT JOIN ref_bone_end
+                                        ON ref_bone_end.id = ref_joints.bone_end_id_a''').fetchall()
+        for row in res:
+            # NEED TO TROUBLE SHOOT THESE... proximal_joint_id is NONE for toes, scapular-thoracic, hallux
+            # possibly related to my 'ends' filter used in the inital select (on bone-ends)
+            raw_row = {
+                k: row[k] for k in row.keys()}
+            # pprint(raw_row)
+            jname_str = f'{row["side"]}-{row["joint_name"]}'
+
+            prox_joint_id = bone_lookups[(
+                row["proximal_bone"], row["bone_side"])]["ref_joint_id"]
+            neighbor_joints[jname_str.lower()] = {
+                "ref_joint_id": row["ref_joint_id"], "proximal_joint_id": prox_joint_id}
+
+    pprint(neighbor_joints)
+
+
+@ bp.route('/status/<int:mover_id>')
+def status(mover_id):
     # print(f"Got this far (to {index})", file=sys.stderr)
     db = get_db()
+    curs = db.cursor()
+    # start by building an adjacency table (neighboring joints)
+
     tissue_status = []
     # BELOW returns a list of sqlite3.Row objects (with index, and keys), but is NOT a real dict
     tissue_status_rows = db.execute(
-        'SELECT * FROM tissue_status WHERE moverid = (?)', (mover_id,)
+        '''SELECT  bout_log.joint_id,
+                bout_log.id,
+                bout_log.date, 
+                bout_log.tissue_type,
+                joints.ref_joints_id,
+                ref_joints.joint_name,
+                ref_joints.side
+                FROM bout_log 
+                LEFT JOIN joints
+                ON bout_log.joint_id = joints.id
+                LEFT JOIN ref_joints
+                ON joints.ref_joints_id = ref_joints.rowid
+                WHERE bout_log.moverid = (?) 
+                ''', (mover_id,)
     ).fetchall()
-    # this converts all rows returned into dictiornary, that is added to the tissue_status list
-    for row in tissue_status_rows:
-        tissue_status.append({k: row[k] for k in row.keys()})
-    return jsonify({"tissue_status": tissue_status}), 200
 
-# TODO work on fixing THIS endpoint
+    for row in tissue_status_rows:
+        row_goods = {k: row[k] for k in row.keys()}
+        if row_goods["side"] != 'mid':
+            zone_name_selector = f'{row_goods["side"].lower()}-{row_goods.pop("joint_name").lower()}'
+        else:
+            zone_name_selector = f'{row_goods.pop("joint_name").lower()}'
+        if zone_name_selector == "ao":
+            proximal_joint_selector = "occiput"
+        else:
+            proximal_joint_selector = prox_neighbor_joints[zone_name_selector]['proximal_joint_selector']
+        row_goods['zone_selector'] = zone_name_selector
+        row_goods['joint_name_selector'] = f'jt-{zone_name_selector}'
+        row_goods['proximal_joint_selector'] = f'jt-{proximal_joint_selector}'
+
+        tissue_status.append(row_goods)
+    return jsonify({"status": tissue_status}), 200
 
 
 @ bp.route('/training_log/<int:mover_id>')

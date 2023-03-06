@@ -29,8 +29,6 @@ export default function StatusView() {
   return (
     <div>
       <HumanMap />
-      <DrawBouts />
-      {}
     </div>
   );
 }
