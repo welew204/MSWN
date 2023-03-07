@@ -71,7 +71,10 @@ export function HumanMap({ data }) {
     return [noisey_x, noisey_y];
   }
 
+  console.log(svgRef.current);
+
   useEffect(() => {
+    console.log("running my use effect!");
     // Bind d3
     // svgRef.current = mapRef;
     if (boutsQuery.isSuccess) {
@@ -103,10 +106,27 @@ export function HumanMap({ data }) {
       // noisify points (lots for counter-axis, a little for joint_distance value)
 
       // THEN, how do I handle selecting and binding data to the selection?
+      console.log(svgRef.current.children[0].children);
       const svg = select(svgRef.current);
 
-      const target = select("g").selectAll().data(pretty_bouts);
+      const target = svg
+        .select("g")
+        .selectAll()
+        .data(pretty_bouts, (d) => d[3]);
 
+      target
+        .join("circle")
+        .attr("id", (d) => d[3])
+        .attr("r", "1")
+        .attr("cx", (d) => d[0])
+        .attr("cy", (d) => d[1])
+        .attr("fill", (d) => d[2]);
+
+      target.exit().remove();
+
+      console.log(svgRef.current.children[0].children.length);
+      /* const target = select("g").selectAll().data(pretty_bouts);
+      
       console.log(target);
 
       target
@@ -119,7 +139,7 @@ export function HumanMap({ data }) {
         .attr("cy", (d) => d[1])
         .attr("fill", (d) => d[2]);
 
-      target.exit().remove();
+      target.exit().remove(); */
 
       //console.log(removed);
     }

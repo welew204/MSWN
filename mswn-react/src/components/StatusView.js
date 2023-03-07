@@ -28,7 +28,30 @@ const server_url = "http://127.0.0.1:8000";
 export default function StatusView() {
   return (
     <div>
-      <HumanMap />
+      <Stack
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          marginTop: "20px",
+          marginBottom: "20px",
+          alignContent: "center",
+        }}>
+        <Stack.Item>
+          <Panel
+            header='What Am I Looking At...?'
+            collapsible
+            bordered
+            style={{ width: "400px" }}>
+            <p>
+              What you see here are all the 'bouts' that this client has
+              experienced via your training inputs.
+            </p>
+          </Panel>
+        </Stack.Item>
+        <Stack.Item>
+          <HumanMap />
+        </Stack.Item>
+      </Stack>
     </div>
   );
 }

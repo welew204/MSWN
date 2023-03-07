@@ -19,12 +19,14 @@ import {
   SelectPicker,
   Loader,
   DatePicker,
+  Toggle,
+  Rate,
 } from "rsuite";
 import CogIcon from "@rsuite/icons/legacy/Cog";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { NavToggle } from "./helpers/NavToggle";
 import InputForm from "./helpers/InputForm";
 import RecordWkoutForm from "./helpers/RecordWkoutForm";
+import CheckRoundIcon from "@rsuite/icons/CheckRound";
 
 const server_url = "http://127.0.0.1:8000";
 
@@ -32,6 +34,8 @@ export default function RecordWkout() {
   const [selectedWorkout, setSelectedWorkout, activeMover] = useOutletContext();
   const [selectInp, setSelectInp] = useState("");
   const [workoutResults, setWorkoutResults] = useState({});
+  const [doAsRxd, setDoAsRxd] = useState(false);
+  // need to build out this functionality ^^
 
   const workoutsQuery = useQuery(["workouts", activeMover], () => {
     return fetchAPI(server_url + `/workouts/${activeMover}`);
@@ -191,9 +195,19 @@ export default function RecordWkout() {
         <Stack.Item style={{ display: "flex", justifyContent: "space-around" }}>
           <h1>Record A Workout</h1>
         </Stack.Item>
-        <Stack.Item>
+        <Stack.Item
+          style={{
+            display: "flex",
+            width: "400px",
+            margin: 10,
+            alignSelf: "center",
+          }}>
           <SelectPicker
-            style={{ display: "flex", margin: 10, alignSelf: "center" }}
+            style={{
+              display: "flex",
+              width: "400px",
+              margin: 10,
+            }}
             onSelect={(v, i, e) => {
               setSelectedWorkout(v);
             }}
@@ -202,6 +216,36 @@ export default function RecordWkout() {
               selectedWorkout ? selectedWorkout : ""
             }></SelectPicker>
         </Stack.Item>
+        <Stack.Item
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            margin: "auto",
+            alignContent: "center",
+            alignItems: "center",
+          }}>
+          <h4 style={{ display: "flex", marginRight: "15px" }}>Do as Rx'd?</h4>
+          <Toggle onChange={setDoAsRxd} />
+        </Stack.Item>
+        <Stack.Item
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            margin: "auto",
+            alignContent: "center",
+            alignItems: "center",
+          }}>
+          <Rate
+            disabled={!doAsRxd}
+            defaultValue={2.5}
+            allowHalf
+            vertical
+            character={<CheckRoundIcon />}
+            color='cyan'
+          />
+        </Stack.Item>
+        <Divider />
+
         <Stack.Item
           style={{
             display: "flex",

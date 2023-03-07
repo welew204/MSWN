@@ -48,7 +48,7 @@ export default function RecordWkoutForm({
   }
 
   if (!selectedInput)
-    return <h2>Select an input to begin recording results...</h2>;
+    return <h2>Or, select an input to begin recording results...</h2>;
   else {
     console.log(selectedInput);
   }
