@@ -14,9 +14,8 @@ export function HumanMap({ data }) {
 
   const svgRef = useRef(null);
   const [selectedWorkout, setSelectedWorkout, activeMover] = useOutletContext();
+  const [currentPrettyBouts, setCurrentPrettyBouts] = useState([]);
 
-  //useEffect(() => {}, []);
-  // initial setting of data from API; useQuery instead
   const boutsQuery = useQuery(["bouts", activeMover], () => {
     return fetchAPI(server_url + `/status/${activeMover}`);
   });
@@ -71,10 +70,7 @@ export function HumanMap({ data }) {
     return [noisey_x, noisey_y];
   }
 
-  console.log(svgRef.current);
-
   useEffect(() => {
-    console.log("running my use effect!");
     // Bind d3
     // svgRef.current = mapRef;
     if (boutsQuery.isSuccess) {
@@ -98,16 +94,13 @@ export function HumanMap({ data }) {
 
       console.log(pretty_bouts.at(0));
       console.log(pretty_bouts.at(-1));
-      //console.log(boutsQuery.data.at(-1));
-      // find the right joint > id
-      // find the right zone > proximity to joint-id
-      // calculate the axis (neighboring joint)
-      // calculate 'joint_distance' value for each
-      // noisify points (lots for counter-axis, a little for joint_distance value)
 
-      // THEN, how do I handle selecting and binding data to the selection?
-      console.log(svgRef.current.children[0].children);
+      //console.log(svgRef.current);
       const svg = select(svgRef.current);
+
+      //remove previous dots!
+      const everything = svg.selectAll(".drawn");
+      everything.remove();
 
       const target = svg
         .select("g")
@@ -116,6 +109,7 @@ export function HumanMap({ data }) {
 
       target
         .join("circle")
+        .classed("drawn", true)
         .attr("id", (d) => d[3])
         .attr("r", "1")
         .attr("cx", (d) => d[0])
@@ -123,26 +117,11 @@ export function HumanMap({ data }) {
         .attr("fill", (d) => d[2]);
 
       target.exit().remove();
-
-      console.log(svgRef.current.children[0].children.length);
-      /* const target = select("g").selectAll().data(pretty_bouts);
-      
-      console.log(target);
-
-      target
-        .enter()
-        .merge(target)
-        .append("circle")
-        .attr("id", (d) => d[3])
-        .attr("r", "1")
-        .attr("cx", (d) => d[0])
-        .attr("cy", (d) => d[1])
-        .attr("fill", (d) => d[2]);
-
-      target.exit().remove(); */
-
-      //console.log(removed);
     }
+    /* return () => {
+      console.log("unmounting...");
+      const target = select("g").selectAll("drawn").datum(null);
+    }; */
     // ala... svg.select("#head").attr("fill", data.headColor);
     // Add new d3 elements
     // Update existing d3 elements

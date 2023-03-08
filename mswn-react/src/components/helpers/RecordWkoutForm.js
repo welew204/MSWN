@@ -148,7 +148,9 @@ export default function RecordWkoutForm({
         </Form.Group>
         <Form.Group>
           <ButtonToolbar>
-            <Button appearance='primary' onClick={updateDB}>
+            <Button
+              appearance='primary'
+              onClick={(e) => updateDB(e, selectedInput.id)}>
               Save Input
             </Button>
             <Button

@@ -35,6 +35,8 @@ export default function RecordWkout() {
   const [selectInp, setSelectInp] = useState("");
   const [workoutResults, setWorkoutResults] = useState({});
   const [doAsRxd, setDoAsRxd] = useState(false);
+  console.log(selectInp);
+  console.log(selectedWorkout);
   // need to build out this functionality ^^
 
   const workoutsQuery = useQuery(["workouts", activeMover], () => {
@@ -50,11 +52,17 @@ export default function RecordWkout() {
   }
 
   const updateDB = useMutation({
-    mutationFn: () => {
+    mutationFn: (target_input) => {
+      const just_this_bout_object = {
+        date_done: workoutResults.date_done,
+        workout_id: workoutResults.workout_id,
+        mover_id: workoutResults.mover_id,
+        [target_input]: { ...workoutResults[target_input] },
+      };
       return fetch(server_url + "/record_bout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(workoutResults),
+        body: JSON.stringify(just_this_bout_object),
         mode: "cors",
       }).then((res) => console.log(res));
     },
@@ -86,28 +94,8 @@ export default function RecordWkout() {
 
   useEffect(() => {
     if (workoutsQuery.isSuccess) {
-      const selWkt = findWorkout(selectedWorkout);
-      let blankResults = {
-        mover_id: activeMover,
-        workout_id: selectedWorkout,
-        date_done: new Date().toISOString(),
-      };
-      for (let w in [...selWkt.inputs.keys()]) {
-        blankResults = {
-          ...blankResults,
-          [selWkt.inputs[w].id]: {
-            Rx: { ...selWkt.inputs[w] },
-            results: {
-              rails: false,
-              passive_duration: 0,
-              duration: 0,
-              rpe: 0,
-              external_load: 0,
-            },
-          },
-        };
-      }
-      setWorkoutResults(blankResults);
+      const tuhday = new Date().toISOString();
+      clearWorkoutVals(tuhday);
     } else {
       void 0;
     }
@@ -153,13 +141,36 @@ export default function RecordWkout() {
       header={`${inp.ref_joint_name} ${inp.drill_name}`}></Panel>
   ));
 
+  function clearWorkoutVals(date) {
+    const selWkt = findWorkout(selectedWorkout);
+    let blankResults = {
+      mover_id: activeMover,
+      workout_id: selectedWorkout,
+      date_done: date,
+    };
+    for (let w in [...selWkt.inputs.keys()]) {
+      blankResults = {
+        ...blankResults,
+        [selWkt.inputs[w].id]: {
+          Rx: { ...selWkt.inputs[w] },
+          results: {
+            rails: false,
+            passive_duration: 0,
+            duration: 0,
+            rpe: 0,
+            external_load: 0,
+          },
+        },
+      };
+    }
+    setWorkoutResults(blankResults);
+  }
+
   function findWorkout(wktid) {
     const selWkt = workoutsQuery.data.find((wkt) => wkt.id == wktid);
     console.log(selWkt);
     return selWkt;
   }
-
-  console.log(workoutResults);
 
   const doneWorkoutsSelected = doneWorkoutsQuery.data["training_log"].map(
     (wkt) => {
@@ -176,6 +187,37 @@ export default function RecordWkout() {
       }
     }
   );
+
+  function handleDoRXdToggle(value) {
+    console.log(doAsRxd);
+    console.log(value);
+    console.log(!value);
+    setDoAsRxd((prev) => !prev);
+    if (value == false) {
+      clearWorkoutVals(workoutResults.date_done);
+    } else {
+      var all_new_results = {};
+      for (let i of Object.keys(workoutResults)) {
+        if (["date_done", "mover_id", "workout_id"].includes(i)) {
+          all_new_results = { ...all_new_results, [i]: workoutResults[i] };
+        } else {
+          console.log(workoutResults[i]);
+          var rxd_results = {
+            rails: workoutResults[i].Rx.rails,
+            passive_duration: workoutResults[i].Rx.passive_duration,
+            duration: workoutResults[i].Rx.duration,
+            rpe: workoutResults[i].Rx.rpe,
+            external_load: workoutResults[i].Rx.external_load,
+          };
+          var new_payload = { ...workoutResults[i], results: rxd_results };
+          all_new_results = { ...all_new_results, [i]: new_payload };
+        }
+      }
+      setWorkoutResults(all_new_results);
+      const input_to_see = workouts[index_of_selectedWorkout()]?.inputs[0].id;
+      setSelectInp(input_to_see);
+    }
+  }
 
   return (
     <Stack
@@ -209,6 +251,7 @@ export default function RecordWkout() {
               margin: 10,
             }}
             onSelect={(v, i, e) => {
+              setDoAsRxd(false);
               setSelectedWorkout(v);
             }}
             data={wkoutSelect}
@@ -225,7 +268,10 @@ export default function RecordWkout() {
             alignItems: "center",
           }}>
           <h4 style={{ display: "flex", marginRight: "15px" }}>Do as Rx'd?</h4>
-          <Toggle onChange={setDoAsRxd} />
+          <Toggle
+            checked={doAsRxd}
+            onChange={(value) => handleDoRXdToggle(value)}
+          />
         </Stack.Item>
         <Stack.Item
           style={{
@@ -236,8 +282,8 @@ export default function RecordWkout() {
             alignItems: "center",
           }}>
           <Rate
-            disabled={!doAsRxd}
-            defaultValue={2.5}
+            disabled={true} /* {!doAsRxd} */
+            defaultValue={5}
             allowHalf
             vertical
             character={<CheckRoundIcon />}
@@ -274,7 +320,7 @@ export default function RecordWkout() {
               placeholder={Date(workoutResults.date_done)}
             />
           </Stack.Item>
-          <Divider vertical style={{ height: "70vh" }} />
+          <Divider vertical style={{ height: "100%" }} />
 
           <Stack.Item style={{ width: "100%", padding: 10 }}>
             <RecordWkoutForm
@@ -288,9 +334,9 @@ export default function RecordWkout() {
               }
               workoutResults={workoutResults}
               updateWorkoutResults={updateWorkoutResults}
-              updateDB={(event) => {
+              updateDB={(event, value) => {
                 event.preventDefault();
-                updateDB.mutate();
+                updateDB.mutate(value);
               }}
             />
           </Stack.Item>
