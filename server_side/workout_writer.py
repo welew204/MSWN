@@ -69,7 +69,7 @@ def workout_writer(db, req):
         joint_id = mover_dict[joint_key_string]["id"]
         payload["joint_id"] = joint_id
 
-        input_seq, circuit_iterations = schema_lookups[inputID]
+        input_seq, circuit_iterations = schema_lookups[int(inputID)]
         payload["input_sequence"] = input_seq
         payload["circuit_iterations"] = circuit_iterations
 

@@ -74,6 +74,7 @@ def record_bout():
     db = get_db()
     req = request.get_json()
 
+    # pprint(req)
     workout_recorder(db, req)
 
     return f"Workout/results recorded!", 201
@@ -83,7 +84,7 @@ def record_bout():
 def record_workout():
     db = get_db()
     req = request.get_json()
-    print("Recoding workout as done")
+    print("Recording workout as done")
     pprint(req)
 
     date_done, workout_id, moverid = req

@@ -27,6 +27,7 @@ def unpack_inputs(inputs, mover_dict, date_done, moverid):
 
         # should I even consider this input or not!?!?!?
         if int(vals['results']['duration']) == 0 or int(vals['results']['rpe']) == 0:
+            print("not writing bouts bc DURATION and/or RPE is null...")
             continue
 
         if vals["Rx"]["rotational_value"] != "":
@@ -68,9 +69,12 @@ def unpack_inputs(inputs, mover_dict, date_done, moverid):
 
         # these 'results' values are based on the execution of the drill
         duration = int(vals["results"]["duration"])
-        passive_duration = int(vals["results"]["passive_duration"])
+        passive_duration = vals["results"]["passive_duration"]
+        passive_duration = 0 if passive_duration == '' else int(
+            passive_duration)
         rpe = int(vals["results"]["rpe"])
-        external_load = int(vals["results"]["external_load"])
+        external_load = vals["results"]["external_load"]
+        external_load = 0 if external_load == '' else int(external_load)
         rails = vals["results"]["rails"]
         if rails == "True":
             rails = True
@@ -563,7 +567,6 @@ def prep_bouts_for_insertion(bout_array):
 def workout_recorder(db, req):
 
     # print(f"record_bout request: ", file=sys.stderr)
-    # pprint(req)
 
     moverid, workout_id, date_done = unpack_workout(req)
 
