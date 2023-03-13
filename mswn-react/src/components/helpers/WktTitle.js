@@ -38,6 +38,9 @@ export default function WktTitle({ title, onChange }) {
             fontWeight: "bold",
           }}
           type='text'
+          onKeyDown={(event) => {
+            event.keyCode == 13 ? setEditTitle(false) : void 0;
+          }}
           id='title'
           name='title'
           onChange={(event) => onChange("workout_title", event.target.value)}

@@ -63,6 +63,8 @@ def add_mover_to_db():
 def write_workout():
     db = get_db()
     req = request.get_json()
+    with open('fake_workout_seeds.json', 'a') as json_seeds:
+        json.dump(req, json_seeds)
 
     wkt_id = workout_writer(db, req)
 
@@ -73,7 +75,9 @@ def write_workout():
 def record_bout():
     db = get_db()
     req = request.get_json()
-
+    # ACTIVATE some bout_harvesting as needed
+    # with open('fake_record_seeds.json', 'a') as json_seeds:
+    #json.dump(req, json_seeds)
     # pprint(req)
     workout_recorder(db, req)
 
@@ -84,6 +88,8 @@ def record_bout():
 def record_workout():
     db = get_db()
     req = request.get_json()
+    with open('fake_rwkout_seeds.json', 'a') as json_seeds:
+        json.dump(req, json_seeds)
     print("Recording workout as done")
     pprint(req)
 

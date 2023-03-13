@@ -1,0 +1,527 @@
+{
+    "id": "",
+    "workout_title": "test_all_inputs",
+    "date_init": "2023-03-13",
+    "moverid": 1,
+    "comments": "",
+    "inputs": {
+        "1": {
+            "ref_joint_id": "1",
+            "ref_joint_name": "AO",
+            "id": 1,
+            "ref_zones_id_a": "",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": "",
+            "end_coord": "",
+            "drill_name": "CARs",
+            "duration": "26",
+            "passive_duration": "",
+            "rpe": 5,
+            "external_load": "",
+            "ref_joint_side": "mid",
+            "completed": true
+        },
+        "2": {
+            "ref_joint_id": "2",
+            "ref_joint_name": "TC",
+            "id": 2,
+            "ref_zones_id_a": "5",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": "",
+            "end_coord": "",
+            "drill_name": "IC1",
+            "duration": "71",
+            "passive_duration": "11",
+            "rpe": 6,
+            "external_load": "",
+            "ref_joint_side": "mid",
+            "ref_zone_name": "flex",
+            "rails": true,
+            "completed": true
+        },
+        "3": {
+            "ref_joint_id": "3",
+            "ref_joint_name": "LT",
+            "id": 3,
+            "ref_zones_id_a": "11",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": 100,
+            "end_coord": "",
+            "drill_name": "IC2",
+            "duration": "36",
+            "passive_duration": "",
+            "rpe": 6,
+            "external_load": "",
+            "ref_joint_side": "mid",
+            "ref_zone_name": "ext",
+            "rails": true,
+            "completed": true
+        },
+        "4": {
+            "ref_joint_id": "4",
+            "ref_joint_name": "scapular-thoracic",
+            "id": 4,
+            "ref_zones_id_a": "13",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": "",
+            "end_coord": "",
+            "drill_name": "IC3",
+            "duration": "46",
+            "passive_duration": "",
+            "rpe": 8,
+            "external_load": "",
+            "ref_joint_side": "R",
+            "ref_zone_name": "protract",
+            "coords": [
+                50,
+                100
+            ],
+            "completed": true
+        },
+        "5": {
+            "ref_joint_id": "7",
+            "ref_joint_name": "GH",
+            "id": 5,
+            "ref_zones_id_a": "35",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": "",
+            "end_coord": "",
+            "drill_name": "Muscular Scan",
+            "duration": "50",
+            "passive_duration": "",
+            "rpe": 8,
+            "external_load": "25",
+            "ref_joint_side": "L",
+            "ref_zone_name": "add",
+            "coords": [
+                0,
+                100
+            ],
+            "completed": true
+        },
+        "6": {
+            "ref_joint_id": "9",
+            "ref_joint_name": "elbow",
+            "id": 6,
+            "ref_zones_id_a": "48",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": 100,
+            "start_coord": "",
+            "end_coord": "",
+            "drill_name": "PRH",
+            "duration": "60",
+            "passive_duration": "",
+            "rpe": 7,
+            "external_load": "5",
+            "ref_joint_side": "L",
+            "ref_zone_name": "ext-abd",
+            "completed": true
+        },
+        "7": {
+            "ref_joint_id": "11",
+            "ref_joint_name": "wrist",
+            "id": 7,
+            "ref_zones_id_a": "61",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": "",
+            "end_coord": "",
+            "drill_name": "capsule CAR",
+            "duration": "90",
+            "passive_duration": "",
+            "rpe": 5,
+            "external_load": "",
+            "ref_joint_side": "L",
+            "ref_zone_name": "flex",
+            "completed": true
+        },
+        "8": {
+            "ref_joint_id": "",
+            "ref_joint_name": "",
+            "id": 8,
+            "ref_zones_id_a": "",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": "",
+            "end_coord": "",
+            "drill_name": "",
+            "duration": "",
+            "passive_duration": "",
+            "rpe": "",
+            "external_load": "",
+            "ref_joint_side": ""
+        }
+    },
+    "schema": [
+        {
+            "circuit": [
+                "1"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "2"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "3"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "4"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "5"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "6"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "7"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "8"
+            ],
+            "iterations": 1
+        }
+    ]
+}
+{
+    "id": "",
+    "workout_title": "test_zero_duration_&_rpe",
+    "date_init": "2023-03-13",
+    "moverid": 1,
+    "comments": "",
+    "inputs": {
+        "1": {
+            "ref_joint_id": "21",
+            "ref_joint_name": "hallux",
+            "id": 1,
+            "ref_zones_id_a": "143",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": "",
+            "end_coord": "",
+            "drill_name": "capsule CAR",
+            "duration": "0",
+            "passive_duration": "",
+            "rpe": 5,
+            "external_load": "",
+            "ref_joint_side": "L",
+            "ref_zone_name": "abd",
+            "completed": true
+        },
+        "2": {
+            "ref_joint_id": "20",
+            "ref_joint_name": "toes",
+            "id": 2,
+            "ref_zones_id_a": "133",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": 100,
+            "end_coord": "",
+            "drill_name": "IC2",
+            "duration": "15",
+            "passive_duration": "",
+            "rpe": "",
+            "external_load": "",
+            "ref_joint_side": "L",
+            "ref_zone_name": "flex",
+            "completed": true
+        },
+        "3": {
+            "ref_joint_id": "",
+            "ref_joint_name": "",
+            "id": 3,
+            "ref_zones_id_a": "",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": "",
+            "end_coord": "",
+            "drill_name": "",
+            "duration": "",
+            "passive_duration": "",
+            "rpe": "",
+            "external_load": "",
+            "ref_joint_side": ""
+        }
+    },
+    "schema": [
+        {
+            "circuit": [
+                "1"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "2"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "3"
+            ],
+            "iterations": 1
+        }
+    ]
+}
+{
+    "id": "",
+    "workout_title": "test_spinal_CARs",
+    "date_init": "2023-03-13",
+    "moverid": "1",
+    "comments": "",
+    "inputs": {
+        "1": {
+            "ref_joint_id": "1",
+            "ref_joint_name": "AO",
+            "id": 1,
+            "ref_zones_id_a": "",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": "",
+            "end_coord": "",
+            "drill_name": "CARs",
+            "duration": "60",
+            "passive_duration": "",
+            "rpe": 5,
+            "external_load": "",
+            "ref_joint_side": "mid",
+            "completed": true
+        },
+        "2": {
+            "ref_joint_id": "2",
+            "ref_joint_name": "TC",
+            "id": 2,
+            "ref_zones_id_a": "",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": "",
+            "end_coord": "",
+            "drill_name": "CARs",
+            "duration": "60",
+            "passive_duration": "",
+            "rpe": 5,
+            "external_load": "",
+            "ref_joint_side": "mid",
+            "completed": true
+        },
+        "3": {
+            "ref_joint_id": "3",
+            "ref_joint_name": "LT",
+            "id": 3,
+            "ref_zones_id_a": "",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": "",
+            "end_coord": "",
+            "drill_name": "CARs",
+            "duration": "60",
+            "passive_duration": "",
+            "rpe": 5,
+            "external_load": "",
+            "ref_joint_side": "mid",
+            "completed": true
+        },
+        "4": {
+            "ref_joint_id": "",
+            "ref_joint_name": "",
+            "id": 4,
+            "ref_zones_id_a": "",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": "",
+            "end_coord": "",
+            "drill_name": "",
+            "duration": "",
+            "passive_duration": "",
+            "rpe": "",
+            "external_load": "",
+            "ref_joint_side": ""
+        }
+    },
+    "schema": [
+        {
+            "circuit": [
+                "1"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "2"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "3"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "4"
+            ],
+            "iterations": 1
+        }
+    ]
+}
+{
+    "id": "",
+    "workout_title": "test_scapular",
+    "date_init": "2023-03-13",
+    "moverid": "1",
+    "comments": "",
+    "inputs": {
+        "1": {
+            "ref_joint_id": "4",
+            "ref_joint_name": "scapular-thoracic",
+            "id": 1,
+            "ref_zones_id_a": "13",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": 100,
+            "end_coord": "",
+            "drill_name": "IC2",
+            "duration": "16",
+            "passive_duration": "0",
+            "rpe": 5,
+            "external_load": "",
+            "ref_joint_side": "R",
+            "ref_zone_name": "protract",
+            "completed": true
+        },
+        "2": {
+            "ref_joint_id": "",
+            "ref_joint_name": "",
+            "id": 2,
+            "ref_zones_id_a": "",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": "",
+            "end_coord": "",
+            "drill_name": "",
+            "duration": "",
+            "passive_duration": "",
+            "rpe": "",
+            "external_load": "",
+            "ref_joint_side": ""
+        }
+    },
+    "schema": [
+        {
+            "circuit": [
+                "1"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "2"
+            ],
+            "iterations": 1
+        }
+    ]
+}
+{
+    "id": "",
+    "workout_title": "test_hip_ir_input",
+    "date_init": "2023-03-13",
+    "moverid": "1",
+    "comments": "",
+    "inputs": {
+        "1": {
+            "ref_joint_id": "13",
+            "ref_joint_name": "hip",
+            "id": 1,
+            "ref_zones_id_a": "79",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": -100,
+            "start_coord": "",
+            "end_coord": "",
+            "drill_name": "IC1",
+            "duration": "60",
+            "passive_duration": "120",
+            "rpe": 9,
+            "external_load": "",
+            "ref_joint_side": "L",
+            "ref_zone_name": "abd",
+            "rails": true,
+            "completed": true
+        },
+        "2": {
+            "ref_joint_id": "",
+            "ref_joint_name": "",
+            "id": 2,
+            "ref_zones_id_a": "",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": "",
+            "end_coord": "",
+            "drill_name": "",
+            "duration": "",
+            "passive_duration": "",
+            "rpe": "",
+            "external_load": "",
+            "ref_joint_side": ""
+        }
+    },
+    "schema": [
+        {
+            "circuit": [
+                "1"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "2"
+            ],
+            "iterations": 1
+        }
+    ]
+}

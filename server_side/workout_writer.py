@@ -49,6 +49,7 @@ def workout_writer(db, req):
         else:
             payload.pop("completed")
             payload.pop("ref_joint_id")
+            payload.pop("id")
         if payload["ref_joint_side"] != 'mid':
             joint_key_string = payload["ref_joint_side"] + \
                 " " + payload["ref_joint_name"]
@@ -85,7 +86,7 @@ def workout_writer(db, req):
         # input_fields[input_fields.index('rotational_bias')] = 'rotational_value'
 
         input_vals = list(payload.values())
-        # pprint(payload)
+        pprint(payload)
 
         # print(f"INPUT fields: {input_fields}", file=sys.stderr)
         # print(f"INPUT values: {input_vals}", file=sys.stderr)

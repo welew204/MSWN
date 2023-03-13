@@ -230,7 +230,7 @@ export default function InputForm({
     });
     console.log("finished updating input: " + value);
   }
-  /* nb... InputInProgress, shortened here to assist with readability  */
+
   const InputInProgress = wktInProgress.inputs[selectedInput];
   /* console.log(InputInProgress); */
 
@@ -246,7 +246,7 @@ export default function InputForm({
             {/* <Form.Control name='joint' rule={jointRule} /> */}
             <Cascader
               key={`${selectedInput}-joint_zone_a`}
-              data={jointsArray}
+              data={jointsArray ? jointsArray : ""}
               style={{ width: 224 }}
               value={
                 !InputInProgress.ref_zones_id_a
@@ -293,8 +293,8 @@ export default function InputForm({
             key={`${selectedInput}-drill`}
             cleanable
             onClean={() => updateInputInProgress(["drill_name", ""])}
-            value={`${InputInProgress.drill_name}`}
-            data={drills}
+            value={InputInProgress ? `${InputInProgress.drill_name}` : ""}
+            data={drills ? drills : ""}
             disabled={InputInProgress.ref_joint_id ? false : true}
             disabledItemValues={
               zoneID
@@ -337,7 +337,7 @@ export default function InputForm({
             <RangeSlider
               key={`${selectedInput}-rangeSlider`}
               handleStyle={{ marginLeft: "0%", fontSize: "x-small" }}
-              value={InputInProgress.coords}
+              value={InputInProgress ? InputInProgress.coords : ""}
               min={0}
               step={5}
               max={100}
