@@ -14,11 +14,6 @@ import server_side.workout_recorder as workout_recorder
 from server_side.crud_bp import mover_info_dict
 from server_side.f_db import get_db
 
-# make a new workout
-# in THIS FORMAT:
-
-# then record this workout as bouts
-
 '''WRITE WORKOUT request example:
 
 {'comments': '',
@@ -241,7 +236,6 @@ def dailyCARs(db, name, days_per_week, time_span, all=True, selected_CARs=[]):
             ref_joint_id, ref_joint_name, joint_side, joint_type = joint_info_lookups[joint_id]
             # print(joint_id)
 
-            # START HERE
             wkt_record = record_a_workout(
                 d, inputID, ref_joint_id, ref_joint_name, joint_type, joint_side)
 

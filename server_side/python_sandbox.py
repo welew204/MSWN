@@ -1,10 +1,16 @@
-from pprint import pprint
-from collections import defaultdict
+import datetime
 
-pract_dict = {"fun": 0, "times": 1, "are": 2, "lame": 3}
-pract_dict2 = {"fun": 0, "times": 1, "are": 2, "lame": 3}
-pract_list = [pract_dict, pract_dict2]
-print(pract_list[0].keys())
+start_date = datetime.date.today()
 
-join_pract = ",".join(pract_list[0].keys())
-print(join_pract)
+print(type(start_date))
+print(start_date)
+
+start_date = start_date.strftime("%Y-%m-%d")
+
+print(type(start_date))
+print(start_date)
+
+start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+
+print(type(start_date))
+print(start_date)

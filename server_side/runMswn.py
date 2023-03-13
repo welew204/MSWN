@@ -45,8 +45,9 @@ def create_app(test_config=None):
     from . import add_mover
     add_mover.add_user_to_app(app)
 
-    from . import simulation_dailyCARs
-    simulation_dailyCARs.run_simulated_CARs(app)
+    from . import simulate_workout
+    simulate_workout.run_simulated_CARs(app)
+    simulate_workout.run_simulated_workout(app)
 
     from . import crud_bp
     app.register_blueprint(crud_bp.bp)

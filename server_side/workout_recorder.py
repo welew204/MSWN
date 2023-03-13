@@ -24,6 +24,9 @@ def unpack_inputs(inputs, mover_dict, date_done, moverid):
 
         # these Rx values are based on the prescription of the drill
         drill = vals["Rx"]["drill_name"]
+        # I think this exists in the data!!! it should be the actual programmed_drills_id,
+        # not just the ordered list made up from the browser
+        inp_id = vals["Rx"]["id"]
 
         # should I even consider this input or not!?!?!?
         if int(vals['results']['duration']) == 0 or int(vals['results']['rpe']) == 0:
@@ -102,7 +105,7 @@ def unpack_inputs(inputs, mover_dict, date_done, moverid):
             bout_hash["date"] = date_done
             bout_hash["moverid"] = moverid
             bout_hash["joint_id"] = joint_id
-            bout_hash["programmed_drills_id"] = inputID
+            bout_hash["programmed_drills_id"] = inp_id
             bout_hash["rotational_value"] = rotational_value
             # handed in vals
             bout_hash["tissue_type"] = tissue_type

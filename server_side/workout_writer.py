@@ -10,16 +10,21 @@ def workout_writer(db, req):
     # pprint(req)
 
     workout_to_add = []
+    fields_to_add = []
     for key, val in req.items():
         if key == "id" or key == "inputs":
             continue
         if key == "schema":
             continue
         else:
+            fields_to_add.append(key)
             workout_to_add.append(val)
     workout_q_marks = ",".join("?" for _ in range(len(workout_to_add)))
+    workout_fields = ", ".join(fields_to_add)
+
+    workout_sql_statement = f'INSERT INTO workouts ({workout_fields}) VALUES ({workout_q_marks})'
     # print(f"WORKOUT qmarks: {workout_q_marks}", file=sys.stderr)
-    cursor.execute(f'INSERT INTO workouts (workout_title, date_init, moverid, comments) VALUES ({workout_q_marks})',
+    cursor.execute(workout_sql_statement,
                    tuple(workout_to_add))
     db.commit()
     wkt_id = cursor.lastrowid
@@ -42,7 +47,6 @@ def workout_writer(db, req):
         if "completed" not in payload:
             continue
         else:
-            payload.pop("id")
             payload.pop("completed")
             payload.pop("ref_joint_id")
         if payload["ref_joint_side"] != 'mid':
@@ -89,7 +93,9 @@ def workout_writer(db, req):
         input_q_marks = ",".join("?" for _ in range(len(input_fields)))
         # print(f"INPUT qmarks: {input_q_marks}", file=sys.stderr)
         sql_statement = f"INSERT INTO programmed_drills {tuple(input_fields)} VALUES ({input_q_marks})"
-        # print(f"FINISHED SQL statement: {sql_statement}", file=sys.stderr)
+        # NEED to get the programmed_drills.id from each INSERT,
+        # so that when the workout object goes to browser the new workout has the RIGHT
+        # drills.id for each 'input'
 
         cursor.execute(sql_statement, tuple(input_vals))
         db.commit()
