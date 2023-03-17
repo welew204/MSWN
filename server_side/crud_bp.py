@@ -423,7 +423,10 @@ def status(mover_id):
         '''SELECT  bout_log.joint_id,
                 bout_log.id,
                 bout_log.date, 
+                bout_log.duration, 
+                bout_log.rpe, 
                 bout_log.tissue_type,
+                bout_log.rotational_value,
                 joints.ref_joints_id,
                 ref_joints.joint_name,
                 ref_joints.side
@@ -439,15 +442,17 @@ def status(mover_id):
     for row in tissue_status_rows:
         row_goods = {k: row[k] for k in row.keys()}
         if row_goods["side"] != 'mid':
-            zone_name_selector = f'{row_goods["side"].lower()}-{row_goods.pop("joint_name").lower()}'
+            svg_zone_selector = f'{row_goods["side"].lower()}-{row_goods.pop("joint_name").lower()}'
         else:
-            zone_name_selector = f'{row_goods.pop("joint_name").lower()}'
-        if zone_name_selector == "ao":
+            svg_zone_selector = f'{row_goods.pop("joint_name").lower()}'
+        if svg_zone_selector == "ao":
             proximal_joint_selector = "occiput"
         else:
-            proximal_joint_selector = prox_neighbor_joints[zone_name_selector]['proximal_joint_selector']
-        row_goods['zone_selector'] = zone_name_selector
-        row_goods['joint_name_selector'] = f'jt-{zone_name_selector}'
+            proximal_joint_selector = prox_neighbor_joints[svg_zone_selector]['proximal_joint_selector']
+        row_goods['svg_zone_selector'] = svg_zone_selector
+        row_goods['rotational_value'] = int(
+            row_goods['rotational_value']) if row_goods['rotational_value'] is not None else ""
+        row_goods['joint_name_selector'] = f'jt-{svg_zone_selector}'
         row_goods['proximal_joint_selector'] = f'jt-{proximal_joint_selector}'
 
         tissue_status.append(row_goods)

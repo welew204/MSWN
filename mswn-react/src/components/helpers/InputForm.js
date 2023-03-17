@@ -12,6 +12,7 @@ import {
   Timeline,
   Schema,
   RangeSlider,
+  Checkbox,
 } from "rsuite";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { find } from "rsuite/esm/utils/ReactChildren";
@@ -47,10 +48,16 @@ export default function InputForm({
   /* console.log(jointRefData.isLoading ? "" : jointRefData.data) */
 
   const [jointID, setJointID] = useState(0);
+  const [mirrorJointID, setMirrorJointID] = useState([]);
+  // this will hold BOTH the id and the SIDE of the mirror'd joint
   const [zoneID, setZoneID] = useState(0);
+  const [mirrorZoneID, setMirrorZoneID] = useState("");
+  const [mirrorStatus, setMirrorStatus] = useState([false, false]);
+  // mirrorState is a double boolean = [<menu option enabled?>, <menu option selected?>]
 
   useEffect(() => setJointID(wktInProgress[selectedInput]?.ref_joint_id), []);
   useEffect(() => setZoneID(wktInProgress[selectedInput]?.ref_zones_id_a), []);
+
   /* console.log("jointId in state: " + jointID); */
   /* console.log("zoneId in state: " + zoneID); */
 
@@ -63,6 +70,8 @@ export default function InputForm({
   if (drillRefData.isLoading) {
     return <p>Ish is loading!</p>;
   }
+
+  //console.log(jointRefData.data);
 
   const jointsArray = jointRefData.data.map((joint, index) => {
     return {
@@ -86,10 +95,13 @@ export default function InputForm({
 
   /* this function logs the ref_joint or ref_zone id into state, so that can be sent off with 'submit_form' */
   function find_tissue(value) {
+    console.log(value);
     /* checks if value is null (meaning the user has CLEARED the select box) */
     if (!value) {
       setJointID("");
+      setMirrorJointID("");
       setZoneID("");
+      setMirrorZoneID("");
       updateWkt("inputs", {
         ...wktInProgress.inputs,
         [selectedInput]: {
@@ -99,65 +111,120 @@ export default function InputForm({
           ref_joint_side: "",
         },
       });
-    } else if (!value.includes("-")) {
-      setJointID(value);
-      setZoneID("");
-      const target_joint = jointRefData.data.find((joint) => joint.id == value);
-      /* nb *target_joint ==> a joint Object, with ALL zones includes inside .zones array */
-      updateWkt("inputs", {
-        ...wktInProgress.inputs,
-        [selectedInput]: {
-          ...wktInProgress.inputs[selectedInput],
-          ref_joint_id: value,
-          ref_joint_name: target_joint.zones[0].joint_name,
-          ref_zones_id_a: "",
-          ref_zones_id_b: "",
-          ref_joint_side: target_joint.zones[0].side,
-        },
-      });
-      console.log(
-        `setting Joint ID!: ${target_joint.id}, ${target_joint.zones[0].side}, ${target_joint.name}`
-      );
     } else {
-      /* console.log("ZONE return 'item'... " + item); */
-      /* const zone_id = id; */
-      const [joint_id, zone_id] = value.split("-");
-      setJointID(joint_id);
-      setZoneID(zone_id);
-      const target_joint = jointRefData.data.find(
-        (joint) => joint.id == joint_id
-      );
-      const target_zone = target_joint.zones.find((zone) => zone.id == zone_id);
-      updateWkt("inputs", {
-        ...wktInProgress.inputs,
-        [selectedInput]: {
-          ...wktInProgress.inputs[selectedInput],
-          ref_joint_id: joint_id,
-          ref_joint_name: target_joint.zones[0].joint_name,
-          ref_joint_side: target_joint.zones[0].side,
-          ref_zones_id_a: zone_id,
-          ref_zone_name: target_zone.zone_name,
-        },
-      });
-      console.log(
-        `setting Zone ID!: ${target_joint.id}-${target_zone.id}, ${target_zone.side}, ${target_zone.zone_name}`
-      );
+      if (!value.includes("-")) {
+        setJointID(value);
+        setZoneID("");
+        const target_joint = jointRefData.data.find(
+          (joint) => joint.id == value
+        );
+        let mirror_side;
+        let mirror_joint;
+        if (target_joint.zones[0].side == "R") {
+          mirror_side = "L";
+        } else if (target_joint.zones[0].side == "L") {
+          mirror_side = "R";
+        } else {
+          void 0;
+        }
+        if (mirror_side != false) {
+          mirror_joint = jointRefData.data.find((joint) => {
+            return (
+              joint.zones[0].joint_name == target_joint.zones[0].joint_name &&
+              joint.zones[0].side == mirror_side
+            );
+          });
+          setMirrorJointID([mirror_joint.id, mirror_side]);
+        }
+        target_joint.zones[0].side == "mid"
+          ? setMirrorStatus([false, false])
+          : setMirrorStatus([true, false]);
 
-      /* nb *target_zone ==> a zone Object, with these params:
+        /* nb *target_joint ==> a joint Object, with ALL zones includes inside .zones array */
+        updateWkt("inputs", {
+          ...wktInProgress.inputs,
+          [selectedInput]: {
+            ...wktInProgress.inputs[selectedInput],
+            ref_joint_id: value,
+            ref_joint_name: target_joint.zones[0].joint_name,
+            ref_zones_id_a: "",
+            ref_zones_id_b: "",
+            ref_joint_side: target_joint.zones[0].side,
+          },
+        });
+        console.log(
+          `setting Joint ID!: ${target_joint.id}, ${target_joint.zones[0].side}, ${target_joint.name}`
+        );
+      } else {
+        /* console.log("ZONE return 'item'... " + item); */
+        /* const zone_id = id; */
+        const [joint_id, zone_id] = value.split("-");
+        setJointID(joint_id);
+        setZoneID(zone_id);
+        const target_joint = jointRefData.data.find(
+          (joint) => joint.id == joint_id
+        );
+        let target_zone = target_joint.zones.find((zone) => zone.id == zone_id);
+        console.log(
+          `setting Zone ID!: ${target_joint.id}-${target_zone.id}, ${target_zone.side}, ${target_zone.zone_name}`
+        );
+        let mirror_side;
+        let mirror_joint;
+        let mirror_zone;
+        if (target_joint.zones[0].side == "R") {
+          mirror_side = "L";
+        } else if (target_joint.zones[0].side == "L") {
+          mirror_side = "R";
+        } else {
+          void 0;
+        }
+        if (mirror_side != false) {
+          mirror_joint = jointRefData.data.find((joint) => {
+            return (
+              joint.zones[0].joint_name == target_joint.zones[0].joint_name &&
+              joint.zones[0].side == mirror_side
+            );
+          });
+          mirror_zone = mirror_joint.zones.find((zone) => {
+            return zone.zone_name == target_zone.zone_name;
+          });
+          setMirrorJointID([mirror_joint.id, mirror_side]);
+          setMirrorZoneID(mirror_zone.id);
+        }
+        target_joint.zones[0].side == "mid"
+          ? setMirrorStatus([false, false])
+          : setMirrorStatus([true, false]);
+
+        updateWkt("inputs", {
+          ...wktInProgress.inputs,
+          [selectedInput]: {
+            ...wktInProgress.inputs[selectedInput],
+            ref_joint_id: joint_id,
+            ref_joint_name: target_joint.zones[0].joint_name,
+            ref_joint_side: target_joint.zones[0].side,
+            ref_zones_id_a: zone_id,
+            ref_zone_name: target_zone.zone_name,
+          },
+        });
+      }
+    }
+
+    //console.log(mirror_joint);
+
+    /* nb *target_zone ==> a zone Object, with these params:
       - id, 
       - joint-name,
       - joint_type,
       - side,
       - zone_name
        */
-    }
   }
   /* updateInputInProgress(["ref_joint_id", id]);
   updateInputInProgress(["ref_joint_name", label]); */
 
   async function submit_form() {
     console.log(wktInProgress.inputs);
-    const input_index = parseInt(Object.keys(wktInProgress.inputs).at(-1)) + 1;
+    let input_index;
     const sets = Object.entries(wktInProgress.schema);
     const next_set = String.fromCharCode(
       sets
@@ -165,13 +232,45 @@ export default function InputForm({
         .at(0)
         .charCodeAt() + 1
     );
-
-    return Promise.resolve(
-      updateWkt("inputs", {
+    // conditional check if mirror is selected; if so then duplicate
+    // value to other side
+    let inputsPayload;
+    let schemaPayload;
+    console.log(mirrorStatus);
+    mirrorStatus[1]
+      ? (input_index = parseInt(Object.keys(wktInProgress.inputs).at(-1)) + 2)
+      : (input_index = parseInt(Object.keys(wktInProgress.inputs).at(-1)) + 1);
+    console.log(input_index);
+    if (mirrorStatus[1]) {
+      inputsPayload = {
         ...wktInProgress.inputs,
         [selectedInput]: { ...InputInProgress, completed: true },
-      })
-    )
+        //THIS below should be the MIRRORED input, but struggling to get the mirrorIDs in state
+        [selectedInput + 1]: {
+          ...InputInProgress,
+          id: InputInProgress.id + 1,
+          ref_joint_id: mirrorJointID[0],
+          ref_joint_side: mirrorJointID[1],
+          ref_zones_id_a: mirrorZoneID,
+          completed: true,
+        },
+      };
+      schemaPayload = [
+        ...wktInProgress.schema,
+        {
+          circuit: [`${InputInProgress.id + 1}`],
+          iterations: 1,
+        },
+      ];
+    } else {
+      inputsPayload = {
+        ...wktInProgress.inputs,
+        [selectedInput]: { ...InputInProgress, completed: true },
+      };
+      schemaPayload = [...wktInProgress.schema];
+    }
+    console.log(inputsPayload);
+    return Promise.resolve(updateWkt("inputs", inputsPayload))
       .then((res) =>
         setWktInProgress((prev) => {
           return {
@@ -181,7 +280,7 @@ export default function InputForm({
               [input_index]: { ...default_new_input, id: input_index },
             },
             schema: [
-              ...prev.schema,
+              ...schemaPayload,
               {
                 circuit: [`${input_index}`],
                 iterations: 1,
@@ -219,6 +318,7 @@ export default function InputForm({
   }); */
 
   function updateInputInProgress(value) {
+    // check if mirror is available and TRUE, then double these changes to the other side as needed on update
     const [field, updVal] = value;
     const new_results = {
       ...wktInProgress.inputs[selectedInput],
@@ -232,7 +332,7 @@ export default function InputForm({
   }
 
   const InputInProgress = wktInProgress.inputs[selectedInput];
-  /* console.log(InputInProgress); */
+  console.log(InputInProgress);
 
   return (
     <div className='inp-form'>
@@ -258,6 +358,12 @@ export default function InputForm({
                 find_tissue(value);
               }}
             />
+            <Checkbox
+              onChange={() => setMirrorStatus((prev) => [true, !prev[1]])}
+              disabled={mirrorStatus ? !mirrorStatus[0] : true}
+              checked={mirrorStatus[1]}>
+              Mirror to other side?
+            </Checkbox>
           </Form.Group>
           {/* <Form.Group>
             <Form.ControlLabel>Secondary zone trained: (opt)</Form.ControlLabel>

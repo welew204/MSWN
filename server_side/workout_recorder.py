@@ -99,6 +99,7 @@ def unpack_inputs(inputs, mover_dict, date_done, moverid):
         pails_length_value = 99+abs(rotational_value)
         rails_length_value = 99-abs(rotational_value)
 
+        # ripe for refactor; just pass in params that are outside for... loop
         def bout_dict_maker(tissue_type, tissue_id, joint_motion, tissue_start, tissue_end, passive_duration, duration, rpe, external_load):
             bout_hash = {}
             # input-specific vals
