@@ -52,6 +52,17 @@ export default function WkoutBuilder() {
     external_load: "",
     ref_joint_side: "",
   };
+  const default_mj_input = {
+    id: 2,
+    drill_name: "",
+    duration: 0,
+    reps: 0,
+    rpe: 0,
+    external_load: 0,
+    side: "",
+    multijoint: true,
+    mini_sets: 1,
+  };
 
   const [selectedWorkout, setSelectedWorkout, activeMover] = useOutletContext();
   const [multiJointInput, setMultiJointInput] = useState(true);
@@ -64,14 +75,35 @@ export default function WkoutBuilder() {
     comments: "",
     inputs: {
       1: default_new_input,
+      2: default_mj_input,
     },
     schema: [{ circuit: ["1"], iterations: 1 }],
   });
   console.log(wktInProgress);
 
-  const [selectedInput, setSelectedInput] = useState(1);
+  const [selectedInput, setSelectedInput] = useState(2);
   const [schemaArray, setSchemaArray] = useState([]);
-  /* console.log("SELECTED INPUT: " + selectedInput); */
+  //console.log("SELECTED INPUT: " + selectedInput);
+
+  useEffect(() => {
+    // this just updates the schema!
+    let target_input;
+    if (multiJointInput) {
+      target_input = Object.values(wktInProgress.inputs).find(
+        (input) => !input.completed && input.multijoint == true
+      );
+    } else {
+      target_input = Object.values(wktInProgress.inputs).find(
+        (input) => !input.completed && !input.multijoint
+      );
+    }
+    const upd_schema = [...wktInProgress.schema];
+    upd_schema.splice(upd_schema.length - 1, 1, {
+      circuit: [`${target_input.id}`],
+      iterations: 1,
+    });
+    updateWkt("schema", upd_schema);
+  }, [multiJointInput]);
 
   /* 
   given an object (schema), recursively walk into it:
@@ -234,7 +266,20 @@ export default function WkoutBuilder() {
     /* filter array to leave out clicked input */
     const newInputsArray = inputsAsArray.filter(([key, val]) => key != inputID);
     /* grab id of last input in NEW array to be the new selectedInput */
-    const newSelectedInput = newInputsArray.at(-1)[0];
+    /* const FnewSelectedInput = newInputsArray.at(-1)[0]; */
+    let newSelectedInput;
+    if (multiJointInput) {
+      newSelectedInput = newInputsArray.find(
+        ([id, input]) => !input.completed && input.multijoint == true
+      )[0];
+    } else {
+      newSelectedInput = newInputsArray.find(
+        ([id, input]) => !input.completed && !input.multijoint
+      )[0];
+    }
+    //console.log(inputsAsArray);
+    console.log(newSelectedInput);
+
     /* convert updated list back into object */
     const newInputs = Object.fromEntries(newInputsArray);
     /* update wktInProgress */
@@ -249,6 +294,7 @@ export default function WkoutBuilder() {
   const n_rx_inputs = wktInProgress.schema.map((inp, index) => {
     // break up the inp into useful pieces
     var set = String.fromCharCode(65 + index);
+    // FOR NOW every cirucit only has one drill in it, so indexing by 0 works
     var input_id = inp.circuit[0];
     const inp_details = wktInProgress.inputs[input_id];
     return (
@@ -271,7 +317,15 @@ export default function WkoutBuilder() {
                 selectedInput == input_id ? "selected-inp-plaque" : "inp-plaque"
               }
               bordered>
-              {inp_details?.ref_joint_id && inp_details?.drill_name ? (
+              {inp_details.multijoint ? (
+                inp_details?.drill_name ? (
+                  <h5 style={{ margin: "auto" }}>
+                    {`${inp_details.drill_name}`}
+                  </h5>
+                ) : (
+                  void 0
+                )
+              ) : inp_details?.ref_joint_id && inp_details?.drill_name ? (
                 <h5 style={{ margin: "auto" }}>
                   {`${inp_details.ref_joint_side} ${inp_details.ref_joint_name} ${inp_details.drill_name}`}
                 </h5>
@@ -281,7 +335,7 @@ export default function WkoutBuilder() {
               {inp_details.completed ? (
                 <h6 style={{ margin: "auto" }}>
                   {`RPE: ${inp_details.rpe}/10`} <br />
-                  {`Duration: ${inp_details.duration} secs`}
+                  {`Duration/TUT: ${inp_details.duration} secs`}
                 </h6>
               ) : (
                 <h5 style={{ margin: "auto" }}>... input in progress ...</h5>
@@ -324,6 +378,20 @@ export default function WkoutBuilder() {
       </Draggable>
     );
   });
+
+  function handleToggle(value) {
+    let target_input;
+    value
+      ? (target_input = Object.values(wktInProgress.inputs).find(
+          (input) => !input.completed && input.multijoint == true
+        ))
+      : (target_input = Object.values(wktInProgress.inputs).find(
+          (input) => !input.completed && !input.multijoint
+        ));
+    console.log("Target Input after MJ toggle is ... " + target_input.id);
+    setSelectedInput(target_input.id);
+    setMultiJointInput(value);
+  }
 
   function handleDrag(result) {
     const target_input = result.draggableId;
@@ -370,13 +438,22 @@ export default function WkoutBuilder() {
               <Toggle
                 style={{ display: "flex", justifyContent: "space-around" }}
                 checked={multiJointInput}
-                onChange={setMultiJointInput}
+                onChange={(v) => handleToggle(v)}
                 size='lg'
                 checkedChildren='Multi Joint'
                 unCheckedChildren='Single Joint'></Toggle>
               <Divider />
               {multiJointInput ? (
-                <MultiJointInput />
+                <MultiJointInput
+                  key={`${selectedInput}`}
+                  updateDB={updateDB}
+                  setSelectedInput={setSelectedInput}
+                  default_new_input={default_mj_input}
+                  setWktInProgress={setWktInProgress}
+                  wktInProgress={wktInProgress}
+                  updateWkt={updateWkt}
+                  selectedInput={selectedInput}
+                />
               ) : (
                 <InputForm
                   key={`${selectedInput}`}
