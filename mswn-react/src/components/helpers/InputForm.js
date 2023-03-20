@@ -125,8 +125,9 @@ export default function InputForm({
         } else if (target_joint.zones[0].side == "L") {
           mirror_side = "R";
         } else {
-          void 0;
+          mirror_side = false;
         }
+        console.log(mirror_side);
         if (mirror_side != false) {
           mirror_joint = jointRefData.data.find((joint) => {
             return (

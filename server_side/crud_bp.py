@@ -172,6 +172,8 @@ def get_workouts(mover_id):
                                     end_coord,
                                     drill_name,
                                     rails,
+                                    reps_array,
+                                    multijoint,
                                     duration,
                                     passive_duration,
                                     rpe,

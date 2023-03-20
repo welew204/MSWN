@@ -46,33 +46,12 @@ def workout_writer(db, req):
     for inputID, payload in req["inputs"].items():
         if "completed" not in payload:
             continue
+        elif "multijoint" in payload:
+            print(f"Working on MJ input ID: {inputID}")
+            mj_drill_unpack(payload)
         else:
-            payload.pop("completed")
-            payload.pop("ref_joint_id")
-            payload.pop("id")
-        if payload["ref_joint_side"] != 'mid':
-            joint_key_string = payload["ref_joint_side"] + \
-                " " + payload["ref_joint_name"]
-        else:
-            joint_key_string = payload["ref_joint_name"]
-
-        if "coords" in payload:
-            s_coord, e_coord = payload.pop("coords")
-            payload["start_coord"] = s_coord
-            payload["end_coord"] = e_coord
-
-        payload.pop("ref_joint_name")
-        payload.pop("ref_joint_side")
-
-        if "ref_zone_name" in payload:
-            fixed_side_anchor = mover_dict[joint_key_string]["zones"][payload["ref_zone_name"]
-                                                                      ]["anchors"]["proximal"]
-            # print(f"ANCHOR ID for mover: {fixed_side_anchor}", file=sys.stderr)
-            payload["fixed_side_anchor_id"] = fixed_side_anchor
-            payload.pop("ref_zone_name")
-
-        joint_id = mover_dict[joint_key_string]["id"]
-        payload["joint_id"] = joint_id
+            print(f"Working on SJ input ID: {inputID}")
+            sj_drill_unpack(payload, mover_dict)
 
         input_seq, circuit_iterations = schema_lookups[int(inputID)]
         payload["input_sequence"] = input_seq
@@ -83,24 +62,81 @@ def workout_writer(db, req):
         payload["workout_id"] = wkt_id
 
         input_fields = list(payload.keys())
-        # input_fields[input_fields.index('rotational_bias')] = 'rotational_value'
 
         input_vals = list(payload.values())
         pprint(payload)
 
-        # print(f"INPUT fields: {input_fields}", file=sys.stderr)
-        # print(f"INPUT values: {input_vals}", file=sys.stderr)
-
-        input_q_marks = ",".join("?" for _ in range(len(input_fields)))
-        # print(f"INPUT qmarks: {input_q_marks}", file=sys.stderr)
-        sql_statement = f"INSERT INTO programmed_drills {tuple(input_fields)} VALUES ({input_q_marks})"
-        # NEED to get the programmed_drills.id from each INSERT,
-        # so that when the workout object goes to browser the new workout has the RIGHT
-        # drills.id for each 'input'
-
-        cursor.execute(sql_statement, tuple(input_vals))
-        db.commit()
+        write_sql(db, input_fields, input_vals)
 
     print(f"Added workout (ID): {wkt_id}", file=sys.stderr)
 
     return wkt_id
+
+
+def sj_drill_unpack(payload, mover_dict):
+    payload.pop("completed")
+    payload.pop("ref_joint_id")
+    payload.pop("id")
+    if payload["ref_joint_side"] != 'mid':
+        joint_key_string = payload["ref_joint_side"] + \
+            " " + payload["ref_joint_name"]
+    else:
+        joint_key_string = payload["ref_joint_name"]
+
+    if "coords" in payload:
+        s_coord, e_coord = payload.pop("coords")
+        payload["start_coord"] = s_coord
+        payload["end_coord"] = e_coord
+
+    payload.pop("ref_joint_name")
+    payload.pop("ref_joint_side")
+
+    if "ref_zone_name" in payload:
+        fixed_side_anchor = mover_dict[joint_key_string]["zones"][payload["ref_zone_name"]
+                                                                  ]["anchors"]["proximal"]
+        # print(f"ANCHOR ID for mover: {fixed_side_anchor}", file=sys.stderr)
+        payload["fixed_side_anchor_id"] = fixed_side_anchor
+        payload.pop("ref_zone_name")
+
+    joint_id = mover_dict[joint_key_string]["id"]
+    payload["joint_id"] = joint_id
+    # hard-coding this in for now... meaning 1 mini-set, 1 rep, NO other rep def
+    payload["reps_array"] = '1, 1, 0, 0, 0, 0'
+    payload["multijoint"] = 0
+
+
+def mj_drill_unpack(payload):
+    print("MJ drill unpacking...")
+    # pprint(payload)
+    payload.pop("completed")
+    payload["multijoint"] = 1
+    payload.pop("id")
+    payload.pop("reps")
+    # SIDE will be used to pass to the actual drill unpack'r when/if needed
+    side = payload.pop("side")
+    # handling reps_array...
+    reps_array = payload.pop("reps_array")
+    mini_sets = int(payload.pop("mini_sets"))
+    if mini_sets > 1:
+        # this should get the duration to truly depict TUT even in rep/mini_set schemes
+        print(payload["duration"])
+        payload["duration"] = int(payload["duration"]) * mini_sets
+        print(payload["duration"])
+    reps_array.insert(0, mini_sets)
+    reps_array_string = ",".join([str(i) for i in reps_array])
+    payload["reps_array"] = reps_array_string
+    # satisfying the foreign-key demands for joint and anchor
+
+
+def write_sql(db, input_fields, input_vals):
+    curs = db.cursor()
+
+    input_q_marks = ",".join("?" for _ in range(len(input_fields)))
+    # print(f"INPUT qmarks: {input_q_marks}", file=sys.stderr)
+    sql_statement = f"INSERT INTO programmed_drills {tuple(input_fields)} VALUES ({input_q_marks})"
+    # NEED to get the programmed_drills.id from each INSERT,
+    # so that when the workout object goes to browser the new workout has the RIGHT
+    # drills.id for each 'input'
+
+    curs.execute(sql_statement, tuple(input_vals))
+    db.commit()

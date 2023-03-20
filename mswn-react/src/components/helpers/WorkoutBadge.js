@@ -23,6 +23,7 @@ import { RsNavLink } from "./RsNavLink";
 const server_url = "http://127.0.0.1:8000";
 
 export default function WorkoutBadge({ wkt, onClick, className, onDelete }) {
+  console.log(wkt);
   const inputs = wkt.inputs.map((inp) => {
     return (
       <li key={inp.id}>

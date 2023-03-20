@@ -184,12 +184,14 @@ export default function MultiJointInput({
         <Form.Group controlId='exercise-name'>
           <Form.ControlLabel>Exercise Name:</Form.ControlLabel>
           <SelectPicker
-            onChange={(value) =>
-              updateInputInProgress([
-                "drill_name",
-                drills.find((drill) => drill.id == value).label,
-              ])
-            }
+            onChange={(value) => {
+              !value
+                ? updateInputInProgress(["drill_name", ""])
+                : updateInputInProgress([
+                    "drill_name",
+                    drills.find((drill) => drill.id == value).label,
+                  ]);
+            }}
             data={drills}></SelectPicker>
         </Form.Group>
         <Divider />

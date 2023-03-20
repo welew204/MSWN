@@ -1,0 +1,102 @@
+{
+    "id": "",
+    "workout_title": "MJ Tester 1",
+    "date_init": "2023-03-20",
+    "moverid": 1,
+    "comments": "",
+    "inputs": {
+        "1": {
+            "ref_joint_id": "",
+            "ref_joint_name": "",
+            "id": 1,
+            "ref_zones_id_a": "",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": "",
+            "end_coord": "",
+            "drill_name": "",
+            "duration": "",
+            "passive_duration": "",
+            "rpe": "",
+            "external_load": "",
+            "ref_joint_side": ""
+        },
+        "2": {
+            "id": 2,
+            "drill_name": "push-up",
+            "duration": "58",
+            "reps": 0,
+            "rpe": 7,
+            "external_load": 0,
+            "side": "",
+            "multijoint": true,
+            "mini_sets": 2,
+            "reps_array": [
+                0,
+                1,
+                1,
+                1,
+                1
+            ],
+            "completed": true
+        },
+        "3": {
+            "id": 3,
+            "drill_name": "forward lunge",
+            "duration": 48,
+            "reps": 0,
+            "rpe": 8,
+            "external_load": 10,
+            "side": "",
+            "multijoint": true,
+            "mini_sets": 1,
+            "reps_array": [
+                8,
+                1,
+                1,
+                3,
+                1
+            ],
+            "completed": true
+        },
+        "4": {
+            "id": 4,
+            "drill_name": "",
+            "duration": 0,
+            "reps": 0,
+            "rpe": 0,
+            "external_load": 0,
+            "side": "",
+            "multijoint": true,
+            "mini_sets": 1,
+            "reps_array": [
+                0,
+                1,
+                1,
+                1,
+                1
+            ]
+        }
+    },
+    "schema": [
+        {
+            "circuit": [
+                "2"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "3"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "4"
+            ],
+            "iterations": 1
+        }
+    ]
+}

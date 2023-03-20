@@ -24,7 +24,7 @@ def add_new_mover(db, first_name, last_name):
     # add neccessary unique user values, then bundle up into sql-ready
     joints_to_add = []
     for joint in joint_template:
-        ref_joint_id, date_updated, bone_end_id_a, bone_end_id_b, joint_name, side, joint_type, ref_pcapsule_ir_rom, ref_pcapsule_er_rom, ref_acapsule_ir_rom, ref_acapsule_er_rom = joint
+        ref_joint_id, date_updated, bone_end_id_a, bone_end_id_b, joint_name, side, joint_type, ref_pcapsule_ir_rom, ref_pcapsule_er_rom, ref_acapsule_ir_rom, ref_acapsule_er_rom, cx, cy = joint
         to_write = [ref_joint_id, mover_id, side, joint_type, ref_pcapsule_ir_rom,
                     ref_pcapsule_er_rom, ref_acapsule_ir_rom, ref_acapsule_er_rom]
         joints_to_add.append(to_write)
