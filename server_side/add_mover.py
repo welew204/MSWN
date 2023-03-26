@@ -6,13 +6,15 @@ import click
 from server_side.f_db import get_db
 
 
-def add_new_mover(db, first_name, last_name):
+def add_new_mover(db, first_name, last_name, bodyweight=0):
     date = datetime.now().strftime("%Y-%m-%d")
+    if bodyweight <= 0:
+        bodyweight = None
     # create db cnx
     curs = db.cursor()
     # add mover to table
-    curs.execute('INSERT INTO movers (first_name, last_name, date_added) VALUES (?,?,?)',
-                 (first_name, last_name, date))
+    curs.execute('INSERT INTO movers (first_name, last_name, date_added, bodyweight) VALUES (?,?,?,?)',
+                 (first_name, last_name, date, bodyweight))
     db.commit()
     mover_id = curs.lastrowid
     # mover_id_Row = curs.execute(
@@ -143,7 +145,9 @@ def add_user_command():
     db = get_db()
     fname = input("What's the first name...?  ")
     lname = input("What's the last name...?  ")
-    add_new_mover(db, fname, lname)
+    bodyweight = int(input(
+        "What's your body weight \n(used exclusively for calculating body-weight exercise resistance)...?  "))
+    add_new_mover(db, fname, lname, bodyweight)
     click.echo('Flask: new mover added.')
 
 

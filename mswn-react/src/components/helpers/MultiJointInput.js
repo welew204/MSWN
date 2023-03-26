@@ -45,6 +45,7 @@ export default function MultiJointInput({
   }
 
   useEffect(() => {
+    // this auto-updates the duration value for 'rep-schemed' MJ inputs, per each mini-set
     let new_duration;
     if (!timeUnderTension) {
       new_duration =
@@ -311,7 +312,7 @@ export default function MultiJointInput({
               return mark;
             }}
             style={{ width: "80%" }}
-            value={InputInProgress.rpe}
+            value={parseInt(InputInProgress.rpe)}
             onChange={(v) => updateInputInProgress(["rpe", parseInt(v)])}
 
             /* onChangeCommitted={(value) => updateInputInProgress(["rpe", value])} */

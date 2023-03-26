@@ -29,7 +29,9 @@ export default function WorkoutBadge({ wkt, onClick, className, onDelete }) {
       <li key={inp.id}>
         <Stack direction='column' alignItems='stretch'>
           <span style={{ fontWeight: "bold" }}>
-            {`${inp.ref_joint_name} ${inp.drill_name}`}
+            {inp.multijoint == 1
+              ? `${inp.drill_name}`
+              : `${inp.ref_joint_name} ${inp.drill_name}`}
           </span>
           <span>
             {`RPE: ${inp.rpe} Total Duration: ${

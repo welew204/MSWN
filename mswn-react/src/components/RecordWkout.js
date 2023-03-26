@@ -138,7 +138,11 @@ export default function RecordWkout() {
       shaded
       className={selectInp == inp.id ? "selected-inp-plaque" : "inp-plaque"}
       bordered
-      header={`${inp.ref_joint_name} ${inp.drill_name}`}></Panel>
+      header={
+        inp.multijoint == 1
+          ? `${inp.drill_name}`
+          : `${inp.side} ${inp.ref_joint_name} ${inp.drill_name}`
+      }></Panel>
   ));
 
   function clearWorkoutVals(date) {
@@ -159,6 +163,7 @@ export default function RecordWkout() {
             duration: 0,
             rpe: 0,
             external_load: 0,
+            reps_array: [1, 0, 1, 1, 1, 1],
           },
         },
       };

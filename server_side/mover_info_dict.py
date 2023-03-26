@@ -25,6 +25,10 @@ def mover_info_dict(db, moverid):
         }
         return dict_template
     mover_joints_dict = defaultdict(make_joint_ddict)
+    bodyweight = curs.execute('''SELECT bodyweight
+                            FROM movers
+                            WHERE id = (?)''', (moverid,)).fetchone()
+    bodyweight = bodyweight["bodyweight"]
     caps_adj_all = curs.execute('''SELECT
                 joints.id,
                 joints.joint_type,
@@ -83,6 +87,7 @@ def mover_info_dict(db, moverid):
                 ON joints.ref_joints_id = ref_joints.rowid
                 WHERE linear_adj.moverid = (?)''',
                                (moverid,)).fetchall()
+    mover_joints_dict["bodyweight"] = bodyweight
     for cadj in caps_adj_all:
         joints_id, joint_type, side, capsule_adj_id, ref_zones_id, anchor_id_a, anchor_id_b, zone_name, joint_name, ref_joint_id = cadj
         if side != 'mid':

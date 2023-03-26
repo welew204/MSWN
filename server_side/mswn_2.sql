@@ -48,7 +48,8 @@ CREATE TABLE movers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
-    date_added TEXT NOT NULL
+    date_added TEXT NOT NULL,
+    bodyweight INT
 );
 
 CREATE TABLE coaches (

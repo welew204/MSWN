@@ -75,7 +75,7 @@ def write_workout():
 def record_bout():
     db = get_db()
     req = request.get_json()
-    # ACTIVATE some bout_harvesting as needed
+    # ACTIVATE some bout harvesting as needed
     # with open('fake_record_seeds.json', 'a') as json_seeds:
     #json.dump(req, json_seeds)
     # pprint(req)
@@ -120,7 +120,6 @@ def delete_workout():
                     WHERE workouts.moverid = (?)
                     AND workouts.id = (?)
                     ''', (mover_id, id_to_delete))
-    print("Got this far")
     db.commit()
     to_return = get_workouts(mover_id)
     return to_return
@@ -199,6 +198,8 @@ def get_workouts(mover_id):
             input["ref_joint_name"] = input.pop("joint_name")
             input["ref_joint_type"] = input.pop("joint_type")
             input["ref_joint_id"] = input.pop("rowid")
+            input["reps_array"] = [int(i)
+                                   for i in input["reps_array"].split(',')]
 
             if input["rails"] == "1":
                 input["rails"] = True
@@ -214,19 +215,15 @@ def get_workouts(mover_id):
 
         for circ in curr_wkout["schema"]:
             # sort the "circuit" array based on passed in ordering
-            # print(f"The schema circuit in question: {curr_wkout['schema'][circ]['circuit']}")
-            # print(f"More info about the wonky one: ...")
             curr_wkout["schema"][circ]["circuit"].sort(key=lambda inp: inp[0])
             # list-comprehension to only snag the id part of each tuple
             new_circuit = [inp[1]
                            for inp in curr_wkout["schema"][circ]["circuit"]]
             # replace old "circuit" with streamlined array!
             curr_wkout["schema"][circ]["circuit"] = new_circuit
-            # pprint(curr_wkout)
+        curr_wkout["schema"] = [i for i in curr_wkout["schema"].values()]
 
     array_to_send = [value for (key, value) in wkouts.items()]
-
-    # pprint(array_to_send)
     return json.dumps(array_to_send), 200
 
 # inputs is not getting used for anything right now
@@ -256,7 +253,6 @@ def drill_ref():
 
 @ bp.route('/joint_ref')
 def joint_ref():
-    # print(f"Got this far (to {index})", file=sys.stderr)
     db = get_db()
     joint_ref = defaultdict(list)
     joint_ref_final = []
@@ -463,7 +459,7 @@ def status(mover_id):
 
 @ bp.route('/training_log/<int:mover_id>')
 def training_log(mover_id):
-    # print(f"Got this far (to {index})", file=sys.stderr)
+
     db = get_db()
     training_log = []
     # BELOW returns a list of sqlite3.Row objects (with index, and keys),

@@ -42,6 +42,7 @@ export default function MoverSelect(props) {
   const workoutsQuery = useQuery(["workouts", activeMover], () => {
     return fetchAPI(server_url + `/workouts/${activeMover}`);
   });
+
   const handleDelete = useMutation({
     mutationFn: (wktID) => {
       return fetch(server_url + "/delete_workout", {

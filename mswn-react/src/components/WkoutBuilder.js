@@ -53,7 +53,7 @@ export default function WkoutBuilder() {
     ref_joint_side: "",
   };
   const default_mj_input = {
-    id: 2,
+    id: 1,
     drill_name: "",
     duration: 0,
     reps: 0,
@@ -75,34 +75,33 @@ export default function WkoutBuilder() {
     comments: "",
     inputs: {
       1: default_new_input,
-      2: default_mj_input,
     },
     schema: [{ circuit: ["1"], iterations: 1 }],
   });
   console.log(wktInProgress);
 
-  const [selectedInput, setSelectedInput] = useState(2);
+  const [selectedInput, setSelectedInput] = useState(1);
   const [schemaArray, setSchemaArray] = useState([]);
   //console.log("SELECTED INPUT: " + selectedInput);
 
   useEffect(() => {
-    // this just updates the schema!
-    let target_input;
+    // this updates the workoutInProgress incomplete inputt and the schema!
+    // heads up currently this means that toggling WILL erase the values (will go to default!)
+    let target_input = Object.values(wktInProgress.inputs).find(
+      (input) => !input.completed
+    );
+    console.log("target_input...>>");
+    console.log(target_input);
+    let default_start_value;
     if (multiJointInput) {
-      target_input = Object.values(wktInProgress.inputs).find(
-        (input) => !input.completed && input.multijoint == true
-      );
+      default_start_value = { ...default_mj_input, id: target_input.id };
     } else {
-      target_input = Object.values(wktInProgress.inputs).find(
-        (input) => !input.completed && !input.multijoint
-      );
+      default_start_value = { ...default_new_input, id: target_input.id };
     }
-    const upd_schema = [...wktInProgress.schema];
-    upd_schema.splice(upd_schema.length - 1, 1, {
-      circuit: [`${target_input.id}`],
-      iterations: 1,
-    });
-    updateWkt("schema", upd_schema);
+    setWktInProgress((prev) => ({
+      ...prev,
+      inputs: { ...prev.inputs, [target_input.id]: default_start_value },
+    }));
   }, [multiJointInput]);
 
   /* 
@@ -379,20 +378,6 @@ export default function WkoutBuilder() {
     );
   });
 
-  function handleToggle(value) {
-    let target_input;
-    value
-      ? (target_input = Object.values(wktInProgress.inputs).find(
-          (input) => !input.completed && input.multijoint == true
-        ))
-      : (target_input = Object.values(wktInProgress.inputs).find(
-          (input) => !input.completed && !input.multijoint
-        ));
-    console.log("Target Input after MJ toggle is ... " + target_input.id);
-    setSelectedInput(target_input.id);
-    setMultiJointInput(value);
-  }
-
   function handleDrag(result) {
     const target_input = result.draggableId;
     const source = result.source.index;
@@ -438,7 +423,7 @@ export default function WkoutBuilder() {
               <Toggle
                 style={{ display: "flex", justifyContent: "space-around" }}
                 checked={multiJointInput}
-                onChange={(v) => handleToggle(v)}
+                onChange={setMultiJointInput}
                 size='lg'
                 checkedChildren='Multi Joint'
                 unCheckedChildren='Single Joint'></Toggle>
