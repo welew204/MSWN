@@ -511,7 +511,7 @@ def unpack_inputs(inputs, mover_dict, date_done, moverid):
         try:
             mj = vals["Rx"]["multijoint"]
             mj = True
-        except NameError:
+        except KeyError:
             mj = False
 
         # should I even consider this input or not!?!?!?
@@ -539,13 +539,13 @@ def unpack_inputs(inputs, mover_dict, date_done, moverid):
             end_coord = int(e_coord)
         else:
             start_coord = vals["Rx"]["start_coord"]
-            if start_coord == '':
+            if start_coord == '' or start_coord == None:
                 start_coord = 0
             else:
                 start_coord = int(start_coord)
 
             end_coord = vals["Rx"]["end_coord"]
-            if end_coord == '':
+            if end_coord == '' or end_coord == None:
                 end_coord = 0
             else:
                 end_coord = int(end_coord)
@@ -1069,6 +1069,8 @@ def multiple_workout_recorder(db, workout_array):
     bouts'''
 
     sim_bout_array = []
+
+    # pprint(workout_array)
 
     # doing this one time JUST to get the mover_dict with a single db call
     # (and not during each loop of the iterator below)

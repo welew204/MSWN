@@ -16,6 +16,7 @@ import {
 } from "rsuite";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { find } from "rsuite/esm/utils/ReactChildren";
+import StressorSelector from "./StressorSelector";
 
 const server_url = "http://127.0.0.1:8000";
 
@@ -60,7 +61,7 @@ export default function InputForm({
 
   /* console.log("jointId in state: " + jointID); */
   /* console.log("zoneId in state: " + zoneID); */
-
+  console.log(wktInProgress);
   /* if (boutLogData.isLoading) {
     return <p>Getting your bout data...</p>;
   } */
@@ -578,9 +579,16 @@ export default function InputForm({
         ) : (
           ""
         )}
-        <Form.Group controlId='duration'>
+        <StressorSelector
+          InputInProgress={InputInProgress}
+          updateInputInProgress={updateInputInProgress}
+          repsTimeArray={InputInProgress.reps_array}
+          setWktInProgress={setWktInProgress}
+        />
+
+        {/* <Form.Group controlId='duration'>
           <Form.ControlLabel>Duration of effort:</Form.ControlLabel>
-          {/* <Form.Control name='duration' rule={timeRule} /> */}
+          ******* <Form.Control name='duration' rule={timeRule} /> ********
           <InputNumber
             key={`${selectedInput}-duration`}
             disabled={InputInProgress.drill_name ? false : true}
@@ -588,7 +596,7 @@ export default function InputForm({
             value={InputInProgress.duration ? InputInProgress.duration : ""}
             postfix='seconds'
           />
-        </Form.Group>
+        </Form.Group> */}
 
         <br />
         <Form.Group controlId='rpe'>

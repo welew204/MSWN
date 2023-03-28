@@ -105,9 +105,12 @@ def clone_workout(db, workout_id, to_mover_id, simulation=False):
     drills_as_inputs = {}
     schema = []
     for i, row in enumerate(drill_query):
-        each_drill = {k: row[k] for k in row.keys() if k not in [
-            "workout_title", "wkt_comments", "workout_id", "moverid", "joint_id"]}
-        id = each_drill.pop("id")
+        each_drill = {k: row[k] for k in row.keys()}
+        # if k not in [
+        #    "workout_title", "wkt_comments", "workout_id", "moverid", "joint_id"]}
+        print(
+            f'working on cloning each drill (programmed_drill # {each_drill["id"]} shown below...)')
+        pprint.pprint(each_drill)
         date = each_drill.pop("date")
         each_drill["completed"] = True
 
@@ -126,7 +129,7 @@ def clone_workout(db, workout_id, to_mover_id, simulation=False):
             schema.append(schema_to_add)
         else:
             # otherwise, just need to access the item in the schema
-            print(int(input_sequence[0]))
+            # print(int(input_sequence[0]))
             schema[int(input_sequence[0])]['circuit'].append(str(i+1))
 
         drills_as_inputs[i+1] = each_drill
@@ -224,9 +227,6 @@ def generate_rx_record(date, input_payload):
     return res
 
 
-# START HERE
-
-
 def generate_workouts_over_time(db, start_date, time_span, days_per_week, wkt_id):
     '''return array of workout records --> workout_recorder.multiple_workout_recorder(),
     start_date comes in as a datetime already!'''
@@ -267,6 +267,8 @@ def generate_workouts_over_time(db, start_date, time_span, days_per_week, wkt_id
     for i, d in enumerate(dates_array):
         for row in wkt_rows:
             each_input_payload = {k: row[k] for k in row.keys()}
+            print(f'cloning each input as part of "generate_workouts_over_time"')
+            pprint.pprint(each_input_payload)
             wkt_record = generate_rx_record(
                 d.strftime("%Y-%m-%d"), each_input_payload)
             wkts_to_record_array.append(wkt_record)
@@ -333,6 +335,7 @@ def dailyCARs(db, name, days_per_week, time_span, all=True, selected_CARs=[]):
                        'workout_title': 'CARs Simulation'}
 
     mover_dict = mover_info_dict(db, moverid)
+    bodyweight = mover_dict.pop('bodyweight')
     # pprint.pprint(mover_dict)
 
     joints_to_leave_out = ["Toes", "Hallux"]
@@ -479,8 +482,17 @@ def simulate_workout():
                                 FROM workouts 
                                 WHERE workouts.id=(?)) AS chkr''',
                                   (workoutID, )).fetchone()
-    days_per_week = input(
-        "Number of days per week to do workouts? (enter integer): ")
+    while True:
+        try:
+            days_per_week = int(input(
+                "Number of days per week to do workouts? (enter integer): "))
+            if days_per_week <= 0 or days_per_week > 14:
+                print("Ooops, you must enter a valid integer (0 - 14). Try again...")
+                continue
+            break
+        except ValueError:
+            print("Ooops, you must enter a valid integer (0 - 14). Try again...")
+
     start_date = input(
         "What is the start date (format: MM/DD/YYYY)? [if empty, default will be today]: ")
     if not start_date:
@@ -496,15 +508,18 @@ def simulate_workout():
                                 FROM movers 
                                 WHERE movers.first_name=(?)''',
                                 (name, )).fetchone()
-
+    print("Checking if mover exists...")
     if not mover_exists:
         # no mover w/ that namem, so can ADD mover, then clone workout
         mvrID = add_mover.add_new_mover(db, name, 'SIM')
         new_workoutID = clone_workout(db, workoutID, mvrID, simulation=True)
+        print(
+            f"Requested mover does not exist, creating a new mover \n{name} @ id: {mvrID}")
 
     else:
         # mover w/ that name, then have to check if the workout BELONGs to that mover (yet)
         mvrID = mover_exists["id"]
+        print(f'Mover DOES exist, @ id: {mover_exists["id"]}')
         wkt_assigned = curs.execute('''SELECT 
                                 EXISTS(SELECT 1 
                                 FROM workouts 
@@ -520,7 +535,7 @@ def simulate_workout():
             new_workoutID = workoutID
 
     to_record_array = generate_workouts_over_time(
-        db, start_date, time_span, int(days_per_week), new_workoutID)
+        db, start_date, time_span, days_per_week, new_workoutID)
 
     # pprint.pprint(to_record_array)
 

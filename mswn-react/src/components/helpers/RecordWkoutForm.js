@@ -65,8 +65,8 @@ export default function RecordWkoutForm({
             : `${selectedInput.ref_joint_name} ${selectedInput.drill_name}`}
         </h2>
         <p>
-          "***Some info defining the params of this particular input (like:
-          HOW-To do a certain drill, & Rotation or P/R position-value)***
+          "***Some info defining the guidelines of this drill --eventually this
+          will be an cg-animation (blender)***
         </p>
         <Divider />
 
@@ -122,29 +122,51 @@ export default function RecordWkoutForm({
           void 0
         )}
         <br />
+        {selectedInput.reps_array[1] > 0 ? (
+          <Form.Group controlId='reps'>
+            <Form.ControlLabel>Rep count (per mini-set):</Form.ControlLabel>
+            <h4>{`Rx: ${selectedInput.reps_array[1]} reps`}</h4>
+            <h6>{`Tempo indicated: ${selectedInput.reps_array[4]}-${selectedInput.reps_array[5]}-${selectedInput.reps_array[2]}-${selectedInput.reps_array[3]}`}</h6>
+            <InputNumber
+              onChange={(v, e) =>
+                updateInputForm([
+                  "reps_array",
+                  [
+                    ...selectedInput.reps_array.slice(0, 1),
+                    parseInt(v),
+                    ...selectedInput.reps_array.slice(2),
+                  ],
+                ])
+              }
+              value={workoutResults[selectedInput.id].results.reps_array[1]}
+              postfix='repetitions'
+            />
+          </Form.Group>
+        ) : (
+          <Form.Group controlId='duration'>
+            <Form.ControlLabel>
+              Duration of effort (per mini-set):
+            </Form.ControlLabel>
+            <h4>{`Rx: ${
+              selectedInput.duration / selectedInput.reps_array[0]
+            }sec`}</h4>
+            <InputNumber
+              onChange={(v, e) =>
+                updateInputForm([
+                  "duration",
+                  parseInt(v) *
+                    workoutResults[selectedInput.id].results.reps_array[0],
+                ])
+              }
+              value={
+                workoutResults[selectedInput.id].results.duration /
+                workoutResults[selectedInput.id].results.reps_array[0]
+              }
+              postfix='seconds'
+            />
+          </Form.Group>
+        )}
 
-        <Form.Group controlId='duration'>
-          <Form.ControlLabel>
-            Duration of effort (per mini-set):
-          </Form.ControlLabel>
-          <h4>{`Rx: ${
-            selectedInput.duration / selectedInput.reps_array[0]
-          }sec`}</h4>
-          <InputNumber
-            onChange={(v, e) =>
-              updateInputForm([
-                "duration",
-                parseInt(v) *
-                  workoutResults[selectedInput.id].results.reps_array[0],
-              ])
-            }
-            value={
-              workoutResults[selectedInput.id].results.duration /
-              workoutResults[selectedInput.id].results.reps_array[0]
-            }
-            postfix='seconds'
-          />
-        </Form.Group>
         <br />
         <Form.Group controlId='rpe'>
           <Form.ControlLabel>

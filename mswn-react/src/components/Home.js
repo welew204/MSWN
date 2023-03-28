@@ -40,13 +40,14 @@ export default function Home() {
   const movers = useQuery({
     queryKey: ["movers"],
     queryFn: () => fetchAPI(server_url + "/movers_list"),
-    onSuccess: () => console.log("movers re-queried!"),
   });
 
   useEffect(() => {
-    fetchAPI(`${server_url}/movers_list`).then((data) =>
-      setActiveMover(data[1][0])
-    );
+    fetchAPI(`${server_url}/movers_list`).then((data) => {
+      const arbMoverId = Object.values(data).at(0)[0];
+      console.log(arbMoverId);
+      setActiveMover(arbMoverId);
+    });
   }, []);
   console.log(activeMover);
 

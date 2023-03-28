@@ -44,6 +44,9 @@ def get_movers():
     res = {}
     for m in mover_rows:
         res[m["id"]] = [i for i in m]
+
+    print(res)
+
     return jsonify(res), 201
 
 

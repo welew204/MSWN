@@ -18,6 +18,7 @@ import {
 } from "rsuite";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { find } from "rsuite/esm/utils/ReactChildren";
+import StressorSelector from "./StressorSelector";
 
 const server_url = "http://127.0.0.1:8000";
 
@@ -30,48 +31,13 @@ export default function MultiJointInput({
   updateWkt,
   selectedInput,
 }) {
-  const [timeUnderTension, setTimeUnderTension] = useState(true);
-  const [repsTimeArray, SetRepsTimeArray] = useState([0, 1, 1, 1, 1]);
   const [mirrorStatus, setMirrorStatus] = useState([false, false]);
-  // this will store the values for [ REPS, UP-count, Top-count, DOWN-count, Bottom-count]
-  // these values will get used to formulate the duration value AND will add the raw array to the wktInProgress
-  //console.log(repsTimeArray);
-  //console.log(wktInProgress.inputs[selectedInput].duration);
 
   function fetchAPI(url) {
     return fetch(url).then((res) => {
       return res.json();
     });
   }
-
-  useEffect(() => {
-    // this auto-updates the duration value for 'rep-schemed' MJ inputs, per each mini-set
-    let new_duration;
-    if (!timeUnderTension) {
-      new_duration =
-        repsTimeArray.slice(1).reduce((acc, curr_val) => {
-          return acc + curr_val;
-        }, 0) * repsTimeArray[0];
-    } else {
-      new_duration = InputInProgress.duration;
-    }
-    //console.log(repsTimeArray[0]);
-
-    setWktInProgress((prev) => ({
-      ...prev,
-      inputs: {
-        ...prev.inputs,
-        [selectedInput]: {
-          ...prev.inputs[selectedInput],
-          reps_array: repsTimeArray,
-          duration: new_duration,
-        },
-      },
-    })); /* 
-    Promise.resolve(updateInputInProgress(["reps_array", repsTimeArray])).then(
-      (res) => updateInputInProgress[("duration", new_duration)]
-    ); */
-  }, [repsTimeArray]);
 
   async function submit_form() {
     console.log(wktInProgress.inputs);
@@ -196,106 +162,12 @@ export default function MultiJointInput({
             data={drills}></SelectPicker>
         </Form.Group>
         <Divider />
-        <Form.Group controlId='stressor-selector'>
-          <Form.Group>
-            <Form.ControlLabel>Select Stressor Measure: </Form.ControlLabel>
-            <Toggle
-              checkedChildren='Time Under Tension'
-              unCheckedChildren='Number of Reps'
-              checked={timeUnderTension}
-              onChange={setTimeUnderTension}
-            />
-            {timeUnderTension ? (
-              <div>
-                <Form.ControlLabel>Duration: </Form.ControlLabel>
-                <InputNumber
-                  value={InputInProgress.duration}
-                  onChange={(v) => updateInputInProgress(["duration", v])}
-                  step={1}
-                />
-              </div>
-            ) : (
-              <div>
-                <Form.ControlLabel>Reps: </Form.ControlLabel>
-                <InputNumber
-                  step={1}
-                  value={repsTimeArray[0]}
-                  onChange={(v) => {
-                    let value = parseInt(v);
-                    value >= 0 ? void 0 : (value = 0);
-                    let temp_array = [...repsTimeArray];
-                    temp_array.splice(0, 1, value);
-                    console.log(temp_array);
-                    SetRepsTimeArray(temp_array);
-                  }}
-                />
-                <Form.ControlLabel>Rep Cadence: </Form.ControlLabel>
-                <InputGroup
-                  size='md'
-                  style={{ display: "flex", width: "500px" }}>
-                  <InputGroup.Addon>UP</InputGroup.Addon>
-                  <InputNumber
-                    step={1}
-                    value={repsTimeArray[1]}
-                    onChange={(v) => {
-                      let value = parseInt(v);
-                      value >= 1 ? void 0 : (value = 1);
-                      let temp_array = [...repsTimeArray];
-                      temp_array.splice(1, 1, value);
-                      console.log(temp_array);
-                      SetRepsTimeArray(temp_array);
-                    }}
-                  />
-                  <InputGroup.Addon>Top</InputGroup.Addon>
-                  <InputNumber
-                    step={1}
-                    value={repsTimeArray[2]}
-                    onChange={(v) => {
-                      let value = parseInt(v);
-                      value >= 1 ? void 0 : (value = 1);
-                      let temp_array = [...repsTimeArray];
-                      temp_array.splice(2, 1, value);
-                      console.log(temp_array);
-                      SetRepsTimeArray(temp_array);
-                    }}
-                  />
-                  <InputGroup.Addon>DOWN</InputGroup.Addon>
-                  <InputNumber
-                    step={1}
-                    value={repsTimeArray[3]}
-                    onChange={(v) => {
-                      let value = parseInt(v);
-                      value >= 1 ? void 0 : (value = 1);
-                      let temp_array = [...repsTimeArray];
-                      temp_array.splice(3, 1, value);
-                      console.log(temp_array);
-                      SetRepsTimeArray(temp_array);
-                    }}
-                  />
-                  <InputGroup.Addon>Bottom</InputGroup.Addon>
-                  <InputNumber
-                    step={1}
-                    value={repsTimeArray[4]}
-                    onChange={(v) => {
-                      let value = parseInt(v);
-                      value >= 1 ? void 0 : (value = 1);
-                      let temp_array = [...repsTimeArray];
-                      temp_array.splice(4, 1, value);
-                      console.log(temp_array);
-                      SetRepsTimeArray(temp_array);
-                    }}
-                  />
-                </InputGroup>
-              </div>
-            )}
-          </Form.Group>
-          <Form.ControlLabel>Mini-sets: </Form.ControlLabel>
-          <InputNumber
-            step={1}
-            value={InputInProgress.mini_sets}
-            onChange={(v) => updateInputInProgress(["mini_sets", parseInt(v)])}
-          />
-        </Form.Group>
+        <StressorSelector
+          InputInProgress={InputInProgress}
+          updateInputInProgress={updateInputInProgress}
+          repsTimeArray={InputInProgress.reps_array}
+          setWktInProgress={setWktInProgress}
+        />
         <Divider />
         <Form.Group controlId='rpe'>
           <Form.ControlLabel>

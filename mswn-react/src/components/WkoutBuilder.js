@@ -46,9 +46,11 @@ export default function WkoutBuilder() {
     start_coord: "",
     end_coord: "",
     drill_name: "",
-    duration: "",
+    duration: 0,
     passive_duration: "",
     rpe: "",
+    reps_array: [1, 0, 0, 0, 0, 0],
+    multijoint: false,
     external_load: "",
     ref_joint_side: "",
   };
@@ -56,12 +58,11 @@ export default function WkoutBuilder() {
     id: 1,
     drill_name: "",
     duration: 0,
-    reps: 0,
+    reps_array: [1, 0, 0, 0, 0, 0],
     rpe: 0,
     external_load: 0,
     side: "",
     multijoint: true,
-    mini_sets: 1,
   };
 
   const [selectedWorkout, setSelectedWorkout, activeMover] = useOutletContext();

@@ -163,7 +163,7 @@ export default function RecordWkout() {
             duration: 0,
             rpe: 0,
             external_load: 0,
-            reps_array: [1, 0, 1, 1, 1, 1],
+            reps_array: [0, 0, 1, 1, 1, 1],
           },
         },
       };
@@ -196,7 +196,6 @@ export default function RecordWkout() {
   function handleDoRXdToggle(value) {
     console.log(doAsRxd);
     console.log(value);
-    console.log(!value);
     setDoAsRxd((prev) => !prev);
     if (value == false) {
       clearWorkoutVals(workoutResults.date_done);
@@ -213,6 +212,7 @@ export default function RecordWkout() {
             duration: workoutResults[i].Rx.duration,
             rpe: workoutResults[i].Rx.rpe,
             external_load: workoutResults[i].Rx.external_load,
+            reps_array: workoutResults[i].Rx.reps_array,
           };
           var new_payload = { ...workoutResults[i], results: rxd_results };
           all_new_results = { ...all_new_results, [i]: new_payload };

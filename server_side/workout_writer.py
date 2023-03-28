@@ -9,23 +9,22 @@ def workout_writer(db, req):
 
     # pprint(req)
 
-    workout_to_add = []
-    fields_to_add = []
+    workout_to_add = {}
+
     for key, val in req.items():
         if key == "id" or key == "inputs":
             continue
         if key == "schema":
             continue
         else:
-            fields_to_add.append(key)
-            workout_to_add.append(val)
-    workout_q_marks = ",".join("?" for _ in range(len(workout_to_add)))
-    workout_fields = ", ".join(fields_to_add)
+            workout_to_add[key] = val
+    workout_q_marks = ",".join("?" for _ in range(len(workout_to_add.keys())))
+    workout_fields = ", ".join(list(workout_to_add.keys()))
 
     workout_sql_statement = f'INSERT INTO workouts ({workout_fields}) VALUES ({workout_q_marks})'
     # print(f"WORKOUT qmarks: {workout_q_marks}", file=sys.stderr)
     cursor.execute(workout_sql_statement,
-                   tuple(workout_to_add))
+                   tuple(workout_to_add.values()))
     db.commit()
     wkt_id = cursor.lastrowid
     schema_lookups = {}
@@ -39,14 +38,17 @@ def workout_writer(db, req):
     # pprint(schema_lookups)
 
     # print(f"workout schema transcribed (schema_lookups): {schema_lookups}", file=sys.stderr)
-
-    workout_title, date_init, moverid, comments = workout_to_add
+    pprint(workout_to_add)
+    workout_title = workout_to_add["workout_title"]
+    comments = workout_to_add["comments"]
+    moverid = workout_to_add["moverid"]
+    date_init = workout_to_add["date_init"]
     mover_dict = mover_info_dict(db, moverid)
     # pprint(mover_dict)
     for inputID, payload in req["inputs"].items():
         if "completed" not in payload:
             continue
-        elif "multijoint" in payload:
+        elif payload["multijoint"] == True:
             print(f"Working on MJ input ID: {inputID}")
             mj_drill_unpack(payload)
         else:
@@ -64,7 +66,7 @@ def workout_writer(db, req):
         input_fields = list(payload.keys())
 
         input_vals = list(payload.values())
-        pprint(payload)
+        # pprint(payload)
 
         write_sql(db, input_fields, input_vals)
 
@@ -100,32 +102,42 @@ def sj_drill_unpack(payload, mover_dict):
 
     joint_id = mover_dict[joint_key_string]["id"]
     payload["joint_id"] = joint_id
-    # hard-coding this in for now... meaning 1 mini-set, 1 rep, NO other rep def
-    payload["reps_array"] = '1, 1, 0, 0, 0, 0'
+    # hard-coding this in for now... meaning 1 mini-set, 0 rep (aka TUT input), NO other rep def
+    payload["reps_array"] = '1, 0, 0, 0, 0, 0'
     payload["multijoint"] = 0
 
 
 def mj_drill_unpack(payload):
-    print("MJ drill unpacking...")
-    # pprint(payload)
+    print("MJ drill unpacking...(payload)...")
+    pprint(payload)
     payload.pop("completed")
+    payload.pop("ref_joint_id")
+    payload.pop("ref_joint_name")
+    payload.pop("ref_joint_side")
+    payload.pop("ref_zones_id_a")
+    payload.pop("ref_zones_id_b")
+    payload.pop("passive_duration")
+    payload.pop("rails")
+    payload.pop("end_coord")
+    payload.pop("start_coord")
     payload["multijoint"] = 1
     payload.pop("id")
-    payload.pop("reps")
     # SIDE will be used to pass to the actual drill unpack'r when/if needed
-    side = payload.pop("side")
+    # side = payload.pop("side")
     # handling reps_array...
-    reps_array = payload.pop("reps_array")
-    mini_sets = int(payload.pop("mini_sets"))
-    if mini_sets > 1:
+    reps_array = [int(i) for i in payload.pop("reps_array").split(",")]
+    # print(reps_array)
+    mini_sets = reps_array[0]
+
+    # don't think this is needed....
+    """if mini_sets > 1:
         # this should get the duration to truly depict TUT even in rep/mini_set schemes
         print(payload["duration"])
         payload["duration"] = int(payload["duration"]) * mini_sets
-        print(payload["duration"])
-    reps_array.insert(0, mini_sets)
+        print(payload["duration"])"""
+    #reps_array.insert(0, mini_sets)
     reps_array_string = ",".join([str(i) for i in reps_array])
     payload["reps_array"] = reps_array_string
-    # satisfying the foreign-key demands for joint and anchor
 
 
 def write_sql(db, input_fields, input_vals):
