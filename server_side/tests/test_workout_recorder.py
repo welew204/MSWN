@@ -37,3 +37,11 @@ def test_unpack_workout(test_input, expected_output):
     assert date_done == expected_output[2]
 
     moverid, workout_id, date_done = unpack_workout_test_results
+
+
+def test_bout_dict_maker() -> None:
+    # if given the wrong number of args
+    # if date is wrong format
+    # if joint motion is NOT one of the three types
+    # if tissue_type is NOT one of the three types
+    pass

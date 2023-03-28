@@ -79,8 +79,8 @@ def record_bout():
     db = get_db()
     req = request.get_json()
     # ACTIVATE some bout harvesting as needed
-    # with open('fake_record_seeds.json', 'a') as json_seeds:
-    #json.dump(req, json_seeds)
+    with open('fake_record_seeds.json', 'a') as json_seeds:
+        json.dump(req, json_seeds)
     # pprint(req)
     workout_recorder(db, req)
 

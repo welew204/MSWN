@@ -248,6 +248,7 @@ CREATE TABLE bout_log (
     capsular_tissue_id INTEGER,
     rotational_tissue_id INTEGER,
     linear_tissue_id INTEGER,
+    fixed_side_anchor_id INTEGER,
     duration INTEGER NOT NULL,
     passive_duration INTEGER,
     rpe INT NOT NULL,
@@ -255,7 +256,8 @@ CREATE TABLE bout_log (
     tissue_type TEXT NOT NULL,
     FOREIGN KEY (programmed_drills_id) REFERENCES programmed_drills (id),
     FOREIGN KEY (joint_id) REFERENCES joints (id),
-    FOREIGN KEY (moverid) REFERENCES movers (id)
+    FOREIGN KEY (moverid) REFERENCES movers (id),
+    FOREIGN KEY (fixed_side_anchor_id) REFERENCES anchors (id)
 );
 
 CREATE TABLE incomplete_log (

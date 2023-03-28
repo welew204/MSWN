@@ -102,31 +102,32 @@ def sj_drill_unpack(payload, mover_dict):
 
     joint_id = mover_dict[joint_key_string]["id"]
     payload["joint_id"] = joint_id
-    # hard-coding this in for now... meaning 1 mini-set, 0 rep (aka TUT input), NO other rep def
-    payload["reps_array"] = '1, 0, 0, 0, 0, 0'
     payload["multijoint"] = 0
+    reps_array = payload["reps_array"]
+    reps_array_string = ",".join([str(i) for i in reps_array])
+    payload["reps_array"] = reps_array_string
 
 
 def mj_drill_unpack(payload):
-    print("MJ drill unpacking...(payload)...")
-    pprint(payload)
+    #print("MJ drill unpacking...(payload)...")
+    # pprint(payload)
     payload.pop("completed")
-    payload.pop("ref_joint_id")
-    payload.pop("ref_joint_name")
-    payload.pop("ref_joint_side")
-    payload.pop("ref_zones_id_a")
-    payload.pop("ref_zones_id_b")
-    payload.pop("passive_duration")
-    payload.pop("rails")
-    payload.pop("end_coord")
-    payload.pop("start_coord")
+    # payload.pop("ref_joint_id")
+    # payload.pop("ref_joint_name")
+    # payload.pop("ref_joint_side")
+    # payload.pop("ref_zones_id_a")
+    # payload.pop("ref_zones_id_b")
+    # payload.pop("passive_duration")
+    # payload.pop("rails")
+    # payload.pop("end_coord")
+    # payload.pop("start_coord")
     payload["multijoint"] = 1
     payload.pop("id")
     # SIDE will be used to pass to the actual drill unpack'r when/if needed
-    # side = payload.pop("side")
+    side = payload.pop("side")
     # handling reps_array...
-    reps_array = [int(i) for i in payload.pop("reps_array").split(",")]
-    # print(reps_array)
+    reps_array = payload["reps_array"]
+    print(reps_array)
     mini_sets = reps_array[0]
 
     # don't think this is needed....
@@ -142,6 +143,7 @@ def mj_drill_unpack(payload):
 
 def write_sql(db, input_fields, input_vals):
     curs = db.cursor()
+    pprint({input_fields[i]: input_vals[i] for i in range(len(input_fields))})
 
     input_q_marks = ",".join("?" for _ in range(len(input_fields)))
     # print(f"INPUT qmarks: {input_q_marks}", file=sys.stderr)

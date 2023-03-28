@@ -5,6 +5,9 @@ from server_side.db_ref_vals import syn_zone_deque
 from server_side.db_ref_vals import ses_zone_deque
 from server_side.db_ref_vals import spine_zone_deque
 
+''' this module was an attempt/start at refactoring, not completed;
+known issues: BOUT DICT MAKER here is NOT correct'''
+
 
 def ifCARs(mover_dict, ref_joint_name_string, duration, rpe, external_load, bout_dict_maker):
     print("Running CARs...")

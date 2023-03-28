@@ -47,7 +47,7 @@ export default function StressorSelector({
     let new_reps_array = [1, 0, 0, 0, 0, 0];
     if (!timeUnderTension) {
       // this means the new rep_arry will start with 1 rep
-      new_reps_array[1] = 1;
+      new_reps_array = [1, 1, 1, 1, 1, 1];
     } else {
       // this means the new rep-arry will be 0-reps
       new_reps_array[1] = 0;
