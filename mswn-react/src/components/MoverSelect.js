@@ -66,9 +66,7 @@ export default function MoverSelect(props) {
   if (doneWorkoutsQuery.isError) return `Error: error`;
 
   const wkouts = workoutsQuery.data.map((wkt) => (
-    <Stack.Item
-      className={wkt.id == selectedWorkout ? "selected-workout" : ""}
-      key={wkt.id}>
+    <Stack.Item key={wkt.id}>
       <WorkoutBadge
         className={wkt.id == selectedWorkout ? "selected-workout" : ""}
         wkt={wkt}
@@ -107,10 +105,10 @@ export default function MoverSelect(props) {
             {wkouts}
           </Stack>
           <Stack spacing={20}>
-            <Button as={RsNavLink} href='/wbuilder'>
+            <Button as={RsNavLink} href='/dashboard/wbuilder'>
               Build A Workout
             </Button>
-            <Button as={RsNavLink} href='/record'>
+            <Button as={RsNavLink} href='/dashboard/record'>
               Record A Workout
             </Button>
           </Stack>

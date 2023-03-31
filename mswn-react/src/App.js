@@ -22,12 +22,12 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Routes>
         <Route path='/coaches' element={<Coaches />} />
-        <Route path='/' element={<Home />}>
+        <Route path='/dashboard' element={<Home />}>
           <Route index element={<MoverSelect />} />
-          <Route path='/mover' element={<MoverSelect />} />
-          <Route path='/wbuilder' element={<WkoutBuilder />} />
-          <Route path='/record' element={<RecordWkout />} />
-          <Route path='/status' element={<StatusView />} />
+          <Route path='mover' element={<MoverSelect />} />
+          <Route path='wbuilder' element={<WkoutBuilder />} />
+          <Route path='record' element={<RecordWkout />} />
+          <Route path='status' element={<StatusView />} />
         </Route>
       </Routes>
       <ReactQueryDevtools initialIsOpen={false} />

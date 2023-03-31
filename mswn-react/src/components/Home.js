@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { NavLink, Link, Outlet } from "react-router-dom";
+import { NavLink, Link, Outlet, Navigate } from "react-router-dom";
 import { RsNavLink } from "./helpers/RsNavLink";
 import {
   Container,
@@ -18,11 +18,13 @@ import CogIcon from "@rsuite/icons/legacy/Cog";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { NavToggle } from "./helpers/NavToggle";
 import AddMoverModal from "./AddMoverModal";
+import { useAuth } from "./hooks/useAuth";
 
 const server_url = "http://127.0.0.1:8000";
 
 export default function Home() {
-  /* query: SELECT movers */
+  const { user, logout } = useAuth();
+
   const [activeMover, setActiveMover] = useState(0);
   const [selectedWorkout, setSelectedWorkout] = useState("");
   const [addMoverOpen, setAddMoverOpen] = useState(false);
@@ -59,6 +61,11 @@ export default function Home() {
       .then(console.log(`Got the workouts for id: ${activeMover}`));
   }, [activeMover]);
 
+  if (!user) {
+    return <Navigate to='/coaches' />;
+  } else {
+    console.log(user.coach);
+  }
   if (movers.isLoading) return "Loading...";
   if (movers.isError) return `Error: error`;
   if (workoutsQuery.isLoading) return "Loading...";
@@ -81,28 +88,35 @@ export default function Home() {
   return (
     <Container className='home-frame'>
       <Header>
-        <Navbar>
+        <Navbar style={{ fontSize: "20px" }}>
           <Nav>
-            <Nav.Item as={RsNavLink} href='/mover' style={{ color: "#13B532" }}>
+            <Nav.Item
+              as={RsNavLink}
+              href='/dashboard/mover'
+              style={{ color: "#13B532" }}>
               MSWN
             </Nav.Item>
-            <Nav.Item as={RsNavLink} href='/mover'>
+            <Nav.Item as={RsNavLink} href='/dashboard/mover'>
               Move
             </Nav.Item>
-            <Nav.Item as={RsNavLink} href='/status'>
+            <Nav.Item as={RsNavLink} href='/dashboard/status'>
               Status
             </Nav.Item>
             {/* <Nav.Item>Assess</Nav.Item> */}
           </Nav>
 
-          {/* <Nav pullRight>
-            <Nav.Item icon={<CogIcon />}>Settings</Nav.Item>
-          </Nav> */}
+          <Nav pullRight style={{ marginRight: "30px" }}>
+            <Nav.Item as={RsNavLink} href='/coaches' onClick={logout}>
+              Logout
+            </Nav.Item>
+          </Nav>
         </Navbar>
       </Header>
       <Container className='homescreen-mid'>
         <AddMoverModal open={addMoverOpen} close={setAddMoverOpen} />
-        <Sidebar style={{ overflow: "auto" }} className='sidebar' collapsible>
+        <Sidebar
+          style={{ overflow: "auto", marginRight: "10px" }}
+          className='sidebar'>
           <Sidenav
             style={{ overflow: "auto" }}
             expanded={true}
@@ -121,7 +135,7 @@ export default function Home() {
             <Button onClick={setAddMoverOpen}>Add Mover</Button>
           </Sidenav>
         </Sidebar>
-        <Content className='content'>
+        <Content className='content' style={{ margin: "15px" }}>
           <Outlet
             context={[selectedWorkout, setSelectedWorkout, activeMover]}
           />

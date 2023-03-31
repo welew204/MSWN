@@ -60,14 +60,14 @@ export default function AddMoverModal({ open, close }) {
               placeholder='First Name'
               name='firstName'
             />
-            <p
+            <Form.HelpText
               style={{
                 marginTop: "8px",
                 fontStyle: "italic",
                 width: "80%",
               }}>
               * required
-            </p>
+            </Form.HelpText>
           </Form.Group>
           <Form.Group>
             <Form.Control
@@ -76,14 +76,14 @@ export default function AddMoverModal({ open, close }) {
               placeholder='Last Name'
               name='lastName'
             />
-            <p
+            <Form.HelpText
               style={{
                 marginTop: "8px",
                 fontStyle: "italic",
                 width: "80%",
               }}>
               * required
-            </p>
+            </Form.HelpText>
           </Form.Group>
           <Form.Group>
             <Form.Control
@@ -92,15 +92,10 @@ export default function AddMoverModal({ open, close }) {
               placeholder='bodyweight'
               name='bodyweight'
             />
-            <p
-              style={{
-                marginTop: "8px",
-                fontStyle: "italic",
-                width: "80%",
-              }}>
+            <Form.HelpText tooltip>
               This information is only for calculating resistance of bodyweight
               activities (default: 150 lbs).
-            </p>
+            </Form.HelpText>
           </Form.Group>
         </Form>
       </Modal.Body>

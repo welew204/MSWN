@@ -49,7 +49,7 @@ export default function WorkoutBadge({ wkt, onClick, className, onDelete }) {
   });
 
   const l_done_date = new Date(wkt.last_done).toDateString();
-  console.log(l_done_date);
+  //console.log(l_done_date);
 
   return (
     <Panel
