@@ -38,7 +38,7 @@ def workout_writer(db, req):
     # pprint(schema_lookups)
 
     # print(f"workout schema transcribed (schema_lookups): {schema_lookups}", file=sys.stderr)
-    pprint(workout_to_add)
+    # pprint(workout_to_add)
     workout_title = workout_to_add["workout_title"]
     comments = workout_to_add["comments"]
     moverid = workout_to_add["moverid"]
@@ -53,6 +53,7 @@ def workout_writer(db, req):
             mj_drill_unpack(payload)
         else:
             print(f"Working on SJ input ID: {inputID}")
+            # pprint(payload)
             sj_drill_unpack(payload, mover_dict)
 
         input_seq, circuit_iterations = schema_lookups[int(inputID)]
@@ -112,38 +113,21 @@ def mj_drill_unpack(payload):
     #print("MJ drill unpacking...(payload)...")
     # pprint(payload)
     payload.pop("completed")
-    # payload.pop("ref_joint_id")
-    # payload.pop("ref_joint_name")
-    # payload.pop("ref_joint_side")
-    # payload.pop("ref_zones_id_a")
-    # payload.pop("ref_zones_id_b")
-    # payload.pop("passive_duration")
-    # payload.pop("rails")
-    # payload.pop("end_coord")
-    # payload.pop("start_coord")
     payload["multijoint"] = 1
     payload.pop("id")
     # SIDE will be used to pass to the actual drill unpack'r when/if needed
     side = payload.pop("side")
     # handling reps_array...
     reps_array = payload["reps_array"]
-    print(reps_array)
-    mini_sets = reps_array[0]
-
-    # don't think this is needed....
-    """if mini_sets > 1:
-        # this should get the duration to truly depict TUT even in rep/mini_set schemes
-        print(payload["duration"])
-        payload["duration"] = int(payload["duration"]) * mini_sets
-        print(payload["duration"])"""
-    #reps_array.insert(0, mini_sets)
+    # print(reps_array)
     reps_array_string = ",".join([str(i) for i in reps_array])
+    #print(f"here's the reps_array in string: {reps_array_string}")
     payload["reps_array"] = reps_array_string
 
 
 def write_sql(db, input_fields, input_vals):
     curs = db.cursor()
-    pprint({input_fields[i]: input_vals[i] for i in range(len(input_fields))})
+    #pprint({input_fields[i]: input_vals[i] for i in range(len(input_fields))})
 
     input_q_marks = ",".join("?" for _ in range(len(input_fields)))
     # print(f"INPUT qmarks: {input_q_marks}", file=sys.stderr)

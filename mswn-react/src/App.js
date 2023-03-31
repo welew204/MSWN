@@ -1,4 +1,5 @@
 import "./App.css";
+import { useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import MoverSelect from "./components/MoverSelect";
 import RecordWkout from "./components/RecordWkout";
@@ -12,6 +13,7 @@ import {
 
 import Home from "./components/Home";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import Coaches from "./components/Coaches";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +21,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Routes>
+        <Route path='/coaches' element={<Coaches />} />
         <Route path='/' element={<Home />}>
           <Route index element={<MoverSelect />} />
           <Route path='/mover' element={<MoverSelect />} />

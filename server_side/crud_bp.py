@@ -38,14 +38,12 @@ def index(mover_id):
 
 @bp.route('/movers_list')
 def get_movers():
-    print(datetime.datetime.now())
+    # print(datetime.datetime.now())
     db = get_db()
     mover_rows = db.execute('SELECT * FROM movers').fetchall()
     res = {}
     for m in mover_rows:
         res[m["id"]] = [i for i in m]
-
-    print(res)
 
     return jsonify(res), 201
 
@@ -57,7 +55,8 @@ def add_mover_to_db():
     req = request.get_json()[0]
     fname = req['firstName']
     lname = req['lastName']
-    mover_id = add_new_mover(db, fname, lname)
+    bw = req['bodyweight']
+    mover_id = add_new_mover(db, fname, lname, bw)
 
     return f"{fname} {lname} is added to the DB! ID: {mover_id}", 201
 
@@ -119,6 +118,11 @@ def delete_workout():
     mover_id, id_to_delete = req
 
     pprint(req)
+    curs.execute('''DELETE FROM programmed_drills
+                    WHERE moverid = (?)
+                    AND workout_id = (?)
+                    ''', (mover_id, id_to_delete))
+    db.commit()
     curs.execute('''DELETE FROM workouts
                     WHERE workouts.moverid = (?)
                     AND workouts.id = (?)

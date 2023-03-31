@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Toggle,
   ButtonToolbar,
@@ -24,7 +24,16 @@ const server_url = "http://127.0.0.1:8000";
 
 export default function WorkoutBadge({ wkt, onClick, className, onDelete }) {
   console.log(wkt);
+  let estWktDuration = 0.0;
+
   const inputs = wkt.inputs.map((inp) => {
+    let inpDuration = parseFloat(
+      (parseInt(inp.passive_duration ? inp.passive_duration : 0) +
+        parseInt(inp.duration) * inp.reps_array[0]) /
+        60
+    ).toFixed(1);
+    estWktDuration = estWktDuration + parseFloat(inpDuration);
+
     return (
       <li key={inp.id}>
         <Stack direction='column' alignItems='stretch'>
@@ -33,16 +42,14 @@ export default function WorkoutBadge({ wkt, onClick, className, onDelete }) {
               ? `${inp.drill_name}`
               : `${inp.ref_joint_name} ${inp.drill_name}`}
           </span>
-          <span>
-            {`RPE: ${inp.rpe} Total Duration: ${
-              parseInt(inp.passive_duration ? inp.passive_duration : 0) +
-              parseInt(inp.duration)
-            }sec`}
-          </span>
+          <span>{`RPE: ${inp.rpe} // Drill Duration: ${inpDuration}min`}</span>
         </Stack>
       </li>
     );
   });
+
+  const l_done_date = new Date(wkt.last_done).toDateString();
+  console.log(l_done_date);
 
   return (
     <Panel
@@ -65,13 +72,17 @@ export default function WorkoutBadge({ wkt, onClick, className, onDelete }) {
         }}>
         <Stack direction='column' alignItems='center'>
           {wkt.last_done ? (
-            <h6>Last done: {new Date(wkt.last_done).toDateString()}</h6>
+            <h6>Last done: {l_done_date}</h6>
           ) : (
             <p style={{ fontStyle: "italic" }}>~Never done!~</p>
           )}
           <Panel header='View All Inputs' collapsible bordered>
             <ul>{inputs}</ul>
           </Panel>
+          <br></br>
+          <p>
+            Estimated Workout Duration: {(estWktDuration * 1.2).toFixed(1)}min
+          </p>
         </Stack>
         <IconButton
           style={{ marginLeft: "auto" }}

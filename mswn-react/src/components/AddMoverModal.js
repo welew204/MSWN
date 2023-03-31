@@ -7,10 +7,15 @@ export default function AddMoverModal({ open, close }) {
   const [form, setForm] = React.useState({
     firstName: "",
     lastName: "",
+    bodyweight: 0,
   });
 
   const handleChange = (event) => {
-    setForm({ ...form, [event.target.name]: event.target.value });
+    let new_value = event.target.value;
+    if (event.target.name == "bodyweight") {
+      new_value = parseInt(new_value);
+    }
+    setForm({ ...form, [event.target.name]: new_value });
   };
 
   const queryClient = useQueryClient();
@@ -30,11 +35,19 @@ export default function AddMoverModal({ open, close }) {
     },
   });
 
-  const handleClose = () => close();
+  const handleClose = () => {
+    // clearing the form...
+    setForm({
+      firstName: "",
+      lastName: "",
+      bodyweight: 0,
+    });
+    return close();
+  };
   /* TODO maybe the issue is triggering the re-render of the sidebar 'movers' */
 
   return (
-    <Modal size='xs' open={open}>
+    <Modal size='xs' open={open} onClose={handleClose}>
       <Modal.Header>
         <Modal.Title>Add Mover</Modal.Title>
       </Modal.Header>
@@ -47,6 +60,14 @@ export default function AddMoverModal({ open, close }) {
               placeholder='First Name'
               name='firstName'
             />
+            <p
+              style={{
+                marginTop: "8px",
+                fontStyle: "italic",
+                width: "80%",
+              }}>
+              * required
+            </p>
           </Form.Group>
           <Form.Group>
             <Form.Control
@@ -55,6 +76,31 @@ export default function AddMoverModal({ open, close }) {
               placeholder='Last Name'
               name='lastName'
             />
+            <p
+              style={{
+                marginTop: "8px",
+                fontStyle: "italic",
+                width: "80%",
+              }}>
+              * required
+            </p>
+          </Form.Group>
+          <Form.Group>
+            <Form.Control
+              autoComplete='false'
+              onChange={(value, event) => handleChange(event)}
+              placeholder='bodyweight'
+              name='bodyweight'
+            />
+            <p
+              style={{
+                marginTop: "8px",
+                fontStyle: "italic",
+                width: "80%",
+              }}>
+              This information is only for calculating resistance of bodyweight
+              activities (default: 150 lbs).
+            </p>
           </Form.Group>
         </Form>
       </Modal.Body>
@@ -66,6 +112,11 @@ export default function AddMoverModal({ open, close }) {
           <Button
             onClick={(event) => {
               event.preventDefault();
+              if (!form.firstName) {
+                return void 0;
+              } else if (!form.lastName) {
+                return void 0;
+              }
               addMover.mutate(form);
               handleClose();
             }}

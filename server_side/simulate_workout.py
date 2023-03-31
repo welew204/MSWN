@@ -16,58 +16,206 @@ from server_side.f_db import get_db
 
 '''WRITE WORKOUT request example:
 
-{'comments': '',
- 'date_init': '2023-02-20',
- 'id': '',
- 'inputs': {'1': {'completed': True,
-                  'drill_name': 'CARs',
-                  'duration': '43',
-                  'end_coord': '',
-                  'external_load': '',
-                  'fixed_side_anchor_id': '',
-                  'id': 1,
-                  'passive_duration': '',
-                  'ref_joint_id': '3',
-                  'ref_joint_name': 'LT',
-                  'ref_joint_side': 'mid',
-                  'ref_zones_id_a': '',
-                  'ref_zones_id_b': '',
-                  'rotational_value': '',
-                  'rpe': 5,
-                  'start_coord': ''},
- 'moverid': 1,
- 'schema': [{'circuit': ['1'], 'iterations': 1},
-            {'circuit': ['2'], 'iterations': 1},
-            {'circuit': ['3'], 'iterations': 1}],
- 'workout_title': 'Trying API AGAIN'}'''
+{
+    "id": "",
+    "workout_title": "Latest Wkout Shape",
+    "date_init": "2023-03-28",
+    "moverid": 1,
+    "comments": "",
+    "inputs": {
+        "1": {
+            "id": 1,
+            "drill_name": "push-up",
+            "duration": 20,
+            "reps_array": [
+                2,
+                5,
+                1,
+                1,
+                1,
+                1
+            ],
+            "rpe": 6,
+            "external_load": 0,
+            "side": "",
+            "multijoint": true,
+            "completed": true
+        },
+        "2": {
+            "ref_joint_id": "14",
+            "ref_joint_name": "knee",
+            "id": 2,
+            "ref_zones_id_a": "",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": "",
+            "end_coord": "",
+            "drill_name": "CARs",
+            "duration": 60,
+            "passive_duration": "",
+            "rpe": 6,
+            "reps_array": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "multijoint": false,
+            "external_load": "",
+            "ref_joint_side": "R",
+            "completed": true
+        },
+        "3": {
+            "ref_joint_id": 15,
+            "ref_joint_name": "knee",
+            "id": 3,
+            "ref_zones_id_a": "",
+            "ref_zones_id_b": "",
+            "fixed_side_anchor_id": "",
+            "rotational_value": "",
+            "start_coord": "",
+            "end_coord": "",
+            "drill_name": "CARs",
+            "duration": 60,
+            "passive_duration": "",
+            "rpe": 6,
+            "reps_array": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "multijoint": false,
+            "external_load": "",
+            "ref_joint_side": "L",
+            "completed": true
+        },
+        "4": {
+            "id": 4,
+            "drill_name": "plank",
+            "duration": 15,
+            "reps_array": [
+                2,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "rpe": 9,
+            "external_load": 10,
+            "side": "",
+            "multijoint": true,
+            "completed": true
+        },
+        "5": {
+            "id": 5,
+            "drill_name": "",
+            "duration": 0,
+            "reps_array": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                0
+            ],
+            "rpe": 0,
+            "external_load": 0,
+            "side": "",
+            "multijoint": true
+        }
+    },
+    "schema": [
+        {
+            "circuit": [
+                "1"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "2"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "3"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "4"
+            ],
+            "iterations": 1
+        },
+        {
+            "circuit": [
+                "5"
+            ],
+            "iterations": 1
+        }
+    ]
+}'''
 '''RECORD WORKOUT request example:
-{'15': {'Rx': {'comments': None,
-               'drill_name': 'CARs',
-               'duration': 36,
-               'end_coord': '',
-               'external_load': '',
-               'fixed_side_anchor_id': '',
-               'id': 15,
-               'passive_duration': '',
-               'rails': None,
-               'ref_joint_id': 7,
-               'ref_joint_name': 'GH',
-               'ref_joint_type': 'synovial',
-               'ref_zones_id_a': '',
-               'ref_zones_id_b': '',
-               'rotational_value': '',
-               'rpe': 9,
-               'side': 'L',
-               'start_coord': ''},
-        'results': {'duration': '38',
-                    'external_load': 0,
-                    'passive_duration': 0,
-                    'rails': False,
-                    'rpe': 6}},
- 'date_done': '2023-02-22T17:19:07.782Z',
- 'mover_id': '2',
- 'workout_id': 8}
- '''
+{
+    "2": {
+        "Rx": {
+            "id": 2,
+            "ref_zones_id_a": null,
+            "ref_zones_id_b": null,
+            "fixed_side_anchor_id": null,
+            "rotational_value": null,
+            "start_coord": null,
+            "end_coord": null,
+            "drill_name": "push-up",
+            "rails": null,
+            "reps_array": [
+                2,
+                5,
+                1,
+                1,
+                1,
+                1
+            ],
+            "multijoint": 1,
+            "duration": 20,
+            "passive_duration": null,
+            "rpe": 6,
+            "external_load": 0,
+            "comments": null,
+            "side": null,
+            "ref_joint_name": null,
+            "ref_joint_type": null,
+            "ref_joint_id": null
+        },
+        "results": {
+            "rails": null,
+            "passive_duration": null,
+            "duration": 20,
+            "rpe": 6,
+            "external_load": 0,
+            "reps_array": [
+                2,
+                5,
+                1,
+                1,
+                1,
+                1
+            ]
+        }
+    },
+    "date_done": "2023-03-28T21:31:58.614Z",
+    "workout_id": 2,
+    "mover_id": 1
+}'''
 
 
 def clone_workout(db, workout_id, to_mover_id, simulation=False):
@@ -81,7 +229,7 @@ def clone_workout(db, workout_id, to_mover_id, simulation=False):
                                 programmed_drills.*,
                                 joints.ref_joints_id AS ref_joint_id,
                                 ref_joints.joint_name AS ref_joint_name,
-                                ref_joints.side AS ref_joint_side
+                                ref_joints.side
                                 FROM workouts 
                                 LEFT JOIN programmed_drills ON
                                 workouts.id = programmed_drills.workout_id
@@ -105,14 +253,27 @@ def clone_workout(db, workout_id, to_mover_id, simulation=False):
     drills_as_inputs = {}
     schema = []
     for i, row in enumerate(drill_query):
-        each_drill = {k: row[k] for k in row.keys()}
-        # if k not in [
-        #    "workout_title", "wkt_comments", "workout_id", "moverid", "joint_id"]}
-        print(
-            f'working on cloning each drill (programmed_drill # {each_drill["id"]} shown below...)')
-        pprint.pprint(each_drill)
+        each_drill = {k: row[k] for k in row.keys() if k not in [
+            "workout_title", "wkt_comments", "workout_id", "moverid", "joint_id"]}
+        reps_array_as_list = [int(i)
+                              for i in each_drill.pop('reps_array').split(',')]
+        # print(reps_array_as_list)
+        if each_drill['multijoint'] == 1:
+            each_drill.pop("ref_joint_id")
+            each_drill.pop("ref_joint_name")
+            each_drill.pop("ref_zones_id_a")
+            each_drill.pop("ref_zones_id_b")
+            each_drill.pop("passive_duration")
+            each_drill.pop("rails")
+            each_drill.pop("end_coord")
+            each_drill.pop("start_coord")
+        else:
+            each_drill['ref_joint_side'] = each_drill.pop('side')
+        # print(f'working on cloning each drill (programmed_drill # {each_drill["id"]} shown below...)')
+        # pprint.pprint(each_drill)
         date = each_drill.pop("date")
         each_drill["completed"] = True
+        each_drill['reps_array'] = reps_array_as_list
 
         # this handles the schema info by ...
         # > taking payload info, and converting input_sequence into a list of strings
@@ -134,14 +295,16 @@ def clone_workout(db, workout_id, to_mover_id, simulation=False):
 
         drills_as_inputs[i+1] = each_drill
 
+    #print("printing the workout request after pull from SQL...")
     workout_request["inputs"] = drills_as_inputs
     workout_request["schema"] = schema
+    # pprint.pprint(workout_request)
 
     before_write_workout = workout_request
 
     new_workout_id = workout_writer.workout_writer(db, workout_request)
-    pprint.pprint(before_write_workout.keys())
-    pprint.pprint(workout_request.keys())
+    # pprint.pprint(before_write_workout.keys())
+    # pprint.pprint(workout_request.keys())
     # i believe this will return a CHANGED workout_request...
     return new_workout_id
     # add "simulation" to comments
@@ -170,7 +333,9 @@ def generate_rx_record(date, input_payload):
      start_coord,
      drill_id,
      moverid,
-     workout_id
+     workout_id,
+     reps_array,
+     multijoint
      ) = itemgetter(
         'circuit_iterations',
         'drill_name',
@@ -192,7 +357,9 @@ def generate_rx_record(date, input_payload):
         'start_coord',
         'id',
         'moverid',
-        'workout_id')(input_payload)
+        'workout_id',
+        'reps_array',
+        'multijoint')(input_payload)
     # OUTPUT: needs to match fields below, beware of hard-coded values
     # be sure to grab input_payload as dictionary from sql query of db via workout_id
     # unpack input_payload
@@ -215,12 +382,15 @@ def generate_rx_record(date, input_payload):
         'rotational_value': rotational_value,
         'rpe': rpe,
         'side': ref_joint_side,
-        'start_coord': start_coord},
+        'start_coord': start_coord,
+        'reps_array': reps_array,
+        'multijoint': multijoint},
         'results': {'duration': duration,
                     'external_load': external_load,
                     'passive_duration': passive_duration,
                     'rails': rails,
-                    'rpe': rpe}},
+                    'rpe': rpe,
+                    'reps_array': reps_array}},
         'date_done': date,
         'mover_id': moverid,
         'workout_id': workout_id}
@@ -267,8 +437,11 @@ def generate_workouts_over_time(db, start_date, time_span, days_per_week, wkt_id
     for i, d in enumerate(dates_array):
         for row in wkt_rows:
             each_input_payload = {k: row[k] for k in row.keys()}
-            print(f'cloning each input as part of "generate_workouts_over_time"')
-            pprint.pprint(each_input_payload)
+            each_input_payload['reps_array'] = [int(i) for i in each_input_payload.pop(
+                'reps_array').split(',')]
+            # print(each_input_payload['reps_array'])
+            #print(f'cloning each input as part of "generate_workouts_over_time"')
+            # pprint.pprint(each_input_payload)
             wkt_record = generate_rx_record(
                 d.strftime("%Y-%m-%d"), each_input_payload)
             wkts_to_record_array.append(wkt_record)
@@ -289,33 +462,37 @@ def generate_workouts_over_time(db, start_date, time_span, days_per_week, wkt_id
 
 
 def generate_CARs_record(date, inputID, ref_joint_id, joint_name, joint_type, side, moverid, workout_id):
-    res = {inputID: {'Rx': {
-        'comments': None,
-        'drill_name': 'CARs',
-        'duration': 120,
-        'end_coord': '',
-        'external_load': '',
-        'fixed_side_anchor_id': '',
-        'id': inputID,
-        'passive_duration': '',
-        'rails': None,
-        'ref_joint_id': ref_joint_id,
-        'ref_joint_name': f'{joint_name}',
-        'ref_joint_type': f'{joint_type}',
-        'ref_zones_id_a': '',
-        'ref_zones_id_b': '',
-        'rotational_value': '',
-        'rpe': 5,
-        'side': f'{side}',
-        'start_coord': ''},
-        'results': {'duration': '120',
-                    'external_load': 0,
-                    'passive_duration': 0,
-                    'rails': False,
-                    'rpe': 5}},
-        'date_done': f'{date}',
-        'mover_id': moverid,
-        'workout_id': workout_id}
+    res = {inputID:
+           {'Rx': {
+            'comments': None,
+            'drill_name': 'CARs',
+            'duration': 120,
+            'end_coord': '',
+            'external_load': '',
+            'fixed_side_anchor_id': '',
+            'id': inputID,
+            'passive_duration': '',
+            'rails': None,
+            'ref_joint_id': ref_joint_id,
+            'ref_joint_name': f'{joint_name}',
+            'ref_joint_type': f'{joint_type}',
+            'ref_zones_id_a': '',
+            'ref_zones_id_b': '',
+            'rotational_value': '',
+            'rpe': 5,
+            'side': f'{side}',
+            'start_coord': '',
+            'multijoint': 0,
+            'reps_array': [1, 0, 0, 0, 0, 0]},
+            'results': {'duration': '120',
+                        'external_load': 0,
+                        'passive_duration': 0,
+                        'rails': False,
+                        'rpe': 5,
+                        'reps_array': [1, 0, 0, 0, 0, 0]}},
+           'date_done': f'{date}',
+           'mover_id': moverid,
+           'workout_id': workout_id}
     return res
 
 
@@ -378,7 +555,9 @@ def dailyCARs(db, name, days_per_week, time_span, all=True, selected_CARs=[]):
                                           'ref_zones_id_b': '',
                                           'rotational_value': '',
                                           'rpe': 5,
-                                          'start_coord': ''}
+                                          'start_coord': '',
+                                          'reps_array': [1, 0, 0, 0, 0, 0],
+                                          'multijoint': 0}
         workout_request["schema"].append(
             {'circuit': [f'{i + 1}'], 'iterations': 1})
 
@@ -430,7 +609,9 @@ def dailyCARs(db, name, days_per_week, time_span, all=True, selected_CARs=[]):
              rotational_value,
              rpe,
              start_coord,
-             wkt_id) = itemgetter(
+             wkt_id,
+             reps_array,
+             multijoint) = itemgetter(
                 'circuit_iterations',
                 'date',
                 'drill_name',
@@ -447,7 +628,9 @@ def dailyCARs(db, name, days_per_week, time_span, all=True, selected_CARs=[]):
                 'rotational_value',
                 'rpe',
                 'start_coord',
-                'workout_id')(input)
+                'workout_id',
+                'reps_array',
+                'multijoint')(input)
 
             ref_joint_id, ref_joint_name, joint_side, joint_type = joint_info_lookups[joint_id]
             # print(joint_id)
@@ -492,16 +675,22 @@ def simulate_workout():
             break
         except ValueError:
             print("Ooops, you must enter a valid integer (0 - 14). Try again...")
-
-    start_date = input(
-        "What is the start date (format: MM/DD/YYYY)? [if empty, default will be today]: ")
-    if not start_date:
-        # handling default date (today)
-        start_date = datetime.date.today()
-    else:
-        start_date = datetime.date(
-            int(start_date[6:]), int(start_date[:2]), int(start_date[3:5]))
     time_span = input("What time-span should these be done over (in days)?: ")
+
+    while True:
+        start_date = input(
+            "What is the start date (format: MM/DD/YYYY)? [if empty, default will be today]: ")
+        if start_date == "":
+            # handling default date (today)
+            start_date = datetime.date.today()
+            break
+        else:
+            try:
+                start_date = datetime.date(
+                    int(start_date[6:]), int(start_date[:2]), int(start_date[3:5]))
+                break
+            except ValueError:
+                print("Ooops, you must enter a valid date. Try again...")
 
     # do a SELECT to find mover, if exists then continue
     mover_exists = curs.execute('''SELECT movers.id

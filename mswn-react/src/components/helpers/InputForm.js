@@ -170,7 +170,7 @@ export default function InputForm({
         console.log(
           `setting Zone ID!: ${target_joint.id}-${target_zone.id}, ${target_zone.side}, ${target_zone.zone_name}`
         );
-        let mirror_side;
+        let mirror_side = false;
         let mirror_joint;
         let mirror_zone;
         if (target_joint.zones[0].side == "R") {

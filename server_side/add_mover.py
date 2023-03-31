@@ -9,7 +9,7 @@ from server_side.f_db import get_db
 def add_new_mover(db, first_name, last_name, bodyweight=0):
     date = datetime.now().strftime("%Y-%m-%d")
     if bodyweight <= 0:
-        bodyweight = None
+        bodyweight = 150
     # create db cnx
     curs = db.cursor()
     # add mover to table

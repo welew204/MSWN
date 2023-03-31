@@ -45,3 +45,7 @@ def test_bout_dict_maker() -> None:
     # if joint motion is NOT one of the three types
     # if tissue_type is NOT one of the three types
     pass
+
+# a test for top-level conditional --> a test for each branch of conditional
+# seperate tests for each case
+# --> points at needing to refactor the case-switcher component of unpack

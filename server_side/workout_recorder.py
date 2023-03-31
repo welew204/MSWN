@@ -1,5 +1,6 @@
 from pprint import pprint
 import sys
+import json
 
 from server_side.mover_info_dict import mover_info_dict
 
@@ -52,9 +53,11 @@ def pushup_tissue_bouts(inputID, input_values, mover_dict, date_done, moverid):
     else:
         # this is a reps-based input (rb === "rep-based")
         rb = True
+        # TEST this is essentially a test to make sure it's an array coming in...
         rep_duration = sum(reps_array[2:])
         # using rep_array data for inputting specific durations
-    bodyweight_portion = mover_dict.pop('bodyweight')//2
+    bw = mover_dict.pop('bodyweight')
+    bodyweight_portion = bw//2
     external_load = int(input_values["results"]
                         ["external_load"])
     load_used_in_pushup = external_load + bodyweight_portion
@@ -362,6 +365,9 @@ def pushup_tissue_bouts(inputID, input_values, mover_dict, date_done, moverid):
     # pprint(out_bouts)
     # print(len(out_bouts))
 
+    # i have to put the bodyweight back?!
+    mover_dict['bodyweight'] = bw
+
     return out_bouts
 
 
@@ -418,7 +424,8 @@ def plank_tissue_bouts(inputID, input_values, mover_dict, date_done, moverid):
     rpe = input_values["results"]["rpe"]
     # DURATION is for the TOTAL number of mini-sets...... is this what i  want??
     duration = input_values["results"]["duration"]
-    bodyweight_portion = mover_dict.pop('bodyweight')//2
+    bw = mover_dict.pop('bodyweight')
+    bodyweight_portion = bw//2
     external_load = int(input_values["results"]
                         ["external_load"])
     load_used_in_plank = external_load + bodyweight_portion
@@ -492,6 +499,8 @@ def plank_tissue_bouts(inputID, input_values, mover_dict, date_done, moverid):
         resulting_bouts.append(linear_hallux_bout_to_add)
 
     # pprint(resulting_bouts)
+    # PUTTING THE BODYWEIGHT BACK!
+    mover_dict['bodyweight'] = bw
     return resulting_bouts
 
 
@@ -921,7 +930,7 @@ def unpack_inputs(inputs, mover_dict, date_done, moverid):
                     # !!! target zone in this case is SHORT, so no need to hunt for RAILs tissue
                     target_zone_name = zone
                     target_zone = mover_dict[ref_joint_name_string]["zones"][target_zone_name]
-                    target_fixed_anchor = target_fixed_anchor['anchors']['proximal']
+                    target_fixed_anchor = target_zone['anchors']['proximal']
                     break
 
             # ASSUME the positional value for this isometric ("short")
@@ -971,7 +980,7 @@ def unpack_inputs(inputs, mover_dict, date_done, moverid):
                     # no need to hunt for RAILs tissue (ala Kinetic Stretch)
                     target_zone_name = zone
                     target_zone = mover_dict[ref_joint_name_string]["zones"][target_zone_name]
-                    target_fixed_anchor = target_zone['anchord']['proximal']
+                    target_fixed_anchor = target_zone['anchors']['proximal']
                     break
 
             # realize local-to-this-function variables exist:
@@ -1037,26 +1046,22 @@ def unpack_inputs(inputs, mover_dict, date_done, moverid):
                 pointer = terminate
                 time_remaining_in_input -= sec_per_length
         # nb// bouts for Muscular Scan is added to bout_array
-    length_checker = [b for b in bout_array if "tissue_id" not in b.keys()]
-    print(length_checker)
+
     # this is EMPTY!
     faulty_indexes = []
     for i, b in enumerate(bout_array):
-        try:
+        '''try:
             tester = b["tissue_id"]
             print(f'{b["joint_id"]}, {tester}, {len(b)}')
         except KeyError:
             faulty_indexes.append(i)
             print("error")
-            continue
+            continue'''
         if b["tissue_type"] == "capsular":
             b["capsular_tissue_id"] = b.pop("tissue_id")
             b["rotational_tissue_id"] = ""
             b["linear_tissue_id"] = ""
         elif b["tissue_type"] == "rotational":
-            if len(b) == 17:
-                print("a LONG one: ", i)
-                pass
             b["capsular_tissue_id"] = ""
             b["rotational_tissue_id"] = b.pop("tissue_id")
             b["linear_tissue_id"] = ""
@@ -1064,7 +1069,7 @@ def unpack_inputs(inputs, mover_dict, date_done, moverid):
             b["capsular_tissue_id"] = ""
             b["rotational_tissue_id"] = ""
             b["linear_tissue_id"] = b.pop("tissue_id")
-    print(faulty_indexes)
+    print("Here the indexes of the bout_array that are faulty...\n", faulty_indexes)
     return bout_array
 
 
@@ -1083,8 +1088,8 @@ def prep_bouts_for_insertion(bout_array):
 
 def workout_recorder(db, req):
 
-    print(f"record_bout request: ", file=sys.stderr)
-    pprint(req)
+    #print(f"record_bout request: ", file=sys.stderr)
+    # pprint(req)
 
     moverid, workout_id, date_done = unpack_workout(req)
 
@@ -1093,10 +1098,24 @@ def workout_recorder(db, req):
     inputs = req.items()
 
     bout_array = unpack_inputs(inputs, mover_dict, date_done, moverid)
-    print("done with compiling bouts to add (# of bouts)....")
-    print(len(bout_array))
+
+    print("done with compiling bouts to add (# of bouts).... ", len(bout_array))
     bout_sql_statement, bout_array_values = prep_bouts_for_insertion(
         bout_array)
+
+    with open('/Users/williamhbelew/Hacking/MSWN/server_side/test_outputs.json', 'r') as outputs_json:
+        outputs = json.load(outputs_json)
+
+    outputs["unpack_workout"][date_done] = {"moverid": moverid,
+                                            "workout_id": workout_id,
+                                            "date_done": date_done}
+    outputs["unpack_inputs"][date_done] = bout_array
+    outputs["prep_bouts_for_insertion"][date_done] = {"bout_sql_statement": bout_sql_statement,
+                                                        "bout_array_values": bout_array_values}
+    
+    with open('/Users/williamhbelew/Hacking/MSWN/server_side/test_outputs.json', 'w') as outputs_json:
+        json.dump(outputs, outputs_json)
+
     # print(bout_array_values)
     curs = db.cursor()
     curs.executemany(bout_sql_statement, bout_array_values)
@@ -1114,8 +1133,10 @@ def multiple_workout_recorder(db, workout_array):
 
     # doing this one time JUST to get the mover_dict with a single db call
     # (and not during each loop of the iterator below)
+    # pprint(workout_array)
     moverid = workout_array[0].get('mover_id')
     mover_dict = mover_info_dict(db, moverid)
+    # print(mover_dict['bodyweight'])
 
     for w in workout_array:
         moverid, workout_id, date_done = unpack_workout(w)
