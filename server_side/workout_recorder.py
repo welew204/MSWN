@@ -1103,16 +1103,26 @@ def workout_recorder(db, req):
     bout_sql_statement, bout_array_values = prep_bouts_for_insertion(
         bout_array)
 
+    # uncomment to 'harvest' some more outputs for unittesting
     with open('/Users/williamhbelew/Hacking/MSWN/server_side/test_outputs.json', 'r') as outputs_json:
         outputs = json.load(outputs_json)
 
     outputs["unpack_workout"][date_done] = {"moverid": moverid,
                                             "workout_id": workout_id,
                                             "date_done": date_done}
-    outputs["unpack_inputs"][date_done] = bout_array
-    outputs["prep_bouts_for_insertion"][date_done] = {"bout_sql_statement": bout_sql_statement,
-                                                        "bout_array_values": bout_array_values}
-    
+    prg_drill_id = bout_array[0]["programmed_drills_id"]
+    if prg_drill_id in outputs["unpack_inputs"].keys():
+        current_workout_instances = outputs["unpack_inputs"][prg_drill_id]
+        current_workout_instances[date_done] = bout_array
+        outputs["unpack_inputs"][prg_drill_id] = current_workout_instances
+        current_sql_bouts = outputs["prep_bouts_for_insertion"][prg_drill_id]
+        current_sql_bouts[date_done] = bout_array_values
+        outputs["prep_bouts_for_insertion"][prg_drill_id] = current_sql_bouts
+    else:
+        outputs["unpack_inputs"][prg_drill_id] = {date_done: bout_array}
+        outputs["prep_bouts_for_insertion"][prg_drill_id] = {
+            date_done: bout_array_values}
+
     with open('/Users/williamhbelew/Hacking/MSWN/server_side/test_outputs.json', 'w') as outputs_json:
         json.dump(outputs, outputs_json)
 

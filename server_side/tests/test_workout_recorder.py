@@ -10,6 +10,9 @@ from pprint import pprint
 # to ADD raiseError to source code....?
 with open('/Users/williamhbelew/Hacking/MSWN/server_side/tests/record_tests.json') as json_workouts:
     tester_records = json.load(json_workouts)
+with open('/Users/williamhbelew/Hacking/MSWN/server_side/test_outputs.json') as json_OUTPUTs:
+    tester_outputs = json.load(json_OUTPUTs)
+
 
 # input, output tuples
 unpack_workout_test_results = [
@@ -40,12 +43,17 @@ def test_unpack_workout(test_input, expected_output):
 
 
 def test_bout_dict_maker() -> None:
+    # NOT doign this now.
     # if given the wrong number of args
     # if date is wrong format
     # if joint motion is NOT one of the three types
     # if tissue_type is NOT one of the three types
     pass
 
-# a test for top-level conditional --> a test for each branch of conditional
-# seperate tests for each case
-# --> points at needing to refactor the case-switcher component of unpack
+
+def test_unpack_inputs_CARs() -> None:
+
+    pass
+    # a test for top-level conditional --> a test for each branch of conditional
+    # seperate tests for each case
+    # --> points at needing to refactor the case-switcher component of unpack

@@ -35,6 +35,7 @@ export default function RecordWkout() {
   const [selectInp, setSelectInp] = useState("");
   const [workoutResults, setWorkoutResults] = useState({});
   const [doAsRxd, setDoAsRxd] = useState(false);
+  const [dateDefined, setDateDefined] = useState(false);
   console.log(selectInp);
   console.log(selectedWorkout);
   // need to build out this functionality ^^
@@ -53,8 +54,12 @@ export default function RecordWkout() {
 
   const updateDB = useMutation({
     mutationFn: (target_input) => {
+      let date_to_use = new Date().toISOString();
+      if (dateDefined) {
+        date_to_use = workoutResults.date_done;
+      }
       const just_this_bout_object = {
-        date_done: workoutResults.date_done,
+        date_done: date_to_use,
         workout_id: workoutResults.workout_id,
         mover_id: workoutResults.mover_id,
         [target_input]: { ...workoutResults[target_input] },
@@ -318,9 +323,10 @@ export default function RecordWkout() {
             <Divider />
             <DatePicker
               preventOverflow
-              onChange={(value) =>
-                updateWorkoutResults("date_done", value.toISOString())
-              }
+              onChange={(value) => {
+                setDateDefined(true);
+                return updateWorkoutResults("date_done", value.toISOString());
+              }}
               format='yyyy-MM-dd HH:mm'
               placeholder={Date(workoutResults.date_done)}
             />
