@@ -40,31 +40,28 @@ export default function Home() {
     });
   }
   const movers = useQuery({
-    queryKey: ["movers"],
-    queryFn: () => fetchAPI(server_url + "/movers_list"),
+    queryKey: ["movers", user.coach],
+    queryFn: () => fetchAPI(`${server_url}/movers_list/${user.coach}`),
   });
 
+  // this feels HACKY and not neccesary
   useEffect(() => {
-    fetchAPI(`${server_url}/movers_list`).then((data) => {
+    fetchAPI(`${server_url}/movers_list/${user.coach}`).then((data) => {
       const arbMoverId = Object.values(data).at(0)[0];
-      console.log(arbMoverId);
       setActiveMover(arbMoverId);
     });
-  }, []);
-  console.log(activeMover);
+  }, [user]);
 
   /* HACK: this useEffect feels hacky a bit, in that the original item returned gets a 404
   (before the activeMover is set) */
   useEffect(() => {
     fetchAPI(`${server_url}/workouts/${activeMover}`)
       .then((data) => (data != [] ? setSelectedWorkout(data[0]?.id) : void 0))
-      .then(console.log(`Got the workouts for id: ${activeMover}`));
+      .then(console.log(`Got the workouts for mover_id: ${activeMover}`));
   }, [activeMover]);
 
   if (!user) {
     return <Navigate to='/coaches' />;
-  } else {
-    console.log(user.coach);
   }
   if (movers.isLoading) return "Loading...";
   if (movers.isError) return `Error: error`;
@@ -113,7 +110,11 @@ export default function Home() {
         </Navbar>
       </Header>
       <Container className='homescreen-mid'>
-        <AddMoverModal open={addMoverOpen} close={setAddMoverOpen} />
+        <AddMoverModal
+          open={addMoverOpen}
+          close={setAddMoverOpen}
+          coach_id={user.coach}
+        />
         <Sidebar
           style={{ overflow: "auto", marginRight: "10px" }}
           className='sidebar'>
@@ -124,7 +125,9 @@ export default function Home() {
             <Sidenav.Body>
               <Nav
                 activeKey={
-                  activeMover ? `${activeMover}` : `${movers.data["1"][0]}`
+                  activeMover
+                    ? `${activeMover}`
+                    : `${Object.keys(movers.data).at(0)[0]}`
                 }
                 onSelect={(e) => {
                   setActiveMover(e);

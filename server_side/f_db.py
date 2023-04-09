@@ -5,6 +5,8 @@ import click
 from flask import current_app, g
 
 from server_side.db_ref_vals import build_anchors, build_ref_bone_end_vals, build_joint_ref_vals, build_zone_ref_vals, build_adj
+from server_side.hashing import hash_password
+from server_side.add_mover import add_new_mover
 
 """creating connection to DB (even if it doesn't exist yet
 
@@ -47,6 +49,37 @@ def init_db():
     build_zone_ref_vals(db=db)
     build_anchors(db=db)
     build_adj(db=db)
+    # autopopulate two coach users (Will Belew, Guest)
+    curs = db.cursor()
+    wb_pw = "eggplant204"
+    wb_hashed = hash_password(wb_pw)
+    tuhday = datetime.now().strftime("%Y-%m-%d")
+    curs.execute('''INSERT INTO coaches 
+                    (first_name, 
+                    last_name,
+                    date_added,
+                    hpassword
+                    ) VALUES (?,?,?,?)''',
+                 ("Will", "Belew", tuhday, wb_hashed))
+    guest_pw = "workNice"
+    guest_hashed = hash_password(guest_pw)
+    curs.execute('''INSERT INTO coaches 
+                    (first_name, 
+                    last_name,
+                    date_added,
+                    hpassword
+                    ) VALUES (?,?,?,?)''',
+                 ("Guest", "User", tuhday, guest_hashed))
+    db.commit()
+    print("~~default users added!")
+    # autopopulate a mover (Debbie Mover)
+    c_id = curs.execute(
+        '''SELECT id FROM coaches WHERE first_name = (?) AND last_name = (?)''', ("Will", "Belew")).fetchone()
+    g_id = curs.execute(
+        '''SELECT id FROM coaches WHERE first_name = (?) AND last_name = (?)''', ("Guest", "User")).fetchone()
+    add_new_mover(db, "Debbie", "Mover", c_id["id"], 130)
+    add_new_mover(db, "JoeBlow", "Mover", g_id["id"], 160)
+    print("~~~default users added!")
 
 
 @click.command('init-db')

@@ -44,19 +44,23 @@ DROP TABLE IF EXISTS assess_tissue_log;
 -- (not actual tissues) which translates into force vectors within
 -- the collective phase space of a region of zones capacity
 
-CREATE TABLE movers (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    first_name TEXT NOT NULL,
-    last_name TEXT NOT NULL,
-    date_added TEXT NOT NULL,
-    bodyweight INT
-);
 
 CREATE TABLE coaches (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
-    date_added TEXT NOT NULL
+    date_added TEXT NOT NULL,
+    hpassword TEXT NOT NULL
+);
+
+CREATE TABLE movers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    date_added TEXT NOT NULL,
+    coach_id INT NOT NULL,
+    bodyweight INT,
+    FOREIGN KEY (coach_id) REFERENCES coaches (id)
 );
 
 CREATE TABLE ref_bone_end (

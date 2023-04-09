@@ -3,18 +3,16 @@ from datetime import datetime
 import sqlite3
 import click
 
-from server_side.f_db import get_db
 
-
-def add_new_mover(db, first_name, last_name, bodyweight=0):
+def add_new_mover(db, first_name, last_name, coach_id, bodyweight=0):
     date = datetime.now().strftime("%Y-%m-%d")
     if bodyweight <= 0:
         bodyweight = 150
     # create db cnx
     curs = db.cursor()
     # add mover to table
-    curs.execute('INSERT INTO movers (first_name, last_name, date_added, bodyweight) VALUES (?,?,?,?)',
-                 (first_name, last_name, date, bodyweight))
+    curs.execute('INSERT INTO movers (first_name, last_name, date_added, coach_id, bodyweight) VALUES (?,?,?,?,?)',
+                 (first_name, last_name, date, coach_id, bodyweight))
     db.commit()
     mover_id = curs.lastrowid
     # mover_id_Row = curs.execute(
@@ -142,6 +140,9 @@ def add_new_mover(db, first_name, last_name, bodyweight=0):
 
 @click.command('mswn-add-mover')
 def add_user_command():
+    # trying to stash this import INSIDE the actual click command, to avoid
+    # a circular import when using (add_new_mover) inside f_db!
+    from server_side.f_db import get_db
     db = get_db()
     fname = input("What's the first name...?  ")
     lname = input("What's the last name...?  ")

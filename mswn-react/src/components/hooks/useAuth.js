@@ -11,7 +11,11 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   // call this function to authenticate a user
+  // this needs some logic to actually query the server,
+  // an endpoint that compares the string to the hashed version in the db
+  // ??? or is there a best practice here?
   const login = async (data) => {
+    // some logic
     setUser(data);
     console.log(data);
     navigate("/dashboard");

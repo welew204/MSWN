@@ -3,10 +3,11 @@ import { Modal, Form, Button } from "rsuite";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-export default function AddMoverModal({ open, close }) {
+export default function AddMoverModal({ open, close, coach_id }) {
   const [form, setForm] = React.useState({
     firstName: "",
     lastName: "",
+    coachID: coach_id,
     bodyweight: 0,
   });
 
@@ -30,7 +31,7 @@ export default function AddMoverModal({ open, close }) {
       }).then((res) => console.log(res));
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["movers"] });
+      queryClient.invalidateQueries({ queryKey: ["movers", coach_id] });
       console.log("The mutation is sucessful!");
     },
   });

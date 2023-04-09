@@ -4,18 +4,25 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 export default function CoachLoginModal({ coachSelected, open, close }) {
+  // 'coachSelected' is now an object w/ first_ and last_name and coach_id props
   const [pwEntry, setPwEntry] = useState("");
   const { login } = useAuth();
 
   function handleSubmit(event) {
     event.preventDefault();
-    console.log({ coach: coachSelected, password: pwEntry });
-    login({ coach: coachSelected, password: pwEntry });
-    //const data = new FormData(event.currentTarget);
+    pwEntry == ""
+      ? void 0
+      : login({ coach: coachSelected.coach_id, password: pwEntry });
   }
 
   return (
-    <Modal style={{}} open={open} size='sm'>
+    <Modal
+      style={{}}
+      open={open}
+      size='sm'
+      onKeyDown={(event) => {
+        event.keyCode == 13 ? handleSubmit(event) : void 0;
+      }}>
       <Modal.Header>
         <Modal.Title>Coach Login</Modal.Title>
       </Modal.Header>
