@@ -36,14 +36,29 @@ def index(mover_id):
     return 'Done', 201
 
 
-@bp.route('/movers_list')
-def get_movers():
+@bp.route('/coaches_list')
+def get_coaches():
     # print(datetime.datetime.now())
     db = get_db()
-    mover_rows = db.execute('SELECT * FROM movers').fetchall()
+    coach_rows = db.execute('SELECT * FROM coaches').fetchall()
+    res = {}
+    for m in coach_rows:
+        res[m["id"]] = {"first_name": m["first_name"],
+                        "last_name": m["last_name"]}
+
+    return jsonify(res), 201
+
+
+@bp.route('/movers_list/<int:coach_id>')
+def get_movers(coach_id):
+    # print(datetime.datetime.now())
+    db = get_db()
+    mover_rows = db.execute(
+        'SELECT * FROM movers WHERE coach_id = (?)', (coach_id, )).fetchall()
     res = {}
     for m in mover_rows:
         res[m["id"]] = [i for i in m]
+    print(res)
 
     return jsonify(res), 201
 
@@ -55,8 +70,9 @@ def add_mover_to_db():
     req = request.get_json()[0]
     fname = req['firstName']
     lname = req['lastName']
+    coach_id = req["coachID"]
     bw = req['bodyweight']
-    mover_id = add_new_mover(db, fname, lname, bw)
+    mover_id = add_new_mover(db, fname, lname, coach_id, bw)
 
     return f"{fname} {lname} is added to the DB! ID: {mover_id}", 201
 
@@ -135,7 +151,7 @@ def delete_workout():
 @ bp.route('/workouts/<int:mover_id>')
 def get_workouts(mover_id):
     if mover_id == 0:
-        return json.dumps(["Sorry! No workouts yet."]), 200
+        return json.dumps([]), 200
     db = get_db()
     curs = db.cursor()
     workout_rows = curs.execute('''SELECT

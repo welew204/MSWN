@@ -303,7 +303,7 @@ def build_joint_ref_vals(db):
         joints_to_add.append(joint_values)
     # executemany to "joint_reference", commit to db
     qmarks = ["?" for i in range(len(joints_to_add[0]))]
-    print(joints_to_add[0])
+
     sql_statement = f'''INSERT INTO ref_joints 
                     (date_updated, bone_end_id_a, 
                     bone_end_id_b, joint_name, side, 

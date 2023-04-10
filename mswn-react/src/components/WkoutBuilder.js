@@ -485,7 +485,10 @@ export default function WkoutBuilder() {
               justifyContent: "center",
               gap: 20,
             }}>
-            <Button as={RsNavLink} href='/mover' onClick={updateDB.mutate}>
+            <Button
+              as={RsNavLink}
+              href='/dashboard/mover'
+              onClick={updateDB.mutate}>
               Save Workout
             </Button>
             {/* <Button as={RsNavLink} href='/wbuilder'>

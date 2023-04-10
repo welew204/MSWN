@@ -361,7 +361,7 @@ export default function RecordWkout() {
           }}>
           <Button
             as={RsNavLink}
-            href='/mover'
+            href='/dashboard/mover'
             onClick={() => confirm_workout.mutate()}>
             Record Workout
           </Button>
