@@ -527,7 +527,9 @@ def unpack_mj_input(inputID, drill_name, input_values, mover_dict, date_done, mo
 def unpack_inputs(inputs, mover_dict, date_done, moverid):
     bout_array = []
 
+    # NB 'inputs' is a dict_items object!!
     for inputID, vals in inputs:
+
         # better way to check for existence in incoming JSON?
 
         drill = vals["Rx"]["drill_name"]

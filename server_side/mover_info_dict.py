@@ -28,7 +28,8 @@ def mover_info_dict(db, moverid):
     bodyweight = curs.execute('''SELECT bodyweight
                             FROM movers
                             WHERE id = (?)''', (moverid,)).fetchone()
-    bodyweight = bodyweight["bodyweight"]
+
+    bodyweight = bodyweight[0]
     caps_adj_all = curs.execute('''SELECT
                 joints.id,
                 joints.joint_type,

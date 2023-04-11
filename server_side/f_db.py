@@ -71,7 +71,7 @@ def init_db():
                     ) VALUES (?,?,?,?)''',
                  ("Guest", "User", tuhday, guest_hashed))
     db.commit()
-    print("~~default users added!")
+    print("~~default coaches added!")
     # autopopulate a mover (Debbie Mover)
     c_id = curs.execute(
         '''SELECT id FROM coaches WHERE first_name = (?) AND last_name = (?)''', ("Will", "Belew")).fetchone()
@@ -79,7 +79,7 @@ def init_db():
         '''SELECT id FROM coaches WHERE first_name = (?) AND last_name = (?)''', ("Guest", "User")).fetchone()
     add_new_mover(db, "Debbie", "Mover", c_id["id"], 130)
     add_new_mover(db, "JoeBlow", "Mover", g_id["id"], 160)
-    print("~~~default users added!")
+    print("~~~default movers added!")
 
 
 @click.command('init-db')
