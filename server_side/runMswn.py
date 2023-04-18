@@ -39,22 +39,19 @@ def create_app(test_config=None):
         return "<h1>Health check!</h1>"
         # what else could I have RUN here that exposes some good stuff??
 
-    from . import f_db
-    f_db.init_app(app)
+    with app.app_context():
+        from . import f_db
+        f_db.init_app(app)
 
-    from . import add_mover
-    add_mover.add_user_to_app(app)
+        from . import add_mover
+        add_mover.add_user_to_app(app)
 
-    from . import simulate_workout
-    simulate_workout.run_simulated_CARs(app)
-    simulate_workout.run_simulated_workout(app)
+        from . import simulate_workout
+        simulate_workout.run_simulated_CARs(app)
+        simulate_workout.run_simulated_workout(app)
 
-    from . import crud_bp
-    app.register_blueprint(crud_bp.bp)
-    app.add_url_rule('/', endpoint='index')
+        from . import crud_bp
+        app.register_blueprint(crud_bp.bp)
+        app.add_url_rule('/', endpoint='index')
 
-    return app
-
-
-if __name__ == "__main__":
-    app = create_app()
+        return app
