@@ -8,6 +8,7 @@ from flask import (
 import sys
 import json
 import datetime
+from scipy.spatial import ConvexHull, convex_hull_plot_2d
 
 from werkzeug.exceptions import abort
 
@@ -25,7 +26,7 @@ from server_side.db_ref_vals import spine_zone_deque
 bp = Blueprint('tissues', __name__)
 
 
-@bp.route('/')
+@bp.route('/api/')
 def index(mover_id):
     # print(f"Got this far (to {index})", file=sys.stderr)
     db = get_db()
@@ -36,7 +37,7 @@ def index(mover_id):
     return 'Done', 201
 
 
-@bp.route('/coaches_list')
+@bp.route('/api/coaches_list')
 def get_coaches():
     # print(datetime.datetime.now())
     db = get_db()
@@ -49,7 +50,7 @@ def get_coaches():
     return jsonify(res), 201
 
 
-@bp.route('/movers_list/<int:coach_id>')
+@bp.route('/api/movers_list/<int:coach_id>')
 def get_movers(coach_id):
     # print(datetime.datetime.now())
     db = get_db()
@@ -63,7 +64,7 @@ def get_movers(coach_id):
     return jsonify(res), 201
 
 
-@bp.route('/add_mover', methods=('POST',))
+@bp.route('/api/add_mover', methods=('POST',))
 def add_mover_to_db():
 
     db = get_db()
@@ -77,7 +78,7 @@ def add_mover_to_db():
     return f"{fname} {lname} is added to the DB! ID: {mover_id}", 201
 
 
-@bp.route('/write_workout', methods=('POST',))
+@bp.route('/api/write_workout', methods=('POST',))
 def write_workout():
     db = get_db()
     req = request.get_json()
@@ -89,7 +90,7 @@ def write_workout():
     return f"Workout ID: {wkt_id} is written!", 201
 
 
-@bp.route('/record_bout', methods=('POST',))
+@bp.route('/api/record_bout', methods=('POST',))
 def record_bout():
     db = get_db()
     req = request.get_json()
@@ -102,7 +103,7 @@ def record_bout():
     return f"Workout/results recorded!", 201
 
 
-@bp.route('/record_workout', methods=('POST',))
+@bp.route('/api/record_workout', methods=('POST',))
 def record_workout():
     db = get_db()
     req = request.get_json()
@@ -126,7 +127,7 @@ def record_workout():
     return f"Workout/results recorded!", 201
 
 
-@bp.route('/delete_workout', methods=('POST',))
+@bp.route('/api/delete_workout', methods=('POST',))
 def delete_workout():
     db = get_db()
     curs = db.cursor()
@@ -148,7 +149,7 @@ def delete_workout():
     return to_return
 
 
-@ bp.route('/workouts/<int:mover_id>')
+@bp.route('/api/workouts/<int:mover_id>')
 def get_workouts(mover_id):
     if mover_id == 0:
         return json.dumps([]), 200
@@ -252,14 +253,14 @@ def get_workouts(mover_id):
 # inputs is not getting used for anything right now
 
 
-@ bp.route('/inputs')
+@bp.route('/api/inputs')
 def get_inputs():
     with open('/Users/williamhbelew/Hacking/MSWN/server_side/fakeInputData.json') as w:
         inputs = json.load(w)
         return jsonify(inputs), 200
 
 
-@ bp.route('/drill_ref')
+@bp.route('/api/drill_ref')
 def drill_ref():
     drills_to_send = {
         "CARs": {},
@@ -274,7 +275,7 @@ def drill_ref():
     return jsonify(drills_to_send), 200
 
 
-@ bp.route('/joint_ref')
+@bp.route('/api/joint_ref')
 def joint_ref():
     db = get_db()
     joint_ref = defaultdict(list)
@@ -431,7 +432,7 @@ def failed_proximal_joint_lookups():
     pprint(neighbor_joints)
 
 
-@ bp.route('/status/<int:mover_id>')
+@bp.route('/api/status/<int:mover_id>')
 def status(mover_id):
     # print(f"Got this far (to {index})", file=sys.stderr)
     db = get_db()
@@ -480,7 +481,7 @@ def status(mover_id):
     return jsonify({"status": tissue_status}), 200
 
 
-@ bp.route('/training_log/<int:mover_id>')
+@bp.route('/api/training_log/<int:mover_id>')
 def training_log(mover_id):
 
     db = get_db()
@@ -514,7 +515,7 @@ def training_log(mover_id):
     return jsonify({"training_log": training_log_final}), 200
 
 
-@ bp.route('/add_bout/<int:moverid>', methods=('POST',))
+@bp.route('/api/add_bout/<int:moverid>', methods=('POST',))
 def add_bout(moverid):
     req = request.get_json()
     print(req, file=sys.stderr)
@@ -555,6 +556,70 @@ def add_bout(moverid):
     return f"{len(bouts_to_input)} bout(s) logged!", 201
 
 
+@bp.route('/api/strength/<int:moverid>')
+def get_strength(moverid):
+    db = get_db()
+    curs = db.cursor()
+
+    tissue_strength = {}
+    tissue_strength_rows = db.execute(
+        '''SELECT bout_log.joint_id,
+                bout_log.id,
+                bout_log.date, 
+                bout_log.duration, 
+                bout_log.rpe, 
+                bout_log.tissue_type,
+                bout_log.external_load,
+                bout_log.rotational_value,
+                bout.joint_motion,
+                bout.start_coord,
+                bout.end_coord,
+                bout.capsular_tissue_id,
+                bout.rotational_tissue_id,
+                bout.linear_tissue_id,
+                bout.fixed_side_anchor_id,
+                joints.ref_joints_id,
+                ref_joints.joint_name,
+                ref_joints.side
+                FROM bout_log 
+                LEFT JOIN joints
+                ON bout_log.joint_id = joints.id
+                LEFT JOIN ref_joints
+                ON joints.ref_joints_id = ref_joints.rowid
+                WHERE bout_log.moverid = (?) 
+                ''', (moverid,)
+    ).fetchall()
+
+    # this calculates and returns a strength value for each tissue within the request mover > joint
+    # posts to the DB > 'latest strength value'
+    # this data structure then gets unpacked in browser as needed
+    pass
+
+
+@bp.route('/api/health/<int:moverid>')
+def get_health(moverid):
+    # this calculates and returns a 'joint health' value based on:
+    # -- joint ROM
+    # -- tissue strength:
+    # ---avg, zonal distribution, positional distribution
+    # -- training density (how many workouts over a time distribution)
+    pass
+
+
+@bp.route('/api/assessment/<int:moverid>', methods=('POST',))
+def record_assessment(moverid):
+    # this needs to update DB values for each specific tissue related to this assessment
+    # this will necessarily impact health modeling
+    pass
+
+
+@bp.route('/api/upCARs/<int:moverid>', methods=('POST',))
+def record_CARs(moverid):
+    # this needs to update DB values (volume) for each specific tissue related to this assessment
+    # this will necessarily impact health modeling
+    pass
+
+
 if __name__ == "__main__":
     """db = sqlite3.connect('/Users/williamhbelew/Hacking/MSWN/instance/mswnapp.sqlite')
     mover_1_id = 1
@@ -565,9 +630,3 @@ if __name__ == "__main__":
 
     get_movers()
     """
-
-
-"""
-@bp.route('/delete_bouts')
-
-@bp.route('/read_bouts') """
